@@ -18,11 +18,12 @@
 
 #include "Player.h"
 #include "NPC.h"
+#include "Monster.h"
 
 StageState::StageState() : State() {
 	bg = new GameObject();
 	map = new GameObject();
-	set = new TileSet(*map, "assets/img/tileset.png", 64, 64);
+	set = new TileSet(*map, "assets/img/tileSet.png", 64, 64);
 
 	//Background
 	bg->AddComponent(new Sprite(*bg, "assets/img/ocean.jpg"));
@@ -35,6 +36,30 @@ StageState::StageState() : State() {
 	map->box.SetSize(Vec2());
 
 	GameObject* go;
+
+	//GIRLRAWR
+	go = new GameObject();
+	go->AddComponentAsFirst(new Monster(*go, Personality("girl", Vec2(10, 200), 0.1, 5, 0, 1)));
+	go->box.SetCenter(320, 320);
+	AddObject(go);
+
+	//LUVRAWR
+	go = new GameObject();
+	go->AddComponentAsFirst(new Monster(*go, Personality("luv", Vec2(150, 150), 22, 2, 0, 2)));
+	go->box.SetCenter(320, 320);
+	AddObject(go);
+
+	//OLDRAWR
+	go = new GameObject();
+	go->AddComponentAsFirst(new Monster(*go, Personality("old", Vec2(600, 200), 0.3, 2, 0, 1)));
+	go->box.SetCenter(320, 320);
+	AddObject(go);
+
+	//SUITRAWR
+	go = new GameObject();
+	go->AddComponentAsFirst(new Monster(*go, Personality("suit", Vec2(100, 2000), 5, 0.3, 0, 2)));
+	go->box.SetCenter(320, 320);
+	AddObject(go);
 
 	//GIRL
 	for(int i = 0; i < 5; i++) {

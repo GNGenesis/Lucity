@@ -15,7 +15,6 @@ public:
 	Compass(GameObject& associated, GameObject& player, std::string pNumber);
 	~Compass();
 	void Update(float dt);
-	void Render();
 	bool Is(std::string type);
 };
 

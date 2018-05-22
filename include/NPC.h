@@ -6,7 +6,6 @@
 #include "Timer.h"
 
 #include <string>
-#include <vector>
 
 class NPC : public Character {
 private:
@@ -20,13 +19,10 @@ private:
 public:
 	NPC(GameObject& associated, Personality p);
 	~NPC();
-	void Start();
-	void Damage(int damage);
-	void Update(float dt);
-	void NotifyCollision(GameObject& other);
-	bool Is(std::string type);
+	virtual void Update(float dt);
+	virtual void NotifyCollision(GameObject& other);
+	virtual bool Is(std::string type);
 	void SetAngleDirection(int angle);
-	float GetAngleDirection();
 };
 
 #endif /* NPC_H_ */

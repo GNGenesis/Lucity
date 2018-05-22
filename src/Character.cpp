@@ -3,6 +3,7 @@
 Character::Character(GameObject& associated) : Component(associated) {
 	hp = 0;
 	speed = 0;
+	directionAngle = 0;
 	action = IDLE;
 	direction = "SE";
 }
@@ -17,6 +18,10 @@ void Character::SetHealth(int hp) {
 
 void Character::SetSpeed(int speed) {
 	Character::speed = speed;
+}
+
+void Character::SetAngleDirection(float directionAngle) {
+	Character::directionAngle = directionAngle;
 }
 
 void Character::SetAction(std::string action) {
@@ -37,10 +42,6 @@ void Character::Update(float dt) {
 
 }
 
-void Character::Render() {
-
-}
-
 bool Character::Is(std::string type) {
 	return (type == "Character");
 }
@@ -51,6 +52,10 @@ int Character::GetHealth() {
 
 int Character::GetSpeed() {
 	return speed;
+}
+
+float Character::GetAngleDirection() {
+	return directionAngle;
 }
 
 std::string Character::GetAction() {

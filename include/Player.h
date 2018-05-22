@@ -19,7 +19,6 @@ public:
 	bool Attacking();
 	bool Walking();
 	void SetAngleDirection(float dt);
-	float GetAngleDirection();
 };
 
 #endif /* PLAYER_H_ */

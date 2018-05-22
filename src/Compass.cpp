@@ -27,10 +27,6 @@ void Compass::Update(float dt) {
 	}
 }
 
-void Compass::Render() {
-
-}
-
 bool Compass::Is(std::string type) {
 	return (type == "Compass");
 }

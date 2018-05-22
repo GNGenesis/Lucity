@@ -6,7 +6,7 @@
 #include <math.h>
 
 NPC::NPC(GameObject& associated, Personality p) : Character(associated) {
-	SetHealth(5);
+	SetHealth(2);
 	SetAction(IDLE);
 	person = p;
 	offsetT = pow(-1,rand()%2)*(rand()%51)/100;
@@ -19,17 +19,10 @@ NPC::~NPC() {
 
 }
 
-void NPC::Start() {
-
-}
-
-void NPC::Damage(int damage) {
-	Character::Damage(damage);
-}
-
 void NPC::Update(float dt) {
 	actionT.Update(dt);
 	damageT.Update(dt);
+
 	if(GetAction() == IDLE) {
 		if(actionT.Get() > person.GetTime(IDLE)+offsetT) {
 			actionT.Restart();
@@ -45,7 +38,7 @@ void NPC::Update(float dt) {
 			offsetT = pow(-1,rand()%2)*(rand()%51)/100;
 			SetAction(IDLE);
 		}else{
-			associated.box.SetPos(associated.box.GetPos()+(Vec2(Vec2::Cos(directionAngle), Vec2::Sin(directionAngle))*GetSpeed()*dt));
+			associated.box.SetPos(associated.box.GetPos()+(Vec2(Vec2::Cos(GetAngleDirection()), Vec2::Sin(GetAngleDirection()))*GetSpeed()*dt));
 		}
 	}
 	else if(GetAction() == SHOCK) {
@@ -57,9 +50,10 @@ void NPC::Update(float dt) {
 			offsetT = pow(-1,rand()%2)*(rand()%51)/100;
 			SetAction(IDLE);
 		}else{
-			associated.box.SetPos(associated.box.GetPos()+(Vec2(Vec2::Cos(directionAngle), Vec2::Sin(directionAngle))*GetSpeed()*dt));
+			associated.box.SetPos(associated.box.GetPos()+(Vec2(Vec2::Cos(GetAngleDirection()), Vec2::Sin(GetAngleDirection()))*GetSpeed()*dt));
 		}
 	}
+
 	if(associated.box.x < 0)
 		associated.box.x = 0;
 	if(associated.box.x+associated.box.w > 640)
@@ -90,17 +84,13 @@ bool NPC::Is(std::string type) {
 }
 
 void NPC::SetAngleDirection(int angle) {
-	directionAngle = angle;
-	if(directionAngle >= 0 && directionAngle < 90)
+	Character::SetAngleDirection(angle);
+	if(GetAngleDirection() >= 0 && GetAngleDirection() < 90)
 		SetDirection("SE");
-	else if(directionAngle >= 90 && directionAngle < 180)
+	else if(GetAngleDirection() >= 90 && GetAngleDirection() < 180)
 		SetDirection("SW");
-	else if(directionAngle >= 180 && directionAngle < 270)
+	else if(GetAngleDirection() >= 180 && GetAngleDirection() < 270)
 		SetDirection("NW");
-	else if(directionAngle >= 270 && directionAngle < 360)
+	else if(GetAngleDirection() >= 270 && GetAngleDirection() < 360)
 		SetDirection("NE");
-}
-
-float NPC::GetAngleDirection() {
-	return directionAngle;
 }

@@ -10,7 +10,6 @@ Player::Player(GameObject& associated, int n) : Character(associated) {
 	SetHealth(5);
 	SetSpeed(200);
 	pNumber = n;
-	directionAngle = 0;
 	associated.AddComponent(new Animator(associated, this, "lucas"));
 	associated.AddComponent(new Collider(associated));
 }
@@ -30,18 +29,18 @@ void Player::Start() {
 void Player::Update(float dt) {
 	SetAngleDirection(dt);
 	
-	if(directionAngle > 360)
-		directionAngle -= 360;
-	else if(directionAngle < 0)
-		directionAngle += 360;
+	if(GetAngleDirection() > 360)
+		Character::SetAngleDirection(GetAngleDirection()-360);
+	else if(GetAngleDirection() < 0)
+		Character::SetAngleDirection(GetAngleDirection()+360);
 
-	if(directionAngle >= 0 && directionAngle < 90)
+	if(GetAngleDirection() >= 0 && GetAngleDirection() < 90)
 		SetDirection("SE");
-	else if(directionAngle >= 90 && directionAngle < 180)
+	else if(GetAngleDirection() >= 90 && GetAngleDirection() < 180)
 		SetDirection("SW");
-	else if(directionAngle >= 180 && directionAngle < 270)
+	else if(GetAngleDirection() >= 180 && GetAngleDirection() < 270)
 		SetDirection("NW");
-	else if(directionAngle >= 270 && directionAngle < 360)
+	else if(GetAngleDirection() >= 270 && GetAngleDirection() < 360)
 		SetDirection("NE");
 
 	if(Attacking()) {
@@ -49,7 +48,7 @@ void Player::Update(float dt) {
 	}
 	else if(Walking()) {
 		SetAction("walk");
-		Vec2 mov = Vec2(Vec2::Cos(directionAngle), Vec2::Sin(directionAngle))*GetSpeed()*dt;
+		Vec2 mov = Vec2(Vec2::Cos(GetAngleDirection()), Vec2::Sin(GetAngleDirection()))*GetSpeed()*dt;
 		associated.box.SetCenter(associated.box.GetCenter()+mov);
 	}
 	else{
@@ -93,31 +92,27 @@ bool Player::Walking() {
 
 void Player::SetAngleDirection(float dt) {
 	if(InputManager::GetJoystick(pNumber)) {
-		directionAngle = InputManager::JoyAxisAngle(0);
+		Character::SetAngleDirection(InputManager::JoyAxisAngle(0));
 	}
 	else if(pNumber == 0) {
-		directionAngle = associated.box.GetCenter().GetAngle(InputManager::GetMousePos());
+		Character::SetAngleDirection(associated.box.GetCenter().GetAngle(InputManager::GetMousePos()));
 	}
 	else if(pNumber == 1) {
 		if(InputManager::IsKeyDown(SDLK_a))
-			directionAngle -= 120*dt;
+			Character::SetAngleDirection(GetAngleDirection()-120*dt);
 		else if(InputManager::IsKeyDown(SDLK_d))
-			directionAngle += 120*dt;
+			Character::SetAngleDirection(GetAngleDirection()+120*dt);
 	}
 	else if(pNumber == 2) {
 		if(InputManager::IsKeyDown(SDLK_j))
-			directionAngle -= 120*dt;
+			Character::SetAngleDirection(GetAngleDirection()-120*dt);
 		else if(InputManager::IsKeyDown(SDLK_l))
-			directionAngle += 120*dt;
+			Character::SetAngleDirection(GetAngleDirection()+120*dt);
 	}
 	else if(pNumber == 3) {
 		if(InputManager::IsKeyDown(SDLK_LEFT))
-			directionAngle -= 120*dt;
+			Character::SetAngleDirection(GetAngleDirection()-120*dt);
 		else if(InputManager::IsKeyDown(SDLK_RIGHT))
-			directionAngle += 120*dt;
+			Character::SetAngleDirection(GetAngleDirection()+120*dt);
 	}
-}
-
-float Player::GetAngleDirection() {
-	return directionAngle;
 }

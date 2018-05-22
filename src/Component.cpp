@@ -12,6 +12,10 @@ void Component::Start() {
 
 }
 
+void Component::Render() {
+
+}
+
 void Component::NotifyCollision(GameObject& other) {
 
 }

@@ -99,7 +99,7 @@ float Game::GetDeltaTime() {
 
 Game& Game::GetInstance() {
 	if(!instance) {
-		new Game("Gabriel Nazareno Halabi 15/0010290", 1024, 600);
+		new Game("LUCITY UM JOGO MUITO LOUCO", 1024, 600);
 	}
 	return *instance;
 }

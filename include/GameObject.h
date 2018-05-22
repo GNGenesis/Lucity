@@ -23,8 +23,6 @@ public:
 	GameObject();
 	~GameObject();
 	void Start();
-	//std::shared_ptr<Component> AddComponent(Component* cpt);
-	//std::shared_ptr<Component> AddComponentAsFirst(Component* cpt);
 	Component* AddComponent(Component* cpt);
 	Component* AddComponentAsFirst(Component* cpt);
 	Component* GetComponent(std::string type);
