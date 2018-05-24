@@ -9,23 +9,24 @@
 #include "CameraFollower.h"
 
 TitleState::TitleState() : State() {
-	bg = new GameObject();
-	txt = new GameObject();
+	GameObject* go;
 
 	//Background
-	bg->AddComponent(new Sprite(*bg, "assets/img/title.jpg"));
-	bg->AddComponent(new CameraFollower(*bg));
-	bg->box.SetSize(Vec2());
+	go = new GameObject();
+	go->AddComponent(new Sprite(*go, "assets/img/title.jpg"));
+	go->AddComponent(new CameraFollower(*go));
+	go->box.SetSize(Vec2());
+	AddObject(go, "BG");
 
 	//Text
-	txt->AddComponent(new Text(*txt, "assets/font/Call me maybe.ttf", 72, 
-							   "PRESS SPACE TO CONTINUE", SDL_Color {}, Text::SOLID));
-	txt->AddComponent(new CameraFollower(*txt, Vec2(512, 500)-(txt->box.GetSize()/2)));
+	go = new GameObject();
+	go->AddComponent(new Text(*go, "assets/font/Call me maybe.ttf", 72, "PRESS SPACE TO CONTINUE", SDL_Color {}, Text::SOLID));
+	go->AddComponent(new CameraFollower(*go, Vec2(512, 500)-(go->box.GetSize()/2)));
+	AddObject(go, "GUI");
 }
 
 TitleState::~TitleState() {
-	delete bg;
-	delete txt;
+
 }
 
 void TitleState::LoadAssets() {
@@ -34,8 +35,6 @@ void TitleState::LoadAssets() {
 
 void TitleState::Start() {
 	LoadAssets();
-	bg->Start();
-	txt->Start();
 	StartArray();
 	started = true;
 }
@@ -56,25 +55,13 @@ void TitleState::Update(float dt) {
 	if(InputManager::KeyPress(SPACE_KEY))
 		Game::GetInstance().Push(new StageState());
 
-	toggleText.Update(dt);
-	if(toggleText.Get() > 0.5) {
-		if(txt->IsActive())
-			txt->Deactivate();
-		else
-			txt->Activate();
-		toggleText.Restart();
-	}
-	if(bg->IsActive())
-		bg->Update(dt);
-	if(txt->IsActive())
-		txt->Update(dt);
-	UpdateArray(dt);
+	UpdateArray(dt, "BG");
+	//UpdateArray(dt, "MAIN");
+	UpdateArray(dt, "GUI");
 }
 
 void TitleState::Render() {
-	if(bg->IsActive())
-		bg->Render();
-	if(txt->IsActive())
-		txt->Render();
-	RenderArray();
+	RenderArray("BG");
+	//RenderArray("MAIN");
+	RenderArray("GUI");
 }

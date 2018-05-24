@@ -6,12 +6,6 @@
 #include "Timer.h"
 
 class TitleState : public State {
-private:
-	GameObject* bg;
-	GameObject* txt;
-	Timer toggleText;
-
-
 public:
 	TitleState();
 	~TitleState();

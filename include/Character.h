@@ -20,7 +20,7 @@ private:
 	std::string direction;
 
 public:
-	Character(GameObject& associated);
+	Character(GameObject& associated, std::string name);
 	~Character();
 	void SetHealth(int hp);
 	void SetSpeed(int speed);

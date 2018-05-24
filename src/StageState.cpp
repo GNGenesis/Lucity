@@ -5,8 +5,6 @@
 #include "Camera.h"
 #include "Collision.h"
 
-#include "EndState.h"
-
 #include "Personality.h"
 
 #include "Sprite.h"
@@ -21,103 +19,95 @@
 #include "Monster.h"
 
 StageState::StageState() : State() {
-	bg = new GameObject();
-	map = new GameObject();
-	set = new TileSet(*map, "assets/img/tileSet.png", 64, 64);
+	GameObject* go;
+	int sw = GameData::screenSize.x;
+	int sh = GameData::screenSize.y;
 
 	//Background
-	bg->AddComponent(new Sprite(*bg, "assets/img/ocean.jpg"));
-	bg->AddComponent(new CameraFollower(*bg));
-	bg->box.SetSize(Vec2());
-	bg->Deactivate();
+	go = new GameObject();
+	go->AddComponent(new Sprite(*go, "assets/img/ocean.jpg"));
+	go->AddComponent(new CameraFollower(*go));
+	go->box.SetSize(Vec2());
+	AddObject(go, "BG");
 
 	//TileMap
-	map->AddComponent(new TileMap(*map, set, "assets/map/tileMap.txt"));
-	map->box.SetSize(Vec2());
+	go = new GameObject();
+	set = new TileSet(*go, "assets/img/tileSet.png", 64, 64);
+	go->AddComponent(new TileMap(*go, set, "assets/map/tileMap.txt"));
+	go->box.SetSize(Vec2());
+	AddObject(go, "BG");
 
-	GameObject* go;
+	//Text
+	go = new GameObject();
+	go->AddComponent(new Text(*go, "assets/font/Sabo-Filled.ttf", 72, " ", SDL_Color {}, Text::SOLID));
+	go->AddComponent(new CameraFollower(*go, Vec2(0, 0)));
+	AddObject(go, "GUI");
 
 	//GIRLRAWR
 	go = new GameObject();
-	go->AddComponentAsFirst(new Monster(*go, Personality("girl", Vec2(10, 200), 0.1, 5, 0, 1)));
-	go->box.SetCenter(320, 320);
-	AddObject(go);
+	go->AddComponentAsFirst(new Monster(*go, Personality("girl", Vec2(30, 150), 0.1, 5, 0, 1)));
+	go->box.SetCenter(rand()%sw, rand()%sh);
+	AddObject(go, "MAIN");
 
 	//LUVRAWR
 	go = new GameObject();
-	go->AddComponentAsFirst(new Monster(*go, Personality("luv", Vec2(150, 150), 22, 2, 0, 2)));
-	go->box.SetCenter(320, 320);
-	AddObject(go);
+	go->AddComponentAsFirst(new Monster(*go, Personality("luv", Vec2(150, 150), 20, 2, 0, 2)));
+	go->box.SetCenter(rand()%sw, rand()%sh);
+	AddObject(go, "MAIN");
 
 	//OLDRAWR
 	go = new GameObject();
-	go->AddComponentAsFirst(new Monster(*go, Personality("old", Vec2(600, 200), 0.3, 2, 0, 1)));
-	go->box.SetCenter(320, 320);
-	AddObject(go);
+	go->AddComponentAsFirst(new Monster(*go, Personality("old", Vec2(450, 150), 0.3, 2, 0, 1)));
+	go->box.SetCenter(rand()%sw, rand()%sh);
+	AddObject(go, "MAIN");
 
 	//SUITRAWR
 	go = new GameObject();
-	go->AddComponentAsFirst(new Monster(*go, Personality("suit", Vec2(100, 2000), 5, 0.3, 0, 2)));
-	go->box.SetCenter(320, 320);
-	AddObject(go);
+	go->AddComponentAsFirst(new Monster(*go, Personality("suit", Vec2(150, 3000), 5, 0.3, 0, 2)));
+	go->box.SetCenter(rand()%sw, rand()%sh);
+	AddObject(go, "MAIN");
 
 	//GIRL
 	for(int i = 0; i < 5; i++) {
 		go = new GameObject();
 		go->AddComponentAsFirst(new NPC(*go, Personality("girl", Vec2(100, 200), 1, 2, 0, 2)));
-		go->box.SetCenter(320, 320);
-		AddObject(go);
+		go->box.SetCenter(rand()%sw, rand()%sh);
+		AddObject(go, "MAIN");
 	}
 
 	//LUV
-		for(int i = 0; i < 5; i++) {
+	for(int i = 0; i < 5; i++) {
 		go = new GameObject();
 		go->AddComponentAsFirst(new NPC(*go, Personality("luv", Vec2(100, 50), 2, 2, 0, 3)));
-		go->box.SetCenter(320, 320);
-		AddObject(go);
+		go->box.SetCenter(rand()%sw, rand()%sh);
+		AddObject(go, "MAIN");
 	}
 
 	//OLD
 	for(int i = 0; i < 5; i++) {
 		go = new GameObject();
 		go->AddComponentAsFirst(new NPC(*go, Personality("old", Vec2(50, 300), 3, 1, 0, 1)));
-		go->box.SetCenter(320, 320);
-		AddObject(go);
+		go->box.SetCenter(rand()%sw, rand()%sh);
+		AddObject(go, "MAIN");
 	}
 
 	//SUIT
 	for(int i = 0; i < 5; i++) {
 		go = new GameObject();
 		go->AddComponentAsFirst(new NPC(*go, Personality("suit", Vec2(50, 150), 2, 1, 0, 2)));
-		go->box.SetCenter(320, 320);
-		AddObject(go);
+		go->box.SetCenter(rand()%sw, rand()%sh);
+		AddObject(go, "MAIN");
 	}
 
-	//Player4
-	go = new GameObject();
-	go->AddComponentAsFirst(new Player(*go, 3));
-	go->box.SetCenter(604, 640);
-	AddObject(go);
+	//Players
+	for(int i = 0; i < 4; i++) {
+		go = new GameObject();
+		go->AddComponentAsFirst(new Player(*go, "lucas", i));
+		go->box.SetCenter(680, 384);
+		AddObject(go, "MAIN");
+	}
 
-	//Player3
-	go = new GameObject();
-	go->AddComponentAsFirst(new Player(*go, 2));
-	go->box.SetCenter(604, 640);
-	AddObject(go);
-
-	//Player2
-	go = new GameObject();
-	go->AddComponentAsFirst(new Player(*go, 1));
-	go->box.SetCenter(604, 640);
-	AddObject(go);
-
-	//Player
-	go = new GameObject();
-	go->AddComponentAsFirst(new Player(*go, 0));
-	go->box.SetCenter(704, 640);
-	AddObject(go);
-
-	Camera::Follow(go);
+	//Camera::Follow(go);
 
 	backgroundMusic = Music("assets/audio/theme.ogg");
 	backgroundMusic.Play();
@@ -125,8 +115,6 @@ StageState::StageState() : State() {
 
 StageState::~StageState() {
 	delete set;
-	delete map;
-	delete bg;
 }
 
 void StageState::LoadAssets() {
@@ -135,35 +123,28 @@ void StageState::LoadAssets() {
 
 void StageState::Start() {
 	LoadAssets();
-	bg->Start();
-	map->Start();
 	StartArray();
 	started = true;
 }
 
 void StageState::Pause() {
-	for(unsigned i = 0; i < objectArray.size(); i++) {
-		Sound* sound = (Sound*) objectArray[i]->GetComponent("Sound");
-		if(sound)
-			sound->Stop();
-	}
+
 }
 
 void StageState::Resume() {
-	backgroundMusic.Play();
-	objectArray.clear();
+
 }
 
 void StageState::CollisionCheck() {
-	for(unsigned i = 0; i < objectArray.size(); i++) {
-		for(unsigned j = i+1; j < objectArray.size(); j++) {
-			if(objectArray[i]->IsActive() && objectArray[j]->IsActive()) {
-				Collider* objA = (Collider*) objectArray[i]->GetComponent("Collider");
-				Collider* objB = (Collider*) objectArray[j]->GetComponent("Collider");
+	for(unsigned i = 0; i < objects["MAIN"].size(); i++) {
+		for(unsigned j = i+1; j < objects["MAIN"].size(); j++) {
+			if(objects["MAIN"][i]->IsActive() && objects["MAIN"][j]->IsActive()) {
+				Collider* objA = (Collider*) objects["MAIN"][i]->GetComponent("Collider");
+				Collider* objB = (Collider*) objects["MAIN"][j]->GetComponent("Collider");
 				if(objA && objB) {
 					if(Collision::IsColliding(objA->box, objB->box, objA->rotation, objB->rotation)) {
-						objectArray[i]->NotifyCollision(*objectArray[j]);
-						objectArray[j]->NotifyCollision(*objectArray[i]);
+						objects["MAIN"][i]->NotifyCollision(*objects["MAIN"][j]);
+						objects["MAIN"][j]->NotifyCollision(*objects["MAIN"][i]);
 					}
 				}
 			}
@@ -172,11 +153,13 @@ void StageState::CollisionCheck() {
 }
 
 void StageState::DeletionCheck() {
-	for(int i = objectArray.size()-1; i >= 0; i--) {
-		if(objectArray[i]->IsDead()) {
-			if(Camera::GetFocus() == objectArray[i].get())
-				Camera::Unfollow();
-			objectArray.erase(objectArray.begin()+i);
+	for(auto& i: objects) {
+		for(int j = i.second.size()-1; j >= 0; j--) {
+			if(i.second[j]->IsDead()) {
+				if(Camera::GetFocus() == i.second[j].get())
+					Camera::Unfollow();
+				i.second.erase(i.second.begin()+j);
+			}
 		}
 	}
 }
@@ -186,18 +169,28 @@ void StageState::Update(float dt) {
 	if(InputManager::KeyPress(ESCAPE_KEY))
 		popRequested = true;
 
-	bg->Update(dt);
-	map->Update(dt);
-	UpdateArray(dt);
+	if(objects["GUI"].size() > 0) {
+		Text* txt = (Text*)objects["GUI"][0]->GetComponent("Text");
+		if(txt) {
+			char a[3], b[3];
+			sprintf(a, "%d", GameData::nMonsters);
+			sprintf(b, "%d", GameData::nCivilians);
+			std::string nm = "NM ";
+			std::string nc = " NC ";
+			std::string text = nm+a+nc+b;
+			txt->SetText(text);
+		}
+	}
+
+	UpdateArray(dt, "BG");
+	UpdateArray(dt, "MAIN");
+	UpdateArray(dt, "GUI");
 	CollisionCheck();
 	DeletionCheck();
 }
 
 void StageState::Render() {
-	TileMap* tileMap = (TileMap*) map->GetComponent("TileMap");
-	
-	bg->Render();
-	tileMap->RenderLayer(0, Camera::pos.x, Camera::pos.y);
-	RenderArray();
-	tileMap->RenderLayer(1, Camera::pos.x*1.5, Camera::pos.y*1.5);
+	RenderArray("BG");
+	RenderArray("MAIN");
+	RenderArray("GUI");
 }

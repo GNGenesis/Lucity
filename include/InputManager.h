@@ -49,9 +49,10 @@ public:
 	static bool QuitRequested();
 
 	//Joystick Related
+	static void LoadJoysticks();
+	static void CloseJoysticks();
 	static void AddJoystick(SDL_Joystick* joystick);
 	static SDL_Joystick* GetJoystick(int nJoy);
-	static void CloseJoysticks();
 	static Vec2 GetJoyAxis(int nJoy);
 	static int JoyAxisAngle(int nJoy);
 	static bool JoyAxisEvent(int nJoy);

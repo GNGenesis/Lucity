@@ -1,11 +1,15 @@
 #include "Character.h"
+#include "Animator.h"
+#include "Collider.h"
 
-Character::Character(GameObject& associated) : Component(associated) {
+Character::Character(GameObject& associated, std::string name) : Component(associated) {
 	hp = 0;
 	speed = 0;
 	directionAngle = 0;
 	action = IDLE;
 	direction = "SE";
+	associated.AddComponent(new Animator(associated, this, name));
+	associated.AddComponent(new Collider(associated));
 }
 
 Character::~Character() {

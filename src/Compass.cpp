@@ -5,7 +5,7 @@
 #include "Player.h"
 
 Compass::Compass(GameObject& associated, GameObject& player, std::string pNumber) : Component(associated) {
-	Compass::player = Game::GetInstance().GetCurrentState().GetObjectPtr(&player);
+	Compass::player = Game::GetInstance().GetCurrentState().GetObjectPtr(&player, "MAIN");
 	arc = 0;
 	associated.AddComponent(new Sprite(associated, "assets/img/compassP"+pNumber+".png"));
 }

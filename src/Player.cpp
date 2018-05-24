@@ -2,16 +2,12 @@
 #include "Game.h"
 #include "InputManager.h"
 
-#include "Animator.h"
-#include "Collider.h"
 #include "Compass.h"
 
-Player::Player(GameObject& associated, int n) : Character(associated) {
+Player::Player(GameObject& associated, std::string name, int n) : Character(associated, name) {
 	SetHealth(5);
 	SetSpeed(200);
 	pNumber = n;
-	associated.AddComponent(new Animator(associated, this, "lucas"));
-	associated.AddComponent(new Collider(associated));
 }
 
 Player::~Player() {
@@ -23,7 +19,7 @@ void Player::Start() {
 	char n[3];
 	sprintf(n, "%d", pNumber+1);
 	go->AddComponent(new Compass(*go, associated, n));
-	Game::GetInstance().GetCurrentState().AddObject(go);
+	Game::GetInstance().GetCurrentState().AddObject(go, "GUI");
 }
 
 void Player::Update(float dt) {
@@ -92,7 +88,7 @@ bool Player::Walking() {
 
 void Player::SetAngleDirection(float dt) {
 	if(InputManager::GetJoystick(pNumber)) {
-		Character::SetAngleDirection(InputManager::JoyAxisAngle(0));
+		Character::SetAngleDirection(InputManager::JoyAxisAngle(pNumber));
 	}
 	else if(pNumber == 0) {
 		Character::SetAngleDirection(associated.box.GetCenter().GetAngle(InputManager::GetMousePos()));

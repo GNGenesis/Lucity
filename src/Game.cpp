@@ -3,6 +3,7 @@
 #define INCLUDE_SDL_TTF
 
 #include "Game.h"
+#include "GameData.h"
 #include "Resources.h"
 #include "InputManager.h"
 #include "Camera.h"
@@ -49,7 +50,11 @@ Game::Game(std::string title, int width, int height) {
 		exit(EXIT_FAILURE);
 	}
 
-	window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, 0);
+	SDL_Rect screen;
+	SDL_GetDisplayBounds(0, &screen);
+	GameData::screenSize = Vec2(width, height);//screen.w, screen.h);
+	Uint32 flags = 0;//SDL_WINDOW_RESIZABLE | SDL_WINDOW_FULLSCREEN;
+	window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags);//screen.w, screen.h, flags);
 	if(!window) {
 		printf("SDL_CreateWindow failed: %s\n", SDL_GetError());
 		exit(EXIT_FAILURE);
@@ -62,11 +67,6 @@ Game::Game(std::string title, int width, int height) {
 	}
 
 	SDL_JoystickEventState(SDL_ENABLE);
-	for(int i = 0; i < SDL_NumJoysticks(); i++) {
-		InputManager::AddJoystick(SDL_JoystickOpen(i));
-		if(!InputManager::GetJoystick(i))
-			printf("Warning: Unable to open game controller! SDL Error: %s\n", SDL_GetError());
-	}
 
 	srand(time(NULL));
 }
@@ -124,6 +124,8 @@ void Game::Run() {
 	}
 	if(!stateStack.empty()) {
 		while(!stateStack.top()->QuitRequested()) {
+			InputManager::CloseJoysticks();
+			InputManager::LoadJoysticks();
 			while(!storedState && !stateStack.top()->PopRequested() && !stateStack.top()->QuitRequested()) {
 				if(SDL_RenderClear(renderer))
 					printf("SDL_RenderClear failed: %s\n", SDL_GetError());

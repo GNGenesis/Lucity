@@ -1,12 +1,17 @@
 #include "Monster.h"
+#include "GameData.h"
 
 Monster::Monster(GameObject& associated, Personality p) : NPC(associated, p) {
-	SetHealth(28);
+	SetHealth(3);
 	rawr = false;
+
+	GameData::nMonsters++;
+	GameData::nCivilians--;
 }
 
 Monster::~Monster() {
-
+	GameData::nMonsters--;
+	GameData::nCivilians++;
 }
 
 void Monster::Update(float dt) {

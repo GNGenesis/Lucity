@@ -44,7 +44,7 @@ void Bullet::NotifyCollision(GameObject& other) {
 			sprite->SetScale(Vec2(0.25, 0.25));
 			go->box.SetCenter(associated.box.GetCenter());
 			go->rotation = rand()%360;
-			Game::GetInstance().GetCurrentState().AddObject(go);
+			Game::GetInstance().GetCurrentState().AddObject(go, "MAIN");
 		}
 	}
 }

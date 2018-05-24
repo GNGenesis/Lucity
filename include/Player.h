@@ -11,7 +11,7 @@ private:
 	float directionAngle;
 
 public:
-	Player(GameObject& associated, int n);
+	Player(GameObject& associated, std::string name, int n);
 	~Player();
 	void Start();
 	void Update(float dt);

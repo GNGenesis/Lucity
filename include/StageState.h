@@ -8,8 +8,6 @@
 
 class StageState : public State {
 private:
-	GameObject* bg;
-	GameObject* map;
 	TileSet* set;
 	Music backgroundMusic;
 

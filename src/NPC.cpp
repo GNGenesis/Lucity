@@ -1,22 +1,21 @@
 #include "NPC.h"
-
-#include "Animator.h"
-#include "Collider.h"
+#include "Game.h"
+#include "GameData.h"
 
 #include <math.h>
 
-NPC::NPC(GameObject& associated, Personality p) : Character(associated) {
+NPC::NPC(GameObject& associated, Personality p) : Character(associated, p.GetName()) {
 	SetHealth(2);
 	SetAction(IDLE);
 	person = p;
 	offsetT = pow(-1,rand()%2)*(rand()%51)/100;
 	damageCD = 0.5;
-	associated.AddComponent(new Animator(associated, this, person.GetName()));
-	associated.AddComponent(new Collider(associated));
+
+	GameData::nCivilians++;
 }
 
 NPC::~NPC() {
-
+	GameData::nCivilians--;
 }
 
 void NPC::Update(float dt) {
@@ -56,18 +55,18 @@ void NPC::Update(float dt) {
 
 	if(associated.box.x < 0)
 		associated.box.x = 0;
-	if(associated.box.x+associated.box.w > 640)
-		associated.box.x = 640-associated.box.w;
+	if(associated.box.x+associated.box.w > GameData::screenSize.x)
+		associated.box.x = GameData::screenSize.x-associated.box.w;
 	if(associated.box.y < 0)
 		associated.box.y = 0;
-	if(associated.box.y+associated.box.h > 640)
-		associated.box.y = 640-associated.box.h;
+	if(associated.box.y+associated.box.h > GameData::screenSize.y)
+		associated.box.y = GameData::screenSize.y-associated.box.h;
 }
 
 void NPC::NotifyCollision(GameObject& other) {
 	Character* character = (Character*) other.GetComponent("Character");
-	if(character)
-		if(character->GetAction() == ATTACK)
+	if(character) {
+		if(character->GetAction() == ATTACK) {
 			if(damageT.Get() > damageCD) {
 				Damage(1);
 					actionT.Restart();
@@ -77,6 +76,8 @@ void NPC::NotifyCollision(GameObject& other) {
 					SetSpeed(person.GetSpeed().y);
 					SetAngleDirection(other.box.GetCenter().GetAngle(associated.box.GetCenter()));
 			}
+		}
+	}
 }
 
 bool NPC::Is(std::string type) {

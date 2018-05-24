@@ -100,8 +100,22 @@ bool InputManager::QuitRequested() {
 }
 
 //Joystick Related
+void InputManager::LoadJoysticks() {
+	for(unsigned int i = 0; i < SDL_NumJoysticks(); i++) {
+		AddJoystick(SDL_JoystickOpen(i));
+		if(!GetJoystick(i))
+			printf("Warning: Unable to open game controller! SDL Error: %s\n", SDL_GetError());
+	}
+}
+
+void InputManager::CloseJoysticks() {
+	for(unsigned int i = 0; i < joysticks.size(); i++)
+		SDL_JoystickClose(joysticks[i]);
+	joysticks.clear();
+}
+
 void InputManager::AddJoystick(SDL_Joystick* joystick) {
-	InputManager::joysticks.emplace_back(joystick);
+	joysticks.emplace_back(joystick);
 }
 
 SDL_Joystick* InputManager::GetJoystick(int nJoy) {
@@ -109,12 +123,6 @@ SDL_Joystick* InputManager::GetJoystick(int nJoy) {
 		return joysticks[nJoy];
 	else
 		return nullptr;
-}
-
-void InputManager::CloseJoysticks() {
-	for(unsigned int i = 0; i < joysticks.size(); i++)
-		SDL_JoystickClose(joysticks[i]);
-	joysticks.clear();
 }
 
 Vec2 InputManager::GetJoyAxis(int nJoy) {
