@@ -17,6 +17,7 @@
 #include "Player.h"
 #include "NPC.h"
 #include "Monster.h"
+#include "MainObject.h"
 
 StageState::StageState() : State() {
 	GameObject* go;
@@ -42,6 +43,25 @@ StageState::StageState() : State() {
 	go->AddComponent(new Text(*go, "assets/font/Sabo-Filled.ttf", 72, " ", SDL_Color {}, Text::SOLID));
 	go->AddComponent(new CameraFollower(*go, Vec2(0, 0)));
 	AddObject(go, "GUI");
+
+	//MainObject -- Árvore
+	go = new GameObject();
+	go->AddComponent(new MainObject(*go, "tree", 3.0f, 3.0f, 1));
+	go->box.SetPos(Vec2(600, 400));
+	AddObject(go, "MAIN");
+
+
+	//MainObject -- Banco
+	go = new GameObject();
+	go->AddComponent(new MainObject(*go, "bench", 3.0f, 3.0f));
+	go->box.SetPos(Vec2(280,145));
+	AddObject(go, "MAIN");
+
+	//MainObject -- trashcan
+	go = new GameObject();
+	go->AddComponent(new MainObject(*go, "trashcan", 3.0f, 3.0f));
+	go->box.SetPos(Vec2(380, 145));
+	AddObject(go, "MAIN");
 
 	//GIRLRAWR
 	go = new GameObject();
@@ -173,8 +193,8 @@ void StageState::Update(float dt) {
 		Text* txt = (Text*)objects["GUI"][0]->GetComponent("Text");
 		if(txt) {
 			char a[3], b[3];
-			sprintf(a, "%d", GameData::nMonsters);
-			sprintf(b, "%d", GameData::nCivilians);
+			sprintf_s(a, "%d", GameData::nMonsters);
+			sprintf_s(b, "%d", GameData::nCivilians);
 			std::string nm = "NM ";
 			std::string nc = " NC ";
 			std::string text = nm+a+nc+b;
@@ -184,6 +204,7 @@ void StageState::Update(float dt) {
 
 	UpdateArray(dt, "BG");
 	UpdateArray(dt, "MAIN");
+	UpdateArray(dt, "MISC");
 	UpdateArray(dt, "GUI");
 	CollisionCheck();
 	DeletionCheck();
@@ -192,5 +213,6 @@ void StageState::Update(float dt) {
 void StageState::Render() {
 	RenderArray("BG");
 	RenderArray("MAIN");
+	RenderArray("MISC");
 	RenderArray("GUI");
 }

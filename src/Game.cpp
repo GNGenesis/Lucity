@@ -34,8 +34,8 @@ Game::Game(std::string title, int width, int height) {
 	}
 
 	if(!Mix_Init(MIX_INIT_OGG)) {
-		printf("Mix_Init failed: %s\n", SDL_GetError());
-		exit(EXIT_FAILURE);
+		//printf("Mix_Init failed: %s\n", SDL_GetError());
+		//exit(EXIT_FAILURE);
 	}
 
 	if(Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 1024)) {
