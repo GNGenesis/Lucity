@@ -9,6 +9,7 @@ class Collider : public Component {
 private:
 	Vec2 scale;
 	Vec2 offset;
+	bool lockbox;
 
 public:
 	Rect box;

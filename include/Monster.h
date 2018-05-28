@@ -14,6 +14,7 @@ private:
 public:
 	Monster(GameObject& associated, Personality p);
 	~Monster();
+	void Damage(int damage);
 	void Update(float dt);
 	void NotifyCollision(GameObject& other);
 	bool Is(std::string type);

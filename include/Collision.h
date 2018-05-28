@@ -1,3 +1,9 @@
+#define NONE 0
+#define TOP 1
+#define BOTTOM 2
+#define LEFT 3
+#define RIGHT 4
+
 #include "Rect.h"
 #include "Vec2.h"
 
@@ -49,6 +55,37 @@ class Collision {
 			}
 
 			return true;
+		}
+
+		static inline void SolidCollision(Rect& a, Rect& b) {
+			float w = 0.5 * (a.w + b.w);
+			float h = 0.5 * (a.h + b.h);
+			
+			float dx = a.GetCenter().x - b.GetCenter().x;
+			float adx = dx;
+			if(adx < 0)
+				adx *= (-1);
+			
+			float dy = a.GetCenter().y - b.GetCenter().y;
+			float ady = dy;
+			if(ady < 0)
+				ady *= (-1);
+
+			if(adx <= w && ady <= h) {
+				float wy = w * dy;
+				float hx = h * dx;
+
+				if(wy > hx)
+					if(wy > -hx)
+						a.y = b.y + b.h + 1;
+					else
+						a.x = b.x - a.w - 1;
+				else
+					if(wy > -hx)
+						a.x = b.x + b.w + 1;
+					else
+						a.y = b.y - a.h - 1;
+			}
 		}
 
 	private:

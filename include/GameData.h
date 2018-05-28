@@ -6,11 +6,11 @@
 
 class GameData {
 public:
-	static Vec2 screenSize;
-	static Character* player;
+	static Vec2 mapSize;
 	static int nMonsters;
 	static int nCivilians;
 	static bool playerVictory;
+	static Character* player;
 };
 
 #endif /* GAMEDATA_H_ */

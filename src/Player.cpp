@@ -1,5 +1,6 @@
 #include "Player.h"
 #include "Game.h"
+#include "GameData.h"
 #include "InputManager.h"
 
 #include "Compass.h"
@@ -8,6 +9,7 @@ Player::Player(GameObject& associated, std::string name, int n) : Character(asso
 	SetHealth(5);
 	SetSpeed(200);
 	pNumber = n;
+	damageCD = 0.5;
 }
 
 Player::~Player() {
@@ -23,6 +25,7 @@ void Player::Start() {
 }
 
 void Player::Update(float dt) {
+	damageT.Update(dt);
 	SetAngleDirection(dt);
 	
 	if(GetAngleDirection() > 360)
@@ -40,15 +43,27 @@ void Player::Update(float dt) {
 		SetDirection("NE");
 
 	if(Attacking()) {
-		SetAction("attack");
+		SetAction(ATTACK);
 	}
 	else if(Walking()) {
-		SetAction("walk");
+		SetAction(WALK);
 		Vec2 mov = Vec2(Vec2::Cos(GetAngleDirection()), Vec2::Sin(GetAngleDirection()))*GetSpeed()*dt;
 		associated.box.SetCenter(associated.box.GetCenter()+mov);
 	}
 	else{
-		SetAction("idle");
+		SetAction(IDLE);
+	}
+}
+
+void Player::NotifyCollision(GameObject& other) {
+	Character* character = (Character*) other.GetComponent("Character");
+	if(character) {
+		if(character->GetAction() == ATTACK) {
+			if(damageT.Get() > damageCD) {
+				Damage(1);
+				damageT.Restart();
+			}
+		}
 	}
 }
 

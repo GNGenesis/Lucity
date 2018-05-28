@@ -14,7 +14,6 @@ private:
 	float offsetT;
 	Timer damageT;
 	float damageCD;
-	float directionAngle;
 
 public:
 	NPC(GameObject& associated, Personality p);

@@ -1,5 +1,4 @@
 #include "NPC.h"
-#include "Game.h"
 #include "GameData.h"
 
 #include <math.h>
@@ -27,7 +26,7 @@ void NPC::Update(float dt) {
 			actionT.Restart();
 			offsetT = pow(-1,rand()%2)*(rand()%51)/100;
 			SetAction(WALK);
-			SetSpeed(person.GetSpeed().x);
+			SetSpeed(person.GetNormalSpeed());
 			SetAngleDirection(rand()%360);
 		}
 	}
@@ -55,12 +54,12 @@ void NPC::Update(float dt) {
 
 	if(associated.box.x < 0)
 		associated.box.x = 0;
-	if(associated.box.x+associated.box.w > GameData::screenSize.x)
-		associated.box.x = GameData::screenSize.x-associated.box.w;
+	if(associated.box.x+associated.box.w > GameData::mapSize.x)
+		associated.box.x = GameData::mapSize.x-associated.box.w;
 	if(associated.box.y < 0)
 		associated.box.y = 0;
-	if(associated.box.y+associated.box.h > GameData::screenSize.y)
-		associated.box.y = GameData::screenSize.y-associated.box.h;
+	if(associated.box.y+associated.box.h > GameData::mapSize.y)
+		associated.box.y = GameData::mapSize.y-associated.box.h;
 }
 
 void NPC::NotifyCollision(GameObject& other) {
@@ -69,12 +68,12 @@ void NPC::NotifyCollision(GameObject& other) {
 		if(character->GetAction() == ATTACK) {
 			if(damageT.Get() > damageCD) {
 				Damage(1);
-					actionT.Restart();
-					offsetT = pow(-1,rand()%2)*(rand()%51)/100;
-					damageT.Restart();
-					SetAction("panic");
-					SetSpeed(person.GetSpeed().y);
-					SetAngleDirection(other.box.GetCenter().GetAngle(associated.box.GetCenter()));
+				actionT.Restart();
+				offsetT = pow(-1,rand()%2)*(rand()%51)/100;
+				damageT.Restart();
+				SetAction(PANIC);
+				SetSpeed(person.GetPanicSpeed());
+				SetAngleDirection(other.box.GetCenter().GetAngle(associated.box.GetCenter()));
 			}
 		}
 	}

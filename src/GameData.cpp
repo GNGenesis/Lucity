@@ -1,7 +1,7 @@
 #include "GameData.h"
 
-Vec2 GameData::screenSize;
-Character* GameData::player;
+Vec2 GameData::mapSize;
 int GameData::nMonsters;
 int GameData::nCivilians;
 bool GameData::playerVictory;
+Character* GameData::player;

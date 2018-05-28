@@ -5,11 +5,16 @@
 #include "GameObject.h"
 #include "Music.h"
 #include "TileSet.h"
+#include "Personality.h"
+
+#include <vector>
 
 class StageState : public State {
 private:
 	TileSet* set;
 	Music backgroundMusic;
+	std::vector<Personality> NPCList;
+	std::vector<Personality> monsterList;
 
 public:
 	StageState();
