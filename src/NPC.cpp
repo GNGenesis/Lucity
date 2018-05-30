@@ -1,4 +1,5 @@
 #include "NPC.h"
+#include "MainObject.h"
 #include "Game.h"
 #include "GameData.h"
 
@@ -78,6 +79,17 @@ void NPC::NotifyCollision(GameObject& other) {
 			}
 		}
 	}
+	/*MainObject* object = (MainObject*)other.GetComponent("MainObject");
+	if (object) {
+		if (object->GetObjectName() == "trashcan") {
+			actionT.Restart();
+			offsetT = pow(-1, rand() % 2)*(rand() % 51) / 100;
+			damageT.Restart();
+			SetAction("panic");
+			SetSpeed(person.GetSpeed().y);
+			SetAngleDirection(other.box.GetCenter().GetAngle(associated.box.GetCenter()));
+		}
+	}*/
 }
 
 bool NPC::Is(std::string type) {

@@ -74,7 +74,7 @@ void Resources::ClearSounds() {
 
 std::shared_ptr<TTF_Font> Resources::GetFont(std::string fontFile, int fontSize) {
 	char size[3];
-	sprintf_s(size, "%d", fontSize);
+	sprintf(size, "%d", fontSize);
 	std::string key = fontFile+size;
 	if(!fontTable.count(key)) {
 		TTF_Font* font = TTF_OpenFont(fontFile.c_str(), fontSize);

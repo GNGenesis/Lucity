@@ -3,6 +3,7 @@
 #include "MiscObject.h"
 #include "Sprite.h"
 #include "Collider.h"
+#include "AOE.h"
 #include "Character.h"
 #include "Player.h"
 
@@ -21,6 +22,7 @@ MainObject::MainObject(GameObject& associated, std::string objectName,float scal
 	object->SetScale(Vec2(scaleX, scaleY));
 	associated.AddComponent(object);
 	associated.AddComponent(new Collider(associated, Vec2(1, 0), Vec2(0, -associated.box.h / 2)));
+	associated.AddComponent(new AOE(associated,2.0f));
 }
 
 MainObject::~MainObject() {
@@ -70,4 +72,8 @@ void MainObject::NotifyCollision(GameObject & other){
 
 bool MainObject::Is(std::string type) {
 	return (type == "MainObject");
+}
+
+std::string MainObject::GetObjectName() {
+	return objectName;
 }

@@ -2,6 +2,7 @@
 #define GAMEOBJECT_H_
 
 #include "Rect.h"
+#include "Circle.h"
 
 #include <string>
 #include <vector>
@@ -18,6 +19,7 @@ private:
 
 public:
 	Rect box;
+	Circle circle;
 	float rotation;
 
 	GameObject();

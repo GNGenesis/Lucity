@@ -1,6 +1,7 @@
 #include "Character.h"
 #include "Animator.h"
 #include "Collider.h"
+#include "AOE.h"
 
 Character::Character(GameObject& associated, std::string name) : Component(associated) {
 	hp = 0;
@@ -10,6 +11,7 @@ Character::Character(GameObject& associated, std::string name) : Component(assoc
 	direction = "SE";
 	associated.AddComponent(new Animator(associated, this, name));
 	associated.AddComponent(new Collider(associated));
+	associated.AddComponent(new AOE(associated,1.0f));
 }
 
 Character::~Character() {

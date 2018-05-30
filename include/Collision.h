@@ -51,6 +51,41 @@ class Collision {
 			return true;
 		}
 
+		static inline bool IsCollidingCircleCircle(Circle& a, Circle& b) {
+			if (Distance(a.x, a.y, b.x, b.y) < (a.r + b.r)) {
+				return true;
+			}
+			return false;
+		}
+
+		static inline bool IsCollidingCircleRect(Circle& a, Rect& b, float angleOfB) {
+			int closestX, closestY;
+
+			if (a.x < b.x) {
+				closestX = b.x;
+			}
+			else if (a.x > b.x + b.w) {
+				closestX = b.x + b.w; 
+			}
+			else { 
+				closestX = a.x; 
+			}
+
+			if (a.y < b.y) {
+				closestY = b.y;
+			}
+			else if (a.y > b.y + b.h) {
+				closestY = b.y + b.h;
+			}
+			else {
+				closestY = a.y;
+			}
+			if (Distance(a.x, a.y, closestX, closestY) < a.r) {
+				return true;
+			}
+			return false;
+		}
+
 	private:
 		static inline float Mag(const Vec2& p) {
 			return std::sqrt(p.x*p.x + p.y*p.y);
@@ -67,5 +102,8 @@ class Collision {
 		static inline Vec2 Rotate(const Vec2& p, float angle) {
 			float cs = Vec2::Cos(angle), sn = Vec2::Sin(angle);
 			return Vec2 (p.x*cs - p.y*sn, p.x*sn + p.y*cs);
+		}
+		static inline float Distance(float x1, float y1, float x2, float y2) {
+			return sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
 		}
 };

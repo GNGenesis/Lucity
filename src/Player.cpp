@@ -18,7 +18,7 @@ Player::~Player() {
 void Player::Start() {
 	GameObject* go = new GameObject();
 	char n[3];
-	sprintf_s(n, "%d", pNumber+1);
+	sprintf(n, "%d", pNumber+1);
 	go->AddComponent(new Compass(*go, associated, n));
 	Game::GetInstance().GetCurrentState().AddObject(go, "GUI");
 }

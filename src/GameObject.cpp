@@ -6,6 +6,7 @@ GameObject::GameObject() {
 	active = true;
 	isDead = false;
 	box = Rect();
+	circle = Circle();
 	rotation = 0;
 }
 

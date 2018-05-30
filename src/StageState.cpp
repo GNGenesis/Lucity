@@ -11,6 +11,7 @@
 #include "Sound.h"
 #include "Text.h"
 #include "Collider.h"
+#include "AOE.h"
 #include "CameraFollower.h"
 #include "TileMap.h"
 
@@ -161,8 +162,16 @@ void StageState::CollisionCheck() {
 			if(objects["MAIN"][i]->IsActive() && objects["MAIN"][j]->IsActive()) {
 				Collider* objA = (Collider*) objects["MAIN"][i]->GetComponent("Collider");
 				Collider* objB = (Collider*) objects["MAIN"][j]->GetComponent("Collider");
+				AOE* AOE_A = (AOE*)objects["MAIN"][i]->GetComponent("AOE");
+				AOE* AOE_B = (AOE*)objects["MAIN"][j]->GetComponent("AOE");
 				if(objA && objB) {
 					if(Collision::IsColliding(objA->box, objB->box, objA->rotation, objB->rotation)) {
+						objects["MAIN"][i]->NotifyCollision(*objects["MAIN"][j]);
+						objects["MAIN"][j]->NotifyCollision(*objects["MAIN"][i]);
+					}
+				}
+				if (AOE_A && AOE_B) {
+					if (Collision::IsCollidingCircleCircle(AOE_A->circle, AOE_B->circle)) {
 						objects["MAIN"][i]->NotifyCollision(*objects["MAIN"][j]);
 						objects["MAIN"][j]->NotifyCollision(*objects["MAIN"][i]);
 					}
@@ -193,8 +202,8 @@ void StageState::Update(float dt) {
 		Text* txt = (Text*)objects["GUI"][0]->GetComponent("Text");
 		if(txt) {
 			char a[3], b[3];
-			sprintf_s(a, "%d", GameData::nMonsters);
-			sprintf_s(b, "%d", GameData::nCivilians);
+			sprintf(a, "%d", GameData::nMonsters);
+			sprintf(b, "%d", GameData::nCivilians);
 			std::string nm = "NM ";
 			std::string nc = " NC ";
 			std::string text = nm+a+nc+b;

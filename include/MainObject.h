@@ -20,7 +20,6 @@ private:
 
 
 public:
-	static int alienCount;
 
 	MainObject(GameObject& associated, std::string objectName,float scaleX = 1,float scaleY = 1, int nMiscObjects = 0,bool IsDestructable = false);
 	~MainObject();
@@ -30,6 +29,7 @@ public:
 	void Render();
 	void NotifyCollision(GameObject& other);
 	bool Is(std::string type);
+	std::string GetObjectName();
 };
 
 #endif
