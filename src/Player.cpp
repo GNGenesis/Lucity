@@ -3,6 +3,7 @@
 #include "GameData.h"
 #include "InputManager.h"
 
+#include "Attack.h"
 #include "Compass.h"
 
 Player::Player(GameObject& associated, std::string name, int n) : Character(associated, name) {
@@ -17,6 +18,8 @@ Player::~Player() {
 }
 
 void Player::Start() {
+	GameData::player = Game::GetInstance().GetCurrentState().GetObjectPtr(&associated, "MAIN");
+
 	GameObject* go = new GameObject();
 	char n[3];
 	sprintf(n, "%d", pNumber+1);
@@ -43,25 +46,38 @@ void Player::Update(float dt) {
 		SetDirection("NE");
 
 	if(Attacking()) {
+		if(GetAction() != ATTACK) {
+			GameObject* go = new GameObject();
+			go->AddComponent(new Attack(*go, associated, Attack::PROJECTED, 0.5, 0, GetAngleDirection(), 400));
+			Game::GetInstance().GetCurrentState().AddObject(go, "MAIN");
+		}
 		SetAction(ATTACK);
+		if(Walking()) {
+			Vec2 mov = Vec2(Vec2::Cos(GetAngleDirection()), Vec2::Sin(GetAngleDirection()))*GetSpeed()*dt;
+			associated.box.SetCenter(associated.box.GetCenter()+mov);
+		}
 	}
 	else if(Walking()) {
 		SetAction(WALK);
 		Vec2 mov = Vec2(Vec2::Cos(GetAngleDirection()), Vec2::Sin(GetAngleDirection()))*GetSpeed()*dt;
 		associated.box.SetCenter(associated.box.GetCenter()+mov);
 	}
-	else{
+	else {
 		SetAction(IDLE);
 	}
 }
 
 void Player::NotifyCollision(GameObject& other) {
-	Character* character = (Character*) other.GetComponent("Character");
-	if(character) {
-		if(character->GetAction() == ATTACK) {
-			if(damageT.Get() > damageCD) {
-				Damage(1);
-				damageT.Restart();
+	Attack* attack = (Attack*) other.GetComponent("Attack");
+	if(attack) {
+		if(!attack->IsOwner(associated)) {
+			if(!attack->IsAlly("Player")) {
+				if(damageT.Get() > damageCD) {
+					if(damageT.Get() > damageCD) {
+						Damage(1);
+						damageT.Restart();
+					}
+				}
 			}
 		}
 	}

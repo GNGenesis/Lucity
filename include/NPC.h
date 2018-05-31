@@ -14,6 +14,7 @@ private:
 	float offsetT;
 	Timer damageT;
 	float damageCD;
+	bool scared;
 
 public:
 	NPC(GameObject& associated, Personality p);

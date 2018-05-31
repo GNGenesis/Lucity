@@ -5,6 +5,8 @@
 #include "Sprite.h"
 #include "Collider.h"
 #include "MiscObject.h"
+#include "AOE.h"
+#include "Attack.h"
 #include "Character.h"
 
 
@@ -31,8 +33,11 @@ MainObject::~MainObject() {
 }
 
 void MainObject::Start() {
+	GameObject* go = new GameObject();
+	go->AddComponent(new AOE(*go, associated, objectName, 100));
+	Game::GetInstance().GetCurrentState().AddObject(go, "MAIN");
 	if(miscObject) {
-		GameObject* go = new GameObject();
+		go = new GameObject();
 		go->AddComponent(new MiscObject(*go, associated, objectName, scale));
 		Game::GetInstance().GetCurrentState().AddObject(go, "MISC");
 	}
@@ -41,7 +46,7 @@ void MainObject::Start() {
 void MainObject::Damage(int damage) {
 	if(destructible)
 		hp -= damage;
-	if(hp < 0)
+	if(hp < 1)
 		associated.RequestDelete();
 }
 
@@ -50,19 +55,18 @@ void MainObject::Update(float dt) {
 }
 
 void MainObject::NotifyCollision(GameObject & other){
+	Attack* attack = (Attack*) other.GetComponent("Attack");
+	if(attack) {
+		if(attack->IsAlly("Monster")) {
+			Damage(1);
+		}
+	}
+
 	Character* character = (Character*) other.GetComponent("Character");
 	if(character) {
-		if(other.GetComponent("Character")) {
-			if(character->GetAction() == ATTACK) {
-				Damage(1);
-			}
-		}
-
 		Collider* collider = (Collider*) associated.GetComponent("Collider");
 		if(collider) {
 			Rect box = associated.box;
-			//box.SetPos(box.x+1, box.y);
-			//box.SetSize(box.w-2, 0);
 			box.SetSize(box.w, 0);
 			Collision::SolidCollision(other.box, box);
 		}

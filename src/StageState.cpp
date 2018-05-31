@@ -27,15 +27,15 @@ StageState::StageState() : State() {
 	go->box.SetSize(Vec2());
 	AddObject(go, "BG");*/
 
-	NPCList.emplace_back(Personality("girl", 100, 200, 1, 2, 0, 2));
-	NPCList.emplace_back(Personality("luv", 100, 50, 2, 2, 0, 3));
-	NPCList.emplace_back(Personality("old", 50, 300, 3, 1, 0, 1));
-	NPCList.emplace_back(Personality("suit", 50, 150, 2, 1, 0, 2));
+	NPCList.emplace_back(Personality("girl", 100, 200, 1, 2, 1, 2, {"monster"}, {"bench", "tree"}));
+	NPCList.emplace_back(Personality("luv", 100, 50, 2, 2, 1.5, 3, {"monster"}, {"bench"}));
+	NPCList.emplace_back(Personality("old", 50, 300, 3, 1, 1, 1, {"monster"}, {"bench"}));
+	NPCList.emplace_back(Personality("suit", 50, 150, 2, 1, 1, 2, {"monster"}, {"bench"}));
 
-	monsterList.emplace_back(Personality("girl", 30, 150, 0.1, 5, 0, 1));
-	monsterList.emplace_back(Personality("luv", 150, 150, 20, 2, 0, 2));
-	monsterList.emplace_back(Personality("old", 450, 150, 0.1, 2, 0, 1));
-	monsterList.emplace_back(Personality("suit", 150, 3000, 5, 0.3, 0, 2));
+	monsterList.emplace_back(Personality("girl", 30, 150, 0.1, 5, 0, 1, {"bench"}, {}));
+	monsterList.emplace_back(Personality("luv", 150, 150, 20, 2, 0, 2, {"bench"}, {}));
+	monsterList.emplace_back(Personality("old", 450, 150, 0.1, 2, 0, 1, {"bench"}, {}));
+	monsterList.emplace_back(Personality("suit", 150, 3000, 5, 0.3, 0, 2, {"bench"}, {}));
 
 	//TileMap
 	go = new GameObject();
@@ -47,8 +47,6 @@ StageState::StageState() : State() {
 
 	int mw = 64*map->GetWidth();
 	int mh = 64*map->GetHeight();
-	//int mw, mh;
-	//SDL_GetRendererOutputSize(Game::GetInstance().GetRenderer(), &mw, &mh);
 	GameData::mapSize = Vec2(mw, mh);
 
 	//Text
@@ -56,6 +54,18 @@ StageState::StageState() : State() {
 	go->AddComponent(new Text(*go, "assets/font/Sabo-Filled.ttf", 72, " ", SDL_Color {}, Text::SOLID));
 	go->AddComponent(new CameraFollower(*go, Vec2(0, 0)));
 	AddObject(go, "GUI");
+
+	//Bench
+	go = new GameObject();
+	go->AddComponentAsFirst(new MainObject(*go, "bench", 1, Vec2(3, 3), true, true));
+	go->box.SetPos(Vec2(rand()%mw, rand()%mh));
+	AddObject(go, "MAIN");
+
+	//Bench
+	go = new GameObject();
+	go->AddComponentAsFirst(new MainObject(*go, "bench", 1, Vec2(3, 3), true, true));
+	go->box.SetPos(Vec2(rand()%mw, rand()%mh));
+	AddObject(go, "MAIN");
 
 	//Bench
 	go = new GameObject();
@@ -71,7 +81,7 @@ StageState::StageState() : State() {
 
 	//Tree
 	go = new GameObject();
-	go->AddComponentAsFirst(new MainObject(*go, "tree", 1, Vec2(3, 3), true, true));
+	go->AddComponentAsFirst(new MainObject(*go, "tree", 1, Vec2(3, 3), true));
 	go->box.SetPos(Vec2(rand()%mw, rand()%mh));
 	AddObject(go, "MAIN");
 
@@ -134,7 +144,20 @@ void StageState::CollisionCheck() {
 				Collider* objA = (Collider*) objects["MAIN"][i]->GetComponent("Collider");
 				Collider* objB = (Collider*) objects["MAIN"][j]->GetComponent("Collider");
 				if(objA && objB) {
-					if(Collision::IsColliding(objA->box, objB->box, objA->rotation, objB->rotation)) {
+					bool collided = false;
+					if(objA->GetMode() == Collider::RECT) {
+						if(objB->GetMode() == Collider::RECT)
+							collided = Collision::IsCollidingRectRect(objA->box, objB->box, objA->rotation, objB->rotation);
+						else
+							collided = Collision::IsCollidingCircleRect(objB->circle, objA->box, objA->rotation);
+					}
+					else {
+						if(objB->GetMode() == Collider::RECT)
+							collided = Collision::IsCollidingCircleRect(objA->circle, objB->box, objB->rotation);
+						else
+							collided = Collision::IsCollidingCircleCircle(objA->circle, objB->circle);	
+					}
+					if(collided) {
 						objects["MAIN"][i]->NotifyCollision(*objects["MAIN"][j]);
 						objects["MAIN"][j]->NotifyCollision(*objects["MAIN"][i]);
 					}

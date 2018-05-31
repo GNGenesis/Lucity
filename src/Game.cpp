@@ -96,9 +96,8 @@ float Game::GetDeltaTime() {
 }
 
 Game& Game::GetInstance() {
-	if(!instance) {
+	if(!instance)
 		new Game("LUCITY UM JOGO MUITO LOUCO", 1024, 600);
-	}
 	return *instance;
 }
 
@@ -143,7 +142,7 @@ void Game::Run() {
 			}
 			else if(stateStack.top()->PopRequested()) {
 				stateStack.pop();
-				//Resources::Clear();
+				Resources::Clear();
 				if(!stateStack.empty()) {
 					stateStack.top()->Resume();
 				}

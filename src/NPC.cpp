@@ -1,11 +1,15 @@
 #include "NPC.h"
+#include "Game.h"
 #include "GameData.h"
+
+#include "AOE.h"
+#include "Attack.h"
+#include "Exclamation.h"
 
 #include <math.h>
 
 NPC::NPC(GameObject& associated, Personality p) : Character(associated, p.GetName()) {
 	SetHealth(2);
-	SetAction(IDLE);
 	person = p;
 	offsetT = pow(-1,rand()%2)*(rand()%51)/100;
 	damageCD = 0.5;
@@ -40,7 +44,20 @@ void NPC::Update(float dt) {
 		}
 	}
 	else if(GetAction() == SHOCK) {
-
+		if(actionT.Get() > person.GetTime(SHOCK)+offsetT) {
+			actionT.Restart();
+			offsetT = pow(-1,rand()%2)*(rand()%51)/100;
+			if(scared) {
+				SetAction(PANIC);
+				SetSpeed(person.GetPanicSpeed());
+				SetAngleDirection(GetAngleDirection()-180);
+			}
+			else {
+				SetAction(WALK);
+				SetSpeed(person.GetNormalSpeed());
+				SetAngleDirection(rand()%360);
+			}
+		}
 	}
 	else if(GetAction() == PANIC) {
 		if(actionT.Get() > person.GetTime(PANIC)+offsetT) {
@@ -63,17 +80,46 @@ void NPC::Update(float dt) {
 }
 
 void NPC::NotifyCollision(GameObject& other) {
-	Character* character = (Character*) other.GetComponent("Character");
-	if(character) {
-		if(character->GetAction() == ATTACK) {
+	Attack* attack = (Attack*) other.GetComponent("Attack");
+	if(attack) {
+		if(!attack->IsOwner(associated)) {
 			if(damageT.Get() > damageCD) {
-				Damage(1);
+					Damage(1);
+					damageT.Restart();
+					actionT.Restart();
+					offsetT = pow(-1,rand()%2)*(rand()%51)/100;
+					SetAction(PANIC);
+					SetSpeed(person.GetPanicSpeed());
+					SetAngleDirection(other.box.GetCenter().GetAngle(associated.box.GetCenter()));
+			}
+		}
+	}
+
+	AOE* aoe = (AOE*) other.GetComponent("AOE");
+	if(aoe) {
+		if(person.IsAfraid(aoe->GetOwnerName())) {
+			if(GetAction() != PANIC) {
 				actionT.Restart();
 				offsetT = pow(-1,rand()%2)*(rand()%51)/100;
-				damageT.Restart();
-				SetAction(PANIC);
-				SetSpeed(person.GetPanicSpeed());
-				SetAngleDirection(other.box.GetCenter().GetAngle(associated.box.GetCenter()));
+				scared = true;
+				SetAction(SHOCK);
+				SetAngleDirection(associated.box.GetCenter().GetAngle(other.box.GetCenter()));
+				GameObject* go = new GameObject();
+				go->AddComponent(new Exclamation(*go, associated));
+				Game::GetInstance().GetCurrentState().AddObject(go, "MISC");
+			}
+		}
+
+		if(person.IsInterested(aoe->GetOwnerName())) {
+			if(GetAction() == IDLE) {
+				actionT.Restart();
+				offsetT = pow(-1,rand()%2)*(rand()%51)/100;
+				scared = false;
+				SetAction(SHOCK);
+				SetAngleDirection(associated.box.GetCenter().GetAngle(other.box.GetCenter()));
+				GameObject* go = new GameObject();
+				go->AddComponent(new Exclamation(*go, associated));
+				Game::GetInstance().GetCurrentState().AddObject(go, "MISC");
 			}
 		}
 	}
@@ -85,6 +131,11 @@ bool NPC::Is(std::string type) {
 
 void NPC::SetAngleDirection(int angle) {
 	Character::SetAngleDirection(angle);
+	if(GetAngleDirection() > 360)
+		Character::SetAngleDirection(GetAngleDirection()-360);
+	else if(GetAngleDirection() < 0)
+		Character::SetAngleDirection(GetAngleDirection()+360);
+
 	if(GetAngleDirection() >= 0 && GetAngleDirection() < 90)
 		SetDirection("SE");
 	else if(GetAngleDirection() >= 90 && GetAngleDirection() < 180)

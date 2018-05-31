@@ -5,6 +5,7 @@
 #define RIGHT 4
 
 #include "Rect.h"
+#include "Circle.h"
 #include "Vec2.h"
 
 #include <algorithm>
@@ -13,7 +14,7 @@
 class Collision {
 
 	public:
-		static inline bool IsColliding(Rect& a, Rect& b, float angleOfA, float angleOfB) {
+		static inline bool IsCollidingRectRect(Rect& a, Rect& b, float angleOfA, float angleOfB) {
 			Vec2 A[] = {
 				Vec2(a.x, a.y+a.h),
 				Vec2(a.x+a.w, a.y+a.h),
@@ -55,6 +56,34 @@ class Collision {
 			}
 
 			return true;
+		}
+
+		static inline bool IsCollidingCircleCircle(Circle& a, Circle& b) {
+			if(a.GetCenter().GetDS(b.GetCenter()) < (a.r + b.r))
+				return true;
+			return false;
+		}
+
+		static inline bool IsCollidingCircleRect(Circle& a, Rect& b, float angleOfB) {
+			int closestX, closestY;
+
+			if(a.x < b.x)
+				closestX = b.x;
+			else if(a.x > b.x + b.w)
+				closestX = b.x + b.w;
+			else
+				closestX = a.x; 
+
+			if(a.y < b.y)
+				closestY = b.y;
+			else if(a.y > b.y + b.h)
+				closestY = b.y + b.h;
+			else
+				closestY = a.y;
+
+			if(a.GetCenter().GetDS(Vec2(closestX, closestY)) < a.r)
+				return true;
+			return false;
 		}
 
 		static inline void SolidCollision(Rect& a, Rect& b) {

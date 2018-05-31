@@ -10,6 +10,12 @@
 class Monster : public NPC {
 private:
 	bool rawr;
+	Timer mActionT;
+	float mIdleT;
+	float mWalkT;
+	float mOffsetT;
+	Timer mDamageT;
+	float mDamageCD;
 
 public:
 	Monster(GameObject& associated, Personality p);

@@ -18,7 +18,7 @@ MiscObject::~MiscObject() {
 }
 
 void MiscObject::Update(float dt) {
-	if (mainObject.expired()) {
+	if(mainObject.expired()) {
 		associated.RequestDelete();
 	}
 	else {
