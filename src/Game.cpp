@@ -3,7 +3,6 @@
 #define INCLUDE_SDL_TTF
 
 #include "Game.h"
-#include "GameData.h"
 #include "Resources.h"
 #include "InputManager.h"
 #include "Camera.h"
@@ -35,7 +34,7 @@ Game::Game(std::string title, int width, int height) {
 
 	if(!Mix_Init(MIX_INIT_OGG)) {
 		printf("Mix_Init failed: %s\n", SDL_GetError());
-		exit(EXIT_FAILURE);
+		//exit(EXIT_FAILURE);
 	}
 
 	if(Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 1024)) {
@@ -50,9 +49,8 @@ Game::Game(std::string title, int width, int height) {
 		exit(EXIT_FAILURE);
 	}
 
-	SDL_Rect screen;
-	SDL_GetDisplayBounds(0, &screen);
-	GameData::screenSize = Vec2(width, height);//screen.w, screen.h);
+	//SDL_Rect screen;
+	//SDL_GetDisplayBounds(0, &screen);
 	Uint32 flags = 0;//SDL_WINDOW_RESIZABLE | SDL_WINDOW_FULLSCREEN;
 	window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags);//screen.w, screen.h, flags);
 	if(!window) {
@@ -98,9 +96,8 @@ float Game::GetDeltaTime() {
 }
 
 Game& Game::GetInstance() {
-	if(!instance) {
+	if(!instance)
 		new Game("LUCITY UM JOGO MUITO LOUCO", 1024, 600);
-	}
 	return *instance;
 }
 
@@ -145,7 +142,7 @@ void Game::Run() {
 			}
 			else if(stateStack.top()->PopRequested()) {
 				stateStack.pop();
-				//Resources::Clear();
+				Resources::Clear();
 				if(!stateStack.empty()) {
 					stateStack.top()->Resume();
 				}

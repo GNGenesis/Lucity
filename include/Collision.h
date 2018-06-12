@@ -1,4 +1,11 @@
+#define NONE 0
+#define TOP 1
+#define BOTTOM 2
+#define LEFT 3
+#define RIGHT 4
+
 #include "Rect.h"
+#include "Circle.h"
 #include "Vec2.h"
 
 #include <algorithm>
@@ -7,7 +14,7 @@
 class Collision {
 
 	public:
-		static inline bool IsColliding(Rect& a, Rect& b, float angleOfA, float angleOfB) {
+		static inline bool IsCollidingRectRect(Rect& a, Rect& b, float angleOfA, float angleOfB) {
 			Vec2 A[] = {
 				Vec2(a.x, a.y+a.h),
 				Vec2(a.x+a.w, a.y+a.h),
@@ -49,6 +56,65 @@ class Collision {
 			}
 
 			return true;
+		}
+
+		static inline bool IsCollidingCircleCircle(Circle& a, Circle& b) {
+			if(a.GetCenter().GetDS(b.GetCenter()) < (a.r + b.r))
+				return true;
+			return false;
+		}
+
+		static inline bool IsCollidingCircleRect(Circle& a, Rect& b, float angleOfB) {
+			int closestX, closestY;
+
+			if(a.x < b.x)
+				closestX = b.x;
+			else if(a.x > b.x + b.w)
+				closestX = b.x + b.w;
+			else
+				closestX = a.x; 
+
+			if(a.y < b.y)
+				closestY = b.y;
+			else if(a.y > b.y + b.h)
+				closestY = b.y + b.h;
+			else
+				closestY = a.y;
+
+			if(a.GetCenter().GetDS(Vec2(closestX, closestY)) < a.r)
+				return true;
+			return false;
+		}
+
+		static inline void SolidCollision(Rect& a, Rect& b) {
+			float w = 0.5 * (a.w + b.w);
+			float h = 0.5 * (a.h + b.h);
+			
+			float dx = a.GetCenter().x - b.GetCenter().x;
+			float adx = dx;
+			if(adx < 0)
+				adx *= (-1);
+			
+			float dy = a.GetCenter().y - b.GetCenter().y;
+			float ady = dy;
+			if(ady < 0)
+				ady *= (-1);
+
+			if(adx <= w && ady <= h) {
+				float wy = w * dy;
+				float hx = h * dx;
+
+				if(wy > hx)
+					if(wy > -hx)
+						a.y = b.y + b.h + 1;
+					else
+						a.x = b.x - a.w - 1;
+				else
+					if(wy > -hx)
+						a.x = b.x + b.w + 1;
+					else
+						a.y = b.y - a.h - 1;
+			}
 		}
 
 	private:

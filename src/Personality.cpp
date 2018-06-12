@@ -2,20 +2,25 @@
 
 Personality::Personality() {
 	Personality::name = "";
-	Personality::speed = Vec2();
+	Personality::nSpeed = 0;
+	Personality::pSpeed = 0;
 	Personality::idleT = 0;
 	Personality::walkT = 0;
 	Personality::shockT = 0;
 	Personality::panicT = 0;
 }
 
-Personality::Personality(std::string name, Vec2 speed, float idleT, float walkT, float shockT, float panicT) {
+Personality::Personality(std::string name, int nSpeed, int pSpeed, float idleT, float walkT, float shockT, float panicT,
+						 std::vector<std::string> fears, std::vector<std::string> interests) {
 	Personality::name = name;
-	Personality::speed = speed;
+	Personality::nSpeed = nSpeed;
+	Personality::pSpeed = pSpeed;
 	Personality::idleT = idleT;
 	Personality::walkT = walkT;
 	Personality::shockT = shockT;
 	Personality::panicT = panicT;
+	Personality::fears = fears;
+	Personality::interests = interests;
 }
 
 Personality::~Personality() {
@@ -26,8 +31,12 @@ std::string Personality::GetName() {
 	return name;
 }
 
-Vec2 Personality::GetSpeed() {
-	return speed;
+int Personality::GetNormalSpeed() {
+	return nSpeed;
+}
+
+int Personality::GetPanicSpeed() {
+	return pSpeed;
 }
 
 float Personality::GetTime(std::string action) {

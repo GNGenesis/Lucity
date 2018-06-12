@@ -19,6 +19,7 @@ private:
 public:
 	Animator(GameObject& associated, Character* character, std::string name);
 	~Animator();
+	void Start();
 	void BuildSprites();
 	void Update(float dt);
 	void Render();
