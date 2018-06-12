@@ -7,7 +7,7 @@
 MiscObject::MiscObject(GameObject& associated, GameObject& mainObject, std::string miscName, Vec2 scale) : Component(associated) {
 	MiscObject::mainObject = Game::GetInstance().GetCurrentState().GetObjectPtr(&mainObject, "MAIN");
 
-	std::string path = "assets/img/Objects/" + miscName + "_top.png";
+	std::string path = "assets/img/objects/" + miscName + "_top.png";
 	Sprite* object = new Sprite(associated, path);
 	object->SetScale(scale);
 	associated.AddComponent(object);
