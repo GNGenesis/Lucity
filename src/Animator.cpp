@@ -99,14 +99,21 @@ void Animator::BuildSprites() {
 			sprites.emplace("bIdleNE", (Sprite*)associated.AddComponent(new Sprite(associated, bossPath+"/idleNE.png", idleFrames, 0.3)));
 			sprites.emplace("bIdleSW", (Sprite*)associated.AddComponent(new Sprite(associated, bossPath+"/idleSW.png", idleFrames, 0.3)));
 			sprites.emplace("bIdleSE", (Sprite*)associated.AddComponent(new Sprite(associated, bossPath+"/idleSE.png", idleFrames, 0.3)));
+			//
 			sprites.emplace("bWalkNW", (Sprite*)associated.AddComponent(new Sprite(associated, bossPath+"/idleNW.png", idleFrames, 0.2)));
 			sprites.emplace("bWalkNE", (Sprite*)associated.AddComponent(new Sprite(associated, bossPath+"/idleNE.png", idleFrames, 0.2)));
 			sprites.emplace("bWalkSW", (Sprite*)associated.AddComponent(new Sprite(associated, bossPath+"/idleSW.png", idleFrames, 0.2)));
 			sprites.emplace("bWalkSE", (Sprite*)associated.AddComponent(new Sprite(associated, bossPath+"/idleSE.png", idleFrames, 0.2)));
+			//
 			sprites.emplace("bAttackNW", (Sprite*)associated.AddComponent(new Sprite(associated, bossPath+"/attackNW.png", attackFrames, 0.16)));
 			sprites.emplace("bAttackNE", (Sprite*)associated.AddComponent(new Sprite(associated, bossPath+"/attackNE.png", attackFrames, 0.16)));
 			sprites.emplace("bAttackSW", (Sprite*)associated.AddComponent(new Sprite(associated, bossPath+"/attackSW.png", attackFrames, 0.16)));
 			sprites.emplace("bAttackSE", (Sprite*)associated.AddComponent(new Sprite(associated, bossPath+"/attackSE.png", attackFrames, 0.16)));
+			//
+			sprites.emplace("bHurtNW", (Sprite*)associated.AddComponent(new Sprite(associated, bossPath+"/fleeSE.png", attackFrames, 0.16)));
+			sprites.emplace("bHurtNE", (Sprite*)associated.AddComponent(new Sprite(associated, bossPath+"/fleeSE.png", attackFrames, 0.16)));
+			sprites.emplace("bHurtSW", (Sprite*)associated.AddComponent(new Sprite(associated, bossPath+"/fleeSE.png", attackFrames, 0.16)));
+			sprites.emplace("bHurtSE", (Sprite*)associated.AddComponent(new Sprite(associated, bossPath+"/fleeSE.png", attackFrames, 0.16)));
 			//sprites.emplace("mIdleNW", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/idleNW.png", idleFrames, 0.2)));
 			//sprites.emplace("mIdleNE", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/idleNE.png", idleFrames, 0.2)));
 			//sprites.emplace("mIdleSW", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/idleSW.png", idleFrames, 0.2)));

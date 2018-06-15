@@ -71,6 +71,17 @@ void Boss::Update(float dt) {
 				}
 			}
 		}
+		else if (GetAction() == "bHurt") {
+			if(!GameData::player.expired()) {
+				NPC::SetAngleDirection(associated.box.GetCenter().GetAngle(GameData::player.lock()->box.GetCenter()));
+				do {
+					initPos = Vec2::Project(20, rand()%361);
+				} while (initPos.x < 0 ||
+								 initPos.y < 0 ||
+								 initPos.x + associated.box.w > GameData::mapSize.x ||
+								 initPos.y + associated.box.h > GameData::mapSize.y);
+			}
+		}
 		else if (GetAction() == "bAttack") {
 			if(!GameData::player.expired()) {
 				if(associated.box.GetCenter().GetAngle(GameData::player.lock()->box.GetCenter()) >= 0 &&
@@ -128,6 +139,7 @@ void Boss::NotifyCollision(GameObject& other) {
 			if(!attack->IsOwner(associated)) {
 				if(!attack->IsAlly("Boss")) {
 					if(mDamageT.Get() > mDamageCD) {
+						SetAction("bHurt");
 						Damage(1);
 						mDamageT.Restart();
 						mOffsetT = pow(-1,rand()%2)*(rand()%51)/100;
