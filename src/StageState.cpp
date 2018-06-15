@@ -16,6 +16,7 @@
 #include "Player.h"
 #include "NPC.h"
 #include "Monster.h"
+#include "Boss.h"
 
 StageState::StageState() : State() {
 	GameObject* go;
@@ -54,7 +55,7 @@ StageState::StageState() : State() {
 	go->AddComponent(new Text(*go, "assets/font/Sabo-Filled.ttf", 72, " ", SDL_Color {}, Text::SOLID));
 	go->AddComponent(new CameraFollower(*go, Vec2(0, 0)));
 	AddObject(go, "GUI");
-	
+
 	//Bench
 	for(int i = 0; i < 4; i++) {
 		go = new GameObject();
@@ -79,21 +80,11 @@ StageState::StageState() : State() {
 		AddObject(go, "MAIN");
 	}
 
-	//Monsters
-	for(int i = 0; i < 10; i++) {
-		go = new GameObject();
-		go->AddComponentAsFirst(new Monster(*go, monsterList[rand()%monsterList.size()]));
-		go->box.SetCenter(rand()%mw, rand()%mh);
-		AddObject(go, "MAIN");
-	}
-
-	//NPCs
-	for(int i = 0; i < 30; i++) {
-		go = new GameObject();
-		go->AddComponentAsFirst(new NPC(*go, NPCList[rand()%NPCList.size()]));
-		go->box.SetCenter(rand()%mw, rand()%mh);
-		AddObject(go, "MAIN");
-	}
+	//Boss
+	go = new GameObject();
+	go->AddComponentAsFirst(new Boss(*go, monsterList[3]));
+	go->box.SetCenter(rand()%mw, rand()%mh);
+	AddObject(go, "MAIN");
 
 	//Players
 	for(int i = 3; i >= 0; i--) {
@@ -149,7 +140,7 @@ void StageState::CollisionCheck() {
 						if(objB->GetMode() == Collider::RECT)
 							collided = Collision::IsCollidingCircleRect(objA->circle, objB->box, objB->rotation);
 						else
-							collided = Collision::IsCollidingCircleCircle(objA->circle, objB->circle);	
+							collided = Collision::IsCollidingCircleCircle(objA->circle, objB->circle);
 					}
 					if(collided) {
 						objects["MAIN"][i]->NotifyCollision(*objects["MAIN"][j]);

@@ -11,14 +11,14 @@ Attack::Attack(GameObject& associated, GameObject& owner, AttackType type, float
 	Attack::radius = radius;
 	Attack::angle = angle;
 	Attack::speed = speed;
-	
+
 
 	if(type == CENTERED) {
 		associated.box.SetSize(Vec2(radius, radius)*2);
 		associated.AddComponent(new Collider(associated, radius));
 	}
 	else if(type == DIRECTED) {
-		Sprite* s = new Sprite(associated, "assets/img/sword.png");
+		Sprite* s = new Sprite(associated, "assets/img/bullet.png");
 		s->SetScale(Vec2(2, 2));
 		associated.AddComponent(s);
 		associated.AddComponent(new Collider(associated));
@@ -26,7 +26,7 @@ Attack::Attack(GameObject& associated, GameObject& owner, AttackType type, float
 		associated.box.SetCenter(Attack::owner.lock()->box.GetCenter()+(Vec2(Vec2::Cos(angle), Vec2::Sin(angle))*40));
 	}
 	else if(type == PROJECTED) {
-		Sprite* s = new Sprite(associated, "assets/img/sword.png");
+		Sprite* s = new Sprite(associated, "assets/img/bullet.png");
 		s->SetScale(Vec2(2, 2));
 		associated.AddComponent(s);
 		associated.AddComponent(new Collider(associated));

@@ -28,7 +28,7 @@ void Animator::BuildSprites() {
 	unsigned int shockFrames = 0;
 	unsigned int panicFrames = 0;
 	unsigned int attackFrames = 0;
-	
+
 	if(associated.GetComponent("Player")) {
 		idleFrames = 4;
 		walkFrames = 4;
@@ -90,6 +90,32 @@ void Animator::BuildSprites() {
 			//sprites.emplace("mWalkSW", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/walkSW.png", walkFrames, 0.2)));
 			//sprites.emplace("mWalkSE", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/walkSE.png", walkFrames, 0.2)));
 		}
+
+		if(associated.GetComponent("Boss")) {
+			std::string bossPath = "assets/img/characters/boss";
+			idleFrames = 4;
+			attackFrames = 4;
+			sprites.emplace("bIdleNW", (Sprite*)associated.AddComponent(new Sprite(associated, bossPath+"/idleNW.png", idleFrames, 0.3)));
+			sprites.emplace("bIdleNE", (Sprite*)associated.AddComponent(new Sprite(associated, bossPath+"/idleNE.png", idleFrames, 0.3)));
+			sprites.emplace("bIdleSW", (Sprite*)associated.AddComponent(new Sprite(associated, bossPath+"/idleSW.png", idleFrames, 0.3)));
+			sprites.emplace("bIdleSE", (Sprite*)associated.AddComponent(new Sprite(associated, bossPath+"/idleSE.png", idleFrames, 0.3)));
+			sprites.emplace("bWalkNW", (Sprite*)associated.AddComponent(new Sprite(associated, bossPath+"/idleNW.png", idleFrames, 0.2)));
+			sprites.emplace("bWalkNE", (Sprite*)associated.AddComponent(new Sprite(associated, bossPath+"/idleNE.png", idleFrames, 0.2)));
+			sprites.emplace("bWalkSW", (Sprite*)associated.AddComponent(new Sprite(associated, bossPath+"/idleSW.png", idleFrames, 0.2)));
+			sprites.emplace("bWalkSE", (Sprite*)associated.AddComponent(new Sprite(associated, bossPath+"/idleSE.png", idleFrames, 0.2)));
+			sprites.emplace("bAttackNW", (Sprite*)associated.AddComponent(new Sprite(associated, bossPath+"/attackNW.png", attackFrames, 0.16)));
+			sprites.emplace("bAttackNE", (Sprite*)associated.AddComponent(new Sprite(associated, bossPath+"/attackNE.png", attackFrames, 0.16)));
+			sprites.emplace("bAttackSW", (Sprite*)associated.AddComponent(new Sprite(associated, bossPath+"/attackSW.png", attackFrames, 0.16)));
+			sprites.emplace("bAttackSE", (Sprite*)associated.AddComponent(new Sprite(associated, bossPath+"/attackSE.png", attackFrames, 0.16)));
+			//sprites.emplace("mIdleNW", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/idleNW.png", idleFrames, 0.2)));
+			//sprites.emplace("mIdleNE", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/idleNE.png", idleFrames, 0.2)));
+			//sprites.emplace("mIdleSW", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/idleSW.png", idleFrames, 0.2)));
+			//sprites.emplace("mIdleSE", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/idleSE.png", idleFrames, 0.2)));
+			//sprites.emplace("mWalkNW", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/walkNW.png", walkFrames, 0.2)));
+			//sprites.emplace("mWalkNE", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/walkNE.png", walkFrames, 0.2)));
+			//sprites.emplace("mWalkSW", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/walkSW.png", walkFrames, 0.2)));
+			//sprites.emplace("mWalkSE", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/walkSE.png", walkFrames, 0.2)));
+		}
 	}
 
 	sprites.emplace("idleNW", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/idleNW.png", idleFrames, 0.2)));
@@ -101,7 +127,7 @@ void Animator::BuildSprites() {
 	sprites.emplace("walkNE", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/walkNE.png", walkFrames, 0.2)));
 	sprites.emplace("walkSW", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/walkSW.png", walkFrames, 0.2)));
 	sprites.emplace("walkSE", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/walkSE.png", walkFrames, 0.2)));
-	
+
 	for(auto& i: sprites)
 		i.second->SetScale(Vec2(2, 2));
 }

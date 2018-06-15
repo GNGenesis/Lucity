@@ -21,7 +21,7 @@ private:
 	float speed;
 
 public:
-	Attack(GameObject& associated, GameObject& owner, AttackType type, float lifeTime, 	float radius = 0, float angle = 0, float speed = 0);
+	Attack(GameObject& associated, GameObject& owner, AttackType type, float lifeTime, float radius = 0, float angle = 0, float speed = 0);
 	~Attack();
 	void Update(float dt);
 	void NotifyCollision(GameObject& other);

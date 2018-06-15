@@ -83,7 +83,7 @@ Game::~Game() {
 	Mix_Quit();
 	IMG_Quit();
 	SDL_Quit();
-	printf("We have cleaned it all up now, you can go already.");
+	printf("We have cleaned it all up now, you can go already.\n");
 }
 
 void Game::CalculateDeltaTime() {

@@ -10,7 +10,7 @@ Player::Player(GameObject& associated, std::string name, int n) : Character(asso
 	SetHealth(5);
 	SetSpeed(200);
 	pNumber = n;
-	damageCD = 0.5;
+	damageCD = 5;
 }
 
 Player::~Player() {
@@ -30,7 +30,7 @@ void Player::Start() {
 void Player::Update(float dt) {
 	damageT.Update(dt);
 	SetAngleDirection(dt);
-	
+
 	if(GetAngleDirection() > 360)
 		Character::SetAngleDirection(GetAngleDirection()-360);
 	else if(GetAngleDirection() < 0)
@@ -98,7 +98,7 @@ bool Player::Attacking() {
 		return InputManager::IsKeyDown(SDLK_o);
 	else if(pNumber == 3)
 		return InputManager::IsKeyDown(SDLK_RSHIFT);
-	else	
+	else
 		return false;
 }
 
@@ -113,7 +113,7 @@ bool Player::Walking() {
 		return InputManager::IsKeyDown(SDLK_i);
 	else if(pNumber == 3)
 		return InputManager::IsKeyDown(SDLK_UP);
-	else	
+	else
 		return false;
 }
 
