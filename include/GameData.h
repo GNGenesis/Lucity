@@ -8,6 +8,8 @@
 
 class GameData {
 public:
+	static bool debug;
+
 	static Vec2 mapSize;
 	static int nMonsters;
 	static int nCivilians;

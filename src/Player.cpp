@@ -3,6 +3,7 @@
 #include "GameData.h"
 #include "InputManager.h"
 
+#include "Sprite.h"
 #include "Attack.h"
 #include "Compass.h"
 
@@ -11,6 +12,7 @@ Player::Player(GameObject& associated, std::string name, int n) : Character(asso
 	SetSpeed(200);
 	pNumber = n;
 	damageCD = 0.5;
+	mode = BASIC;
 }
 
 Player::~Player() {
@@ -45,11 +47,24 @@ void Player::Update(float dt) {
 	else if(GetAngleDirection() >= 270 && GetAngleDirection() < 360)
 		SetDirection("NE");
 
+	if(ModeSwitch()) {
+		if(mode == BASIC)
+			mode = CAPTURE;
+		else if(mode == CAPTURE)
+			mode = BASIC;
+	}
 	if(Attacking()) {
 		if(GetAction() != ATTACK) {
-			GameObject* go = new GameObject();
-			go->AddComponent(new Attack(*go, associated, Attack::PROJECTED, 0.5, 0, GetAngleDirection(), 400));
-			Game::GetInstance().GetCurrentState().AddObject(go, "MAIN");
+			if(mode == BASIC) {
+				GameObject* go = new GameObject();
+				go->AddComponent(new Attack(*go, associated, Attack::DIRECTED, 0.5, 0, GetAngleDirection(), 0));
+				Game::GetInstance().GetCurrentState().AddObject(go, "MAIN");
+			}
+			else if(mode == CAPTURE) {
+				GameObject* go = new GameObject();
+				go->AddComponent(new Attack(*go, associated, Attack::PROJECTED, 0.5, 0, GetAngleDirection(), 400, 0));
+				Game::GetInstance().GetCurrentState().AddObject(go, "MAIN");
+			}
 		}
 		SetAction(ATTACK);
 		if(Walking()) {
@@ -58,6 +73,15 @@ void Player::Update(float dt) {
 		}
 	}
 	else if(Walking()) {
+		if(GetAction() != WALK) {
+			GameObject* go = new GameObject();
+			if(GetDirection() == "NE" || GetDirection() == "SE")
+				go->AddComponent(new Sprite(*go, "assets/img/effects/dustE.png", 6, 0.05, false, 0.3));
+			else if(GetDirection() == "NW" || GetDirection() == "SW")
+				go->AddComponent(new Sprite(*go, "assets/img/effects/dustW.png", 6, 0.05, false, 0.3));
+			go->box.SetCenter(associated.box.GetCenter()+(Vec2(Vec2::Cos(GetAngleDirection()+180), Vec2::Sin(GetAngleDirection()+180))*30));
+			Game::GetInstance().GetCurrentState().AddObject(go, "EFFECT");
+		}
 		SetAction(WALK);
 		Vec2 mov = Vec2(Vec2::Cos(GetAngleDirection()), Vec2::Sin(GetAngleDirection()))*GetSpeed()*dt;
 		associated.box.SetCenter(associated.box.GetCenter()+mov);
@@ -73,10 +97,8 @@ void Player::NotifyCollision(GameObject& other) {
 		if(!attack->IsOwner(associated)) {
 			if(!attack->IsAlly("Player")) {
 				if(damageT.Get() > damageCD) {
-					if(damageT.Get() > damageCD) {
-						Damage(1);
-						damageT.Restart();
-					}
+					Damage(attack->GetDamage());
+					damageT.Restart();
 				}
 			}
 		}
@@ -85,6 +107,21 @@ void Player::NotifyCollision(GameObject& other) {
 
 bool Player::Is(std::string type) {
 	return (type == "Player" || Character::Is(type));
+}
+
+bool Player::ModeSwitch() {
+	if(InputManager::GetJoystick(pNumber))
+		return (InputManager::IsJButtonDown(pNumber, 3));
+	else if(pNumber == 0)
+		return InputManager::KeyPress(SDLK_z);
+	else if(pNumber == 1)
+		return InputManager::KeyPress(SDLK_q);
+	else if(pNumber == 2)
+		return InputManager::KeyPress(SDLK_u);
+	else if(pNumber == 3)
+		return InputManager::KeyPress(SDLK_RETURN);
+	else	
+		return false;
 }
 
 bool Player::Attacking() {
@@ -101,6 +138,8 @@ bool Player::Attacking() {
 	else	
 		return false;
 }
+
+
 
 bool Player::Walking() {
 	if(InputManager::GetJoystick(pNumber))

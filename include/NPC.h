@@ -19,10 +19,12 @@ private:
 public:
 	NPC(GameObject& associated, Personality p);
 	~NPC();
+	virtual void Start();
 	virtual void Update(float dt);
 	virtual void NotifyCollision(GameObject& other);
 	virtual bool Is(std::string type);
 	void SetAngleDirection(int angle);
+	std::string GetName();
 };
 
 #endif /* NPC_H_ */

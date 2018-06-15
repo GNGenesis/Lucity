@@ -23,6 +23,7 @@ public:
 	void Update(float dt);
 	void NotifyCollision(GameObject& other);
 	bool Is(std::string type);
+	std::string GetName();
 };
 
 #endif /* MAINOBJECT_H_ */

@@ -5,7 +5,6 @@
 #include "Sprite.h"
 #include "Collider.h"
 #include "MiscObject.h"
-#include "AOE.h"
 #include "Attack.h"
 #include "Character.h"
 
@@ -33,11 +32,8 @@ MainObject::~MainObject() {
 }
 
 void MainObject::Start() {
-	GameObject* go = new GameObject();
-	go->AddComponent(new AOE(*go, associated, objectName, 100));
-	Game::GetInstance().GetCurrentState().AddObject(go, "MAIN");
 	if(miscObject) {
-		go = new GameObject();
+		GameObject* go = new GameObject();
 		go->AddComponent(new MiscObject(*go, associated, objectName, scale));
 		Game::GetInstance().GetCurrentState().AddObject(go, "MISC");
 	}
@@ -75,4 +71,8 @@ void MainObject::NotifyCollision(GameObject & other){
 
 bool MainObject::Is(std::string type) {
 	return (type == "MainObject");
+}
+
+std::string MainObject::GetName() {
+	return objectName;
 }

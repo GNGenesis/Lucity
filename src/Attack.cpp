@@ -4,18 +4,20 @@
 #include "Sprite.h"
 #include "Collider.h"
 
-Attack::Attack(GameObject& associated, GameObject& owner, AttackType type, float lifeTime, 	float radius, float angle, float speed) : Component(associated) {
+Attack::Attack(GameObject& associated, GameObject& owner, AttackType type, float lifeTime, 	float radius, float angle, float speed, int damage) : Component(associated) {
 	Attack::owner = Game::GetInstance().GetCurrentState().GetObjectPtr(&owner, "MAIN");
 	Attack::type = type;
 	Attack::lifeTime = lifeTime;
 	Attack::radius = radius;
 	Attack::angle = angle;
 	Attack::speed = speed;
-	
+	Attack::damage = damage;
 
 	if(type == CENTERED) {
 		associated.box.SetSize(Vec2(radius, radius)*2);
 		associated.AddComponent(new Collider(associated, radius));
+		Rect box = Attack::owner.lock()->box;
+		associated.box.SetCenter(Vec2(box.x+box.w/2, box.y+box.h));
 	}
 	else if(type == DIRECTED) {
 		Sprite* s = new Sprite(associated, "assets/img/sword.png");
@@ -45,19 +47,36 @@ void Attack::Update(float dt) {
 	}
 	else {
 		lifeTimeT.Update(dt);
+		Rect box = Attack::owner.lock()->box;
 		if(lifeTimeT.Get() > lifeTime)
 			associated.RequestDelete();
 		else if(type == CENTERED)
-			associated.box.SetCenter(owner.lock()->box.GetCenter());
+			associated.box.SetCenter(Vec2(box.x+box.w/2, box.y+box.h));
 		else if(type == DIRECTED)
-			associated.box.SetCenter(owner.lock()->box.GetCenter()+(Vec2(Vec2::Cos(angle), Vec2::Sin(angle))*40));
+			associated.box.SetCenter(box.GetCenter()+(Vec2(Vec2::Cos(angle), Vec2::Sin(angle))*40));
 		else if(type == PROJECTED)
 			associated.box.SetCenter(associated.box.GetCenter()+(Vec2(Vec2::Cos(angle), Vec2::Sin(angle))*speed*dt));
 	}
 }
 
 void Attack::NotifyCollision(GameObject& other) {
-	if(other.GetComponent("MainObject")) {
+	if(other.GetComponent("Player")) {
+		if(!IsAlly("Player")) {
+			if(type == PROJECTED) {
+				associated.RequestDelete();
+				associated.Deactivate();
+			}
+		}
+	}
+	else if(other.GetComponent("Monster")) {
+		if(!IsAlly("Monster")) {
+			if(type == PROJECTED) {
+				associated.RequestDelete();
+				associated.Deactivate();
+			}
+		}
+	}
+	else if(other.GetComponent("MainObject")) {
 		if(type != CENTERED) {
 			associated.RequestDelete();
 			associated.Deactivate();
@@ -79,4 +98,8 @@ bool Attack::IsOwner(GameObject& owner) {
 	if(!Attack::owner.expired())
 		return (Attack::owner.lock() == Game::GetInstance().GetCurrentState().GetObjectPtr(&owner, "MAIN").lock());
 	return false;
+}
+
+int Attack::GetDamage() {
+	return damage;
 }
