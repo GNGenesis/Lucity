@@ -104,6 +104,7 @@ void Monster::Update(float dt) {
 				mActionT.Restart();
 				mOffsetT = pow(-1,rand()%2)*(rand()%51)/100;
 				SetAction("mAttack");
+				SetHP(2);
 			}
 		}
 	}
@@ -116,7 +117,7 @@ void Monster::NotifyCollision(GameObject& other) {
 	else {
 		Attack* attack = (Attack*) other.GetComponent("Attack");
 		if(attack) {
-			if(GetAction() != "mStun") {
+			if(GetAction() != "mStun" && GetAction() != "mTransform") {
 				if(!attack->IsOwner(associated)) {
 					if(!attack->IsAlly("Monster")) {
 						if(mDamageT.Get() > mDamageCD) {
