@@ -3,9 +3,12 @@
 
 #include "State.h"
 #include "GameObject.h"
+#include "Personality.h"
 #include "Timer.h"
 
 class TitleState : public State {
+private:
+	std::vector<Personality> NPCList;
 public:
 	TitleState();
 	~TitleState();
