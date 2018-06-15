@@ -7,6 +7,13 @@ Rect::Rect() {
 	h = 0;
 }
 
+Rect::Rect(Vec2 pos, Vec2 size) {
+	Rect::x = pos.x;
+	Rect::y = pos.y;
+	Rect::w = size.x;
+	Rect::h = size.y;
+}
+
 Rect::Rect(float x, float y, float w, float h) {
 	Rect::x = x;
 	Rect::y = y;

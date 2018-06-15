@@ -2,7 +2,6 @@
 #define MAINOBJECT_H_
 
 #include "Component.h"
-#include "Timer.h"
 
 #include <string>
 #include <vector>
@@ -10,26 +9,21 @@
 
 class MainObject : public Component {
 private:
-	
-	int hp;
-	int  nMiscObjects;
-	bool IsDestructable;
-	float scaleX, scaleY;
 	std::string objectName;
-	std::vector<std::weak_ptr<GameObject>> MiscArray;
-
+	int hp;
+	Vec2 scale;
+	bool miscObject;
+	bool destructible;
 
 public:
-
-	MainObject(GameObject& associated, std::string objectName,float scaleX = 1,float scaleY = 1, int nMiscObjects = 0,bool IsDestructable = false);
+	MainObject(GameObject& associated, std::string objectName, int hp, Vec2 scale = {0, 0}, bool miscObject = false, bool destructible = false);
 	~MainObject();
 	void Start();
 	void Damage(int damage);
 	void Update(float dt);
-	void Render();
 	void NotifyCollision(GameObject& other);
 	bool Is(std::string type);
-	std::string GetObjectName();
+	std::string GetName();
 };
 
-#endif
+#endif /* MAINOBJECT_H_ */

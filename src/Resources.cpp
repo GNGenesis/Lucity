@@ -20,7 +20,7 @@ std::shared_ptr<SDL_Texture> Resources::GetImage(std::string file) {
 
 void Resources::ClearImages() {
 	for(auto& i: imageTable)
-		if(i.second.unique()) {	
+		if(i.second.unique()) {
 			printf("Deleting: ");
 			printf(i.first.c_str());
 			imageTable.erase(i.first);
@@ -98,10 +98,10 @@ void Resources::ClearFonts() {
 }
 
 void Resources::Clear() {
-	ClearFonts();
-	ClearSounds();
-	ClearMusics();
-	ClearImages();
+	//ClearFonts();
+	//ClearSounds();
+	//ClearMusics();
+	//ClearImages();
 }
 
 void Resources::CleanUp() {

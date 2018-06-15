@@ -1,4 +1,11 @@
+#define NONE 0
+#define TOP 1
+#define BOTTOM 2
+#define LEFT 3
+#define RIGHT 4
+
 #include "Rect.h"
+#include "Circle.h"
 #include "Vec2.h"
 
 #include <algorithm>
@@ -7,7 +14,7 @@
 class Collision {
 
 	public:
-		static inline bool IsColliding(Rect& a, Rect& b, float angleOfA, float angleOfB) {
+		static inline bool IsCollidingRectRect(Rect& a, Rect& b, float angleOfA, float angleOfB) {
 			Vec2 A[] = {
 				Vec2(a.x, a.y+a.h),
 				Vec2(a.x+a.w, a.y+a.h),
@@ -52,38 +59,62 @@ class Collision {
 		}
 
 		static inline bool IsCollidingCircleCircle(Circle& a, Circle& b) {
-			if (Distance(a.x, a.y, b.x, b.y) < (a.r + b.r)) {
+			if(a.GetCenter().GetDS(b.GetCenter()) < (a.r + b.r))
 				return true;
-			}
 			return false;
 		}
 
 		static inline bool IsCollidingCircleRect(Circle& a, Rect& b, float angleOfB) {
 			int closestX, closestY;
 
-			if (a.x < b.x) {
+			if(a.x < b.x)
 				closestX = b.x;
-			}
-			else if (a.x > b.x + b.w) {
-				closestX = b.x + b.w; 
-			}
-			else { 
+			else if(a.x > b.x + b.w)
+				closestX = b.x + b.w;
+			else
 				closestX = a.x; 
-			}
 
-			if (a.y < b.y) {
+			if(a.y < b.y)
 				closestY = b.y;
-			}
-			else if (a.y > b.y + b.h) {
+			else if(a.y > b.y + b.h)
 				closestY = b.y + b.h;
-			}
-			else {
+			else
 				closestY = a.y;
-			}
-			if (Distance(a.x, a.y, closestX, closestY) < a.r) {
+
+			if(a.GetCenter().GetDS(Vec2(closestX, closestY)) < a.r)
 				return true;
-			}
 			return false;
+		}
+
+		static inline void SolidCollision(Rect& a, Rect& b) {
+			float w = 0.5 * (a.w + b.w);
+			float h = 0.5 * (a.h + b.h);
+			
+			float dx = a.GetCenter().x - b.GetCenter().x;
+			float adx = dx;
+			if(adx < 0)
+				adx *= (-1);
+			
+			float dy = a.GetCenter().y - b.GetCenter().y;
+			float ady = dy;
+			if(ady < 0)
+				ady *= (-1);
+
+			if(adx <= w && ady <= h) {
+				float wy = w * dy;
+				float hx = h * dx;
+
+				if(wy > hx)
+					if(wy > -hx)
+						a.y = b.y + b.h + 1;
+					else
+						a.x = b.x - a.w - 1;
+				else
+					if(wy > -hx)
+						a.x = b.x + b.w + 1;
+					else
+						a.y = b.y - a.h - 1;
+			}
 		}
 
 	private:
@@ -102,8 +133,5 @@ class Collision {
 		static inline Vec2 Rotate(const Vec2& p, float angle) {
 			float cs = Vec2::Cos(angle), sn = Vec2::Sin(angle);
 			return Vec2 (p.x*cs - p.y*sn, p.x*sn + p.y*cs);
-		}
-		static inline float Distance(float x1, float y1, float x2, float y2) {
-			return sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
 		}
 };

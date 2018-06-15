@@ -1,14 +1,17 @@
 #include "Player.h"
 #include "Game.h"
+#include "GameData.h"
 #include "InputManager.h"
-#include "Collider.h"
 
+#include "Sprite.h"
+#include "Attack.h"
 #include "Compass.h"
 
 Player::Player(GameObject& associated, std::string name, int n) : Character(associated, name) {
 	SetHealth(5);
 	SetSpeed(200);
 	pNumber = n;
+	damageCD = 0.5;
 }
 
 Player::~Player() {
@@ -16,6 +19,8 @@ Player::~Player() {
 }
 
 void Player::Start() {
+	GameData::player = Game::GetInstance().GetCurrentState().GetObjectPtr(&associated, "MAIN");
+
 	GameObject* go = new GameObject();
 	char n[3];
 	sprintf(n, "%d", pNumber+1);
@@ -24,6 +29,7 @@ void Player::Start() {
 }
 
 void Player::Update(float dt) {
+	damageT.Update(dt);
 	SetAngleDirection(dt);
 	
 	if(GetAngleDirection() > 360)
@@ -41,15 +47,47 @@ void Player::Update(float dt) {
 		SetDirection("NE");
 
 	if(Attacking()) {
-		SetAction("attack");
+		if(GetAction() != ATTACK) {
+			GameObject* go = new GameObject();
+			go->AddComponent(new Attack(*go, associated, Attack::DIRECTED, 0.5, 0, GetAngleDirection(), 400));
+			Game::GetInstance().GetCurrentState().AddObject(go, "MAIN");
+		}
+		SetAction(ATTACK);
+		if(Walking()) {
+			Vec2 mov = Vec2(Vec2::Cos(GetAngleDirection()), Vec2::Sin(GetAngleDirection()))*GetSpeed()*dt;
+			associated.box.SetCenter(associated.box.GetCenter()+mov);
+		}
 	}
 	else if(Walking()) {
-		SetAction("walk");
+		if(GetAction() != WALK) {
+			GameObject* go = new GameObject();
+			if(GetDirection() == "NE" || GetDirection() == "SE")
+				go->AddComponent(new Sprite(*go, "assets/img/effects/dustE.png", 6, 0.05, false, 0.3));
+			else if(GetDirection() == "NW" || GetDirection() == "SW")
+				go->AddComponent(new Sprite(*go, "assets/img/effects/dustW.png", 6, 0.05, false, 0.3));
+			go->box.SetCenter(associated.box.GetCenter()+(Vec2(Vec2::Cos(GetAngleDirection()+180), Vec2::Sin(GetAngleDirection()+180))*30));
+			Game::GetInstance().GetCurrentState().AddObject(go, "EFFECT");
+		}
+		SetAction(WALK);
 		Vec2 mov = Vec2(Vec2::Cos(GetAngleDirection()), Vec2::Sin(GetAngleDirection()))*GetSpeed()*dt;
 		associated.box.SetCenter(associated.box.GetCenter()+mov);
 	}
-	else{
-		SetAction("idle");
+	else {
+		SetAction(IDLE);
+	}
+}
+
+void Player::NotifyCollision(GameObject& other) {
+	Attack* attack = (Attack*) other.GetComponent("Attack");
+	if(attack) {
+		if(!attack->IsOwner(associated)) {
+			if(!attack->IsAlly("Player")) {
+				if(damageT.Get() > damageCD) {
+					Damage(1);
+					damageT.Restart();
+				}
+			}
+		}
 	}
 }
 

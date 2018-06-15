@@ -19,7 +19,9 @@ private:
 public:
 	Animator(GameObject& associated, Character* character, std::string name);
 	~Animator();
+	void Start();
 	void BuildSprites();
+	void RebuildSprites(std::string name);
 	void Update(float dt);
 	void Render();
 	bool Is(std::string type);

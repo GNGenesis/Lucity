@@ -9,7 +9,8 @@
 class Personality {
 private:
 	std::string name;
-	Vec2 speed;
+	int nSpeed;
+	int pSpeed;
 	float idleT;
 	float walkT;
 	float shockT;
@@ -19,10 +20,12 @@ private:
 
 public:
 	Personality();
-	Personality(std::string name, Vec2 speed, float idleT, float walkT, float shockT, float panicT);
+	Personality(std::string name, int nSpeed, int pSpeed, float idleT, float walkT, float shockT, float panicT,
+				std::vector<std::string> fears = {}, std::vector<std::string> interests = {});
 	~Personality();
 	std::string GetName();
-	Vec2 GetSpeed();
+	int GetNormalSpeed();
+	int GetPanicSpeed();
 	float GetTime(std::string action);
 	bool IsAfraid(std::string fear);
 	bool IsInterested(std::string interest);

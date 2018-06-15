@@ -11,6 +11,7 @@ public:
 	float h;
 
 	Rect();
+	Rect(Vec2 pos, Vec2 size);
 	Rect(float x, float y, float w, float h);
 	~Rect();
 	void SetPos(float x, float y);

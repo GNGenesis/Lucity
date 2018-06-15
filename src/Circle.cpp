@@ -1,6 +1,6 @@
 #include "Circle.h"
 
-
+#include <math.h>
 
 Circle::Circle() {
 	x = 0;
@@ -18,12 +18,12 @@ Circle::~Circle() {
 
 }
 
-void Circle::SetPos(float x, float y) {
+void Circle::SetCenter(float x, float y) {
 	Circle::x = x;
 	Circle::y = y;
 }
 
-void Circle::SetPos(Vec2 pos) {
+void Circle::SetCenter(Vec2 pos) {
 	x = pos.x;
 	y = pos.y;
 }
@@ -33,21 +33,13 @@ void Circle::SetRadius(float r) {
 }
 
 bool Circle::Contains(float a, float b) {
-	return((a < x + r) && (b < y + r));
+	return((a < x+r && a > x-r) && (b < y+r && b > y-r));
 }
 
 bool Circle::Contains(Vec2 p) {
-	return((p.x < x+r) && (p.y < y + r));
+	return((p.x < x+r && p.x > x-r) && (p.y < y+r && p.y > y-r));
 }
 
-Vec2 Circle::GetPos() {
+Vec2 Circle::GetCenter() {
 	return Vec2(x, y);
-}
-
-float Circle::GetRadius() {
-	return Circle::r;
-}
-
-float Circle::Distance(float x1, float y1, float x2, float y2) {
-	return sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
 }

@@ -2,14 +2,15 @@
 #define CAMERA_H_
 
 #include "GameObject.h"
+#include "Timer.h"
 
 class Camera {
 private:
-	static	GameObject* focus;
-
+	static GameObject* focus;
 public:
 	static Vec2 pos;
 	static Vec2 speed;
+	static Timer tremorT;
 
 	static void Follow(GameObject* newFocus);
 	static void Unfollow();

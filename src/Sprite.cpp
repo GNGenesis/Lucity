@@ -18,19 +18,20 @@ Sprite::Sprite(GameObject& associated) : Component(associated) {
 Sprite::Sprite(GameObject& associated, std::string file, 
 			   int frameCount, float frameTime, bool loop, 
 			   float secondsToSelfDestruct) : Sprite(associated) {
-	Sprite::frameCount = frameCount;
-	Sprite::frameTime = frameTime;
 	Sprite::loop = loop;
+	Sprite::frameInterval = Vec2(0, frameCount-1);
 	Sprite::secondsToSelfDestruct = secondsToSelfDestruct;
-	Open(file);
+	Open(file, frameCount, frameTime);
 }
 
 Sprite::~Sprite() {
 	texture = nullptr;
 }
 
-void Sprite::Open(std::string file) {
+void Sprite::Open(std::string file, int frameCount, float frameTime) {
 	texture = Resources::GetImage(file);
+	Sprite::frameCount = frameCount;
+	Sprite::frameTime = frameTime;
 	SDL_QueryTexture(texture.get(), nullptr, nullptr, &width, &height);
 	SetClip(0, 0, (width/frameCount), height);
 	associated.box.w = GetWidth();
@@ -62,6 +63,10 @@ void Sprite::SetFrameTime(float frameTime) {
 	Sprite::frameTime = frameTime;
 }
 
+void Sprite::SetFrameInterval(Vec2 frameInterval) {
+	Sprite::frameInterval = frameInterval;
+}
+
 void Sprite::Update(float dt) {
 	if(secondsToSelfDestruct > 0) {
 		selfDestructCount.Update(dt);
@@ -72,10 +77,10 @@ void Sprite::Update(float dt) {
 		timeElapsed += dt;
 		if(timeElapsed > frameTime) {
 			timeElapsed -= frameTime; 
-				if(currentFrame < frameCount-1)
+				if(currentFrame < frameInterval.y)
 					currentFrame++;
 				else if(loop)
-					currentFrame = 0;
+					currentFrame = frameInterval.x;
 				SetClip(currentFrame*(width/frameCount), 0, (width/frameCount), height);
 		}
 	}

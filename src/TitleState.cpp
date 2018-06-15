@@ -3,6 +3,7 @@
 #include "InputManager.h"
 
 #include "StageState.h"
+#include "BossStageState.h"
 
 #include "Sprite.h"
 #include "Text.h"
@@ -54,6 +55,9 @@ void TitleState::Update(float dt) {
 
 	if(InputManager::KeyPress(SPACE_KEY))
 		Game::GetInstance().Push(new StageState());
+
+	if (InputManager::KeyPress(F1_KEY))
+		Game::GetInstance().Push(new BossStageState());
 
 	UpdateArray(dt, "BG");
 	//UpdateArray(dt, "MAIN");
