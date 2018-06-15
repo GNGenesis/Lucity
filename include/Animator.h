@@ -21,6 +21,7 @@ public:
 	~Animator();
 	void Start();
 	void BuildSprites();
+	void RebuildSprites(std::string name);
 	void Update(float dt);
 	void Render();
 	bool Is(std::string type);

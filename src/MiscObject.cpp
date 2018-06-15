@@ -3,7 +3,6 @@
 
 #include "Sprite.h"
 
-
 MiscObject::MiscObject(GameObject& associated, GameObject& mainObject, std::string miscName, Vec2 scale) : Component(associated) {
 	MiscObject::mainObject = Game::GetInstance().GetCurrentState().GetObjectPtr(&mainObject, "MAIN");
 

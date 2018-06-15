@@ -25,6 +25,7 @@ public:
 	Collider(GameObject& associated, int radius);
 	Collider(GameObject& associated, Vec2 scale = {1, 1}, Vec2 offset = {0, 0});
 	~Collider();
+	void SetMode(ColliderMode mode);
 	void SetScale(Vec2 scale);
 	void SetOffset(Vec2 offset);
 	void SetRadius(int radius);

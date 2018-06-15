@@ -20,22 +20,17 @@
 StageState::StageState() : State() {
 	GameObject* go;
 
-	//Background
-	/*go = new GameObject();
-	go->AddComponent(new Sprite(*go, "assets/img/ocean.jpg"));
-	go->AddComponent(new CameraFollower(*go));
-	go->box.SetSize(Vec2());
-	AddObject(go, "BG");*/
+	NPCList.emplace_back(Personality("girl", 150, 200, 1, 3, 1, 3, {"hobo"}, {"suit", "tree"}));
+	NPCList.emplace_back(Personality("hobo", 150, 150, 2, 2, 1, 2, {}, {"suit", "trashcan"}));
+	NPCList.emplace_back(Personality("luv", 150, 50, 3, 1, 2, 2, {"old"}, {"girl", "suit"}));
+	NPCList.emplace_back(Personality("old", 50, 250, 3, 1, 1.5, 2, {}, {"luv", "bench"}));
+	NPCList.emplace_back(Personality("suit", 150, 150, 2, 2, 0.5, 1, {}, {}));
 
-	NPCList.emplace_back(Personality("girl", 100, 200, 1, 2, 1, 2, {"monster"}, {"bench", "tree"}));
-	NPCList.emplace_back(Personality("luv", 100, 50, 2, 2, 1.5, 3, {"monster"}, {"bench", "girl"}));
-	NPCList.emplace_back(Personality("old", 50, 300, 3, 1, 1, 1, {"monster"}, {"bench"}));
-	NPCList.emplace_back(Personality("suit", 50, 150, 2, 1, 1, 2, {"monster"}, {"bench"}));
-
-	monsterList.emplace_back(Personality("girl", 30, 150, 0.1, 5, 0, 1, {"bench"}, {}));
-	monsterList.emplace_back(Personality("luv", 150, 150, 20, 2, 0, 2, {"bench"}, {}));
-	monsterList.emplace_back(Personality("old", 450, 150, 0.1, 2, 0, 1, {"bench"}, {}));
-	monsterList.emplace_back(Personality("suit", 150, 3000, 5, 0.3, 0, 2, {"bench"}, {}));
+	monsterList.emplace_back(Personality("girl", 50, 200, 0.3, 5, 1, 1, {"luv"}, {"hobo"}));
+	monsterList.emplace_back(Personality("hobo", 250, 50, 1, 3, 3, 1, {}, {"girl", "luv", "old", "suit"}));
+	monsterList.emplace_back(Personality("luv", 150, 150, 10, 2, 1, 2, {}, {"old", "tree"}));
+	monsterList.emplace_back(Personality("old", 300, 250, 1, 2, 2, 2, {"tree"}, {"trashcan"}));
+	monsterList.emplace_back(Personality("suit", 150, 4000, 5, 0.3, 5, 1, {"bench"}, {}));
 
 	//TileMap
 	go = new GameObject();
@@ -58,7 +53,7 @@ StageState::StageState() : State() {
 	//Bench
 	for(int i = 0; i < 4; i++) {
 		go = new GameObject();
-		go->AddComponentAsFirst(new MainObject(*go, "bench", 1, Vec2(3, 3), true, true));
+		go->AddComponentAsFirst(new MainObject(*go, "bench", 1, Vec2(3, 3), true));
 		go->box.SetPos(Vec2(rand()%mw, rand()%mh));
 		AddObject(go, "MAIN");
 	}
@@ -66,7 +61,7 @@ StageState::StageState() : State() {
 	//Trashcan
 	for(int i = 0; i < 4; i++) {
 		go = new GameObject();
-		go->AddComponentAsFirst(new MainObject(*go, "trashcan", 1, Vec2(3, 3), true, true));
+		go->AddComponentAsFirst(new MainObject(*go, "trashcan", 1, Vec2(3, 3), true));
 		go->box.SetPos(Vec2(rand()%mw, rand()%mh));
 		AddObject(go, "MAIN");
 	}
@@ -195,6 +190,7 @@ void StageState::Update(float dt) {
 	}
 
 	UpdateArray(dt, "BG");
+	UpdateArray(dt, "EFFECT");
 	UpdateArray(dt, "MAIN");
 	UpdateArray(dt, "MISC");
 	UpdateArray(dt, "GUI");
@@ -204,6 +200,7 @@ void StageState::Update(float dt) {
 
 void StageState::Render() {
 	RenderArray("BG");
+	RenderArray("EFFECT");
 	RenderArray("MAIN");
 	RenderArray("MISC");
 	RenderArray("GUI");

@@ -3,6 +3,7 @@
 #include "GameData.h"
 #include "InputManager.h"
 
+#include "Sprite.h"
 #include "Attack.h"
 #include "Compass.h"
 
@@ -48,7 +49,7 @@ void Player::Update(float dt) {
 	if(Attacking()) {
 		if(GetAction() != ATTACK) {
 			GameObject* go = new GameObject();
-			go->AddComponent(new Attack(*go, associated, Attack::PROJECTED, 0.5, 0, GetAngleDirection(), 400));
+			go->AddComponent(new Attack(*go, associated, Attack::DIRECTED, 0.5, 0, GetAngleDirection(), 400));
 			Game::GetInstance().GetCurrentState().AddObject(go, "MAIN");
 		}
 		SetAction(ATTACK);
@@ -58,6 +59,15 @@ void Player::Update(float dt) {
 		}
 	}
 	else if(Walking()) {
+		if(GetAction() != WALK) {
+			GameObject* go = new GameObject();
+			if(GetDirection() == "NE" || GetDirection() == "SE")
+				go->AddComponent(new Sprite(*go, "assets/img/effects/dustE.png", 6, 0.05, false, 0.3));
+			else if(GetDirection() == "NW" || GetDirection() == "SW")
+				go->AddComponent(new Sprite(*go, "assets/img/effects/dustW.png", 6, 0.05, false, 0.3));
+			go->box.SetCenter(associated.box.GetCenter()+(Vec2(Vec2::Cos(GetAngleDirection()+180), Vec2::Sin(GetAngleDirection()+180))*30));
+			Game::GetInstance().GetCurrentState().AddObject(go, "EFFECT");
+		}
 		SetAction(WALK);
 		Vec2 mov = Vec2(Vec2::Cos(GetAngleDirection()), Vec2::Sin(GetAngleDirection()))*GetSpeed()*dt;
 		associated.box.SetCenter(associated.box.GetCenter()+mov);
@@ -73,10 +83,8 @@ void Player::NotifyCollision(GameObject& other) {
 		if(!attack->IsOwner(associated)) {
 			if(!attack->IsAlly("Player")) {
 				if(damageT.Get() > damageCD) {
-					if(damageT.Get() > damageCD) {
-						Damage(1);
-						damageT.Restart();
-					}
+					Damage(1);
+					damageT.Restart();
 				}
 			}
 		}

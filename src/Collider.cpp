@@ -22,6 +22,10 @@ Collider::~Collider() {
 
 }
 
+void Collider::SetMode(ColliderMode mode) {
+	Collider::mode = mode;
+}
+
 void Collider::SetScale(Vec2 scale) {
 	Collider::scale = scale;
 }

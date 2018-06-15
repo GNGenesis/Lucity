@@ -5,6 +5,7 @@
 #include "SDL_include.h"
 
 #include "Component.h"
+#include "Vec2.h"
 #include "Timer.h"
 
 #include <string>
@@ -22,6 +23,7 @@ private:
 	float frameTime;
 	float timeElapsed;
 	bool loop;
+	Vec2 frameInterval;
 	Timer selfDestructCount;
 	float secondsToSelfDestruct;
 
@@ -31,12 +33,13 @@ public:
 		   int frameCount = 1, float frameTime = 1, bool loop = true, 
 		   float secondsToSelfDesctruct = 0);
 	~Sprite();
-	void Open(std::string file);
+	void Open(std::string file, int frameCount = 1, float frameTime = 1);
 	void SetClip(int x, int y, int w, int h);
 	void SetScale(Vec2 scale);
 	void SetFrame(int frame);
 	void SetFrameCount(int frameCount);
 	void SetFrameTime(float frameTime);
+	void SetFrameInterval(Vec2 frameInterval);
 	void Update(float dt);
 	void Render();
 	void Render(int x, int y);
