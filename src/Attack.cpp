@@ -4,14 +4,14 @@
 #include "Sprite.h"
 #include "Collider.h"
 
-Attack::Attack(GameObject& associated, GameObject& owner, AttackType type, float lifeTime, 	float radius, float angle, float speed) : Component(associated) {
+Attack::Attack(GameObject& associated, GameObject& owner, AttackType type, float lifeTime, 	float radius, float angle, float speed, int damage) : Component(associated) {
 	Attack::owner = Game::GetInstance().GetCurrentState().GetObjectPtr(&owner, "MAIN");
 	Attack::type = type;
 	Attack::lifeTime = lifeTime;
 	Attack::radius = radius;
 	Attack::angle = angle;
 	Attack::speed = speed;
-	
+	Attack::damage = damage;
 
 	if(type == CENTERED) {
 		associated.box.SetSize(Vec2(radius, radius)*2);
@@ -62,7 +62,7 @@ void Attack::Update(float dt) {
 void Attack::NotifyCollision(GameObject& other) {
 	if(other.GetComponent("Player")) {
 		if(!IsAlly("Player")) {
-			if(type != CENTERED) {
+			if(type == PROJECTED) {
 				associated.RequestDelete();
 				associated.Deactivate();
 			}
@@ -70,7 +70,7 @@ void Attack::NotifyCollision(GameObject& other) {
 	}
 	else if(other.GetComponent("Monster")) {
 		if(!IsAlly("Monster")) {
-			if(type != CENTERED) {
+			if(type == PROJECTED) {
 				associated.RequestDelete();
 				associated.Deactivate();
 			}
@@ -98,4 +98,8 @@ bool Attack::IsOwner(GameObject& owner) {
 	if(!Attack::owner.expired())
 		return (Attack::owner.lock() == Game::GetInstance().GetCurrentState().GetObjectPtr(&owner, "MAIN").lock());
 	return false;
+}
+
+int Attack::GetDamage() {
+	return damage;
 }

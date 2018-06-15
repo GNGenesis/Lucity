@@ -40,21 +40,6 @@ void InputManager::Update() {
 				keyState[event.key.keysym.sym] = false;
 				keyUpdate[event.key.keysym.sym] = updateCounter;
 			}
-			
-			//Joystick Related
-			/*if(event.type == SDL_JOYAXISMOTION) {
-				joyAxis.x = (float)SDL_JoystickGetAxis(joystick, 0)/32768;
-				joyAxis.y = (float)SDL_JoystickGetAxis(joystick, 1)/32768;
-			}
-			if(event.type == SDL_JOYBUTTONDOWN) {
-				joyState[event.jbutton.button] = true;
-				joyUpdate[event.jbutton.button] = updateCounter;
-				printf("%i\n", event.jbutton.button);
-			}
-			if(event.type == SDL_JOYBUTTONUP) {
-				joyState[event.jbutton.button] = false;
-				joyUpdate[event.jbutton.button] = updateCounter;
-			}*/
 		}
 	}
 }

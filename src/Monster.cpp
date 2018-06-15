@@ -9,12 +9,11 @@
 #include <math.h>
 
 Monster::Monster(GameObject& associated, Personality p) : NPC(associated, p) {
-	SetHealth(3);
 	transformed = false;
 	mIdleT = 0.5;
 	mWalkT = 2;
 	mAttackT = 0.48;
-	mStunT = 3;
+	mStunT = 1.5;
 	mDamageCD = 0.5;
 
 	GameData::nMonsters++;
@@ -34,11 +33,8 @@ void Monster::Transform() {
 
 void Monster::Damage(int damage) {
 	SetHealth(GetHealth()-damage);
-	if(!transformed)
+	if(!transformed && damage > 0)
 		Transform();
-	if(GetHealth() < 1)
-		associated.RequestDelete();
-		//SetAction("mStun");
 }
 
 void Monster::Update(float dt) {
@@ -59,7 +55,27 @@ void Monster::Update(float dt) {
 				go->AddComponent(new Attack(*go, associated, Attack::CENTERED, 0.5, 50));
 				Game::GetInstance().GetCurrentState().AddObject(go, "MAIN");
 				Camera::tremorT.Restart();
+
+				go = new GameObject();
+				go->AddComponent(new Sprite(*go, "assets/img/effects/crack.png", 4, 0.125, false, 0.5));
+				go->box.SetCenter(Vec2(associated.box.x + associated.box.w/2, associated.box.y + associated.box.h));
+				Game::GetInstance().GetCurrentState().AddObject(go, "EFFECT");
 			}
+		}
+		else if(GetAction() == "mStun") {
+			if(mActionT.Get() > mStunT) {
+				printf("alo");
+				mActionT.Restart();
+				mOffsetT = pow(-1,rand()%2)*(rand()%51)/100;
+				SetAction("mAttack");
+				SetDirection("SE");
+				SetHealth(2);
+			}
+		}
+		else if(GetHealth() < 1) {
+			mActionT.Restart();
+			SetAction("mStun");
+			SetDirection("");
 		}
 		else if(GetAction() == "mIdle") {
 			if(mActionT.Get() > mIdleT + mOffsetT) {
@@ -99,14 +115,6 @@ void Monster::Update(float dt) {
 				Game::GetInstance().GetCurrentState().AddObject(go, "EFFECT");
 			}
 		}
-		else if(GetAction() == "mStun") {
-			if(mActionT.Get() > mStunT) {
-				mActionT.Restart();
-				mOffsetT = pow(-1,rand()%2)*(rand()%51)/100;
-				SetAction("mAttack");
-				SetHP(2);
-			}
-		}
 	}
 }
 
@@ -121,11 +129,16 @@ void Monster::NotifyCollision(GameObject& other) {
 				if(!attack->IsOwner(associated)) {
 					if(!attack->IsAlly("Monster")) {
 						if(mDamageT.Get() > mDamageCD) {
-							Damage(1);
+							Damage(attack->GetDamage());
 							mDamageT.Restart();
 							mOffsetT = pow(-1,rand()%2)*(rand()%51)/100;
 						}
 					}
+				}
+			}
+			else if(GetAction() == "mStun") {
+				if(attack->GetDamage() == 0) {
+					associated.RequestDelete();
 				}
 			}
 		}

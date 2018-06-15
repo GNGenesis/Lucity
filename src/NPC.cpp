@@ -101,7 +101,12 @@ void NPC::NotifyCollision(GameObject& other) {
 	if(other.GetComponent("Attack")) {
 		Attack* attack = (Attack*) other.GetComponent("Attack");
 		if(!attack->IsOwner(associated)) {
-			Damage(1);
+			actionT.Restart();
+			offsetT = pow(-1,rand()%2)*(rand()%51)/100;
+			scared = true;
+			SetAction(PANIC);
+			SetAngleDirection(associated.box.GetCenter().GetAngle(other.box.GetCenter()));
+			Damage(attack->GetDamage());
 		}
 	}
 	else if(other.GetComponent("NPC")) {

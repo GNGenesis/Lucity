@@ -87,6 +87,8 @@ void Animator::BuildSprites() {
 
 			sprites.emplace("mTransform", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/transform.png", 7, 0.2)));
 
+			sprites.emplace("mStun", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/stun.png", 3, 0.2)));
+
 			sprites.emplace("mIdleNW", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/idleNW.png", 3, 0.16)));
 			sprites.emplace("mIdleNE", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/idleNE.png", 3, 0.16)));
 			sprites.emplace("mIdleSW", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/idleSW.png", 3, 0.16)));

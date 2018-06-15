@@ -19,15 +19,17 @@ private:
 	float radius;
 	float angle;
 	float speed;
+	int damage;
 
 public:
-	Attack(GameObject& associated, GameObject& owner, AttackType type, float lifeTime, 	float radius = 0, float angle = 0, float speed = 0);
+	Attack(GameObject& associated, GameObject& owner, AttackType type, float lifeTime, 	float radius = 0, float angle = 0, float speed = 0, int damage = 1);
 	~Attack();
 	void Update(float dt);
 	void NotifyCollision(GameObject& other);
 	bool Is(std::string type);
 	bool IsAlly(std::string ally);
 	bool IsOwner(GameObject& owner);
+	int GetDamage();
 };
 
 #endif /* ATTACK_H_ */

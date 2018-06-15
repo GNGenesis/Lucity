@@ -12,6 +12,7 @@ Player::Player(GameObject& associated, std::string name, int n) : Character(asso
 	SetSpeed(200);
 	pNumber = n;
 	damageCD = 0.5;
+	mode = BASIC;
 }
 
 Player::~Player() {
@@ -46,11 +47,24 @@ void Player::Update(float dt) {
 	else if(GetAngleDirection() >= 270 && GetAngleDirection() < 360)
 		SetDirection("NE");
 
+	if(ModeSwitch()) {
+		if(mode == BASIC)
+			mode = CAPTURE;
+		else if(mode == CAPTURE)
+			mode = BASIC;
+	}
 	if(Attacking()) {
 		if(GetAction() != ATTACK) {
-			GameObject* go = new GameObject();
-			go->AddComponent(new Attack(*go, associated, Attack::DIRECTED, 0.5, 0, GetAngleDirection(), 400));
-			Game::GetInstance().GetCurrentState().AddObject(go, "MAIN");
+			if(mode == BASIC) {
+				GameObject* go = new GameObject();
+				go->AddComponent(new Attack(*go, associated, Attack::DIRECTED, 0.5, 0, GetAngleDirection(), 0));
+				Game::GetInstance().GetCurrentState().AddObject(go, "MAIN");
+			}
+			else if(mode == CAPTURE) {
+				GameObject* go = new GameObject();
+				go->AddComponent(new Attack(*go, associated, Attack::PROJECTED, 0.5, 0, GetAngleDirection(), 400, 0));
+				Game::GetInstance().GetCurrentState().AddObject(go, "MAIN");
+			}
 		}
 		SetAction(ATTACK);
 		if(Walking()) {
@@ -83,7 +97,7 @@ void Player::NotifyCollision(GameObject& other) {
 		if(!attack->IsOwner(associated)) {
 			if(!attack->IsAlly("Player")) {
 				if(damageT.Get() > damageCD) {
-					Damage(1);
+					Damage(attack->GetDamage());
 					damageT.Restart();
 				}
 			}
@@ -93,6 +107,21 @@ void Player::NotifyCollision(GameObject& other) {
 
 bool Player::Is(std::string type) {
 	return (type == "Player" || Character::Is(type));
+}
+
+bool Player::ModeSwitch() {
+	if(InputManager::GetJoystick(pNumber))
+		return (InputManager::IsJButtonDown(pNumber, 3));
+	else if(pNumber == 0)
+		return InputManager::KeyPress(SDLK_z);
+	else if(pNumber == 1)
+		return InputManager::KeyPress(SDLK_q);
+	else if(pNumber == 2)
+		return InputManager::KeyPress(SDLK_u);
+	else if(pNumber == 3)
+		return InputManager::KeyPress(SDLK_RETURN);
+	else	
+		return false;
 }
 
 bool Player::Attacking() {
@@ -109,6 +138,8 @@ bool Player::Attacking() {
 	else	
 		return false;
 }
+
+
 
 bool Player::Walking() {
 	if(InputManager::GetJoystick(pNumber))
