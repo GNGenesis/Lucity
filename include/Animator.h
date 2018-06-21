@@ -12,7 +12,7 @@
 class Animator : public Component {
 private:
 	Character* character;
-	Component* activeSprite;
+	Sprite* activeSprite;
 	std::string name;
 	std::unordered_map<std::string, Sprite*> sprites;
 

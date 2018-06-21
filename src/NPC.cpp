@@ -8,6 +8,7 @@
 #include "Attack.h"
 #include "Monster.h"
 #include "MainObject.h"
+#include "Animator.h"
 
 #include <math.h>
 
@@ -16,12 +17,10 @@ NPC::NPC(GameObject& associated, Personality p) : Character(associated, p.GetNam
 	person = p;
 	offsetT = pow(-1,rand()%2)*(rand()%51)/100;
 	damageCD = 0.5;
-
-	GameData::nCivilians++;
 }
 
 NPC::~NPC() {
-	GameData::nCivilians--;
+
 }
 
 void NPC::Start() {
@@ -97,7 +96,6 @@ void NPC::Update(float dt) {
 }
 
 void NPC::NotifyCollision(GameObject& other) {
-	
 	if(other.GetComponent("Attack")) {
 		Attack* attack = (Attack*) other.GetComponent("Attack");
 		if(!attack->IsOwner(associated)) {
@@ -201,6 +199,12 @@ void NPC::SetAngleDirection(int angle) {
 		SetDirection("NW");
 	else if(GetAngleDirection() >= 270 && GetAngleDirection() < 360)
 		SetDirection("NE");
+}
+
+void NPC::SetPerson(Personality p) {
+	person = p;
+	Animator* anim = (Animator*) associated.GetComponent("Animator");
+	anim->RebuildSprites(p.GetName());
 }
 
 std::string NPC::GetName() {

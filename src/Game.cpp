@@ -134,18 +134,18 @@ void Game::Run() {
 				SDL_RenderPresent(renderer);
 				SDL_Delay(33);
 			}
-			if(storedState) {
-				stateStack.top()->Pause();
-				stateStack.emplace(storedState);
-				stateStack.top()->Start();
-				storedState = nullptr;
-			}
-			else if(stateStack.top()->PopRequested()) {
+			if(stateStack.top()->PopRequested()) {
 				stateStack.pop();
 				Resources::Clear();
 				if(!stateStack.empty()) {
 					stateStack.top()->Resume();
 				}
+			}
+			if(storedState) {
+				stateStack.top()->Pause();
+				stateStack.emplace(storedState);
+				stateStack.top()->Start();
+				storedState = nullptr;
 			}
 		}
 	}

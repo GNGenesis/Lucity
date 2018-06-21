@@ -37,6 +37,7 @@ public:
 	void SetClip(int x, int y, int w, int h);
 	void SetScale(Vec2 scale);
 	void SetFrame(int frame);
+	void SetTime(float time = 0);
 	void SetFrameCount(int frameCount);
 	void SetFrameTime(float frameTime);
 	void SetFrameInterval(Vec2 frameInterval);
@@ -46,6 +47,7 @@ public:
 	bool Is(std::string type);
 	int GetWidth();
 	int GetHeight();
+	Vec2 GetSize();
 	Vec2 GetScale();
 	bool IsOpen();
 };

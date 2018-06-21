@@ -14,6 +14,7 @@ public:
 	static int nMonsters;
 	static int nCivilians;
 	static bool playerVictory;
+	static bool bossStageUnlocked;
 	static std::weak_ptr<GameObject> player;
 };
 

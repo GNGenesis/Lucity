@@ -10,19 +10,15 @@
 
 Monster::Monster(GameObject& associated, Personality p) : NPC(associated, p) {
 	transformed = false;
-	mIdleT = 0.5;
-	mWalkT = 2;
-	mAttackT = 0.48;
+	mIdleT = 2;
+	mWalkT = 3;
+	mAttackT = 1;
 	mStunT = 1.5;
 	mDamageCD = 0.5;
-
-	GameData::nMonsters++;
-	GameData::nCivilians--;
 }
 
 Monster::~Monster() {
-	GameData::nMonsters--;
-	GameData::nCivilians++;
+
 }
 
 void Monster::Transform() {
@@ -45,14 +41,14 @@ void Monster::Update(float dt) {
 		mActionT.Update(dt);
 		mDamageT.Update(dt);
 		if(GetAction() == "mTransform") {
-			if(mActionT.Get() > 1.4) {
+			if(mActionT.Get() > 0.84) {
 				mActionT.Restart();
 				mOffsetT = pow(-1,rand()%2)*(rand()%51)/100;
 				SetAction("mIdle");
 				SetDirection("SE");
 
 				GameObject* go = new GameObject();
-				go->AddComponent(new Attack(*go, associated, Attack::CENTERED, 0.5, 50));
+				go->AddComponent(new Attack(*go, associated, Attack::CENTERED, 0.1, 50));
 				Game::GetInstance().GetCurrentState().AddObject(go, "MAIN");
 				Camera::tremorT.Restart();
 
@@ -64,7 +60,6 @@ void Monster::Update(float dt) {
 		}
 		else if(GetAction() == "mStun") {
 			if(mActionT.Get() > mStunT) {
-				printf("alo");
 				mActionT.Restart();
 				mOffsetT = pow(-1,rand()%2)*(rand()%51)/100;
 				SetAction("mAttack");
@@ -83,19 +78,22 @@ void Monster::Update(float dt) {
 				mOffsetT = pow(-1,rand()%2)*(rand()%51)/100;
 				SetAction("mWalk");
 				SetSpeed(150);
+				NPC::SetAngleDirection(rand()%360);
 			}
 		}
 		else if(GetAction() == "mWalk") {
 			if(mActionT.Get() > mWalkT + mOffsetT) {
 				mActionT.Restart();
 				mOffsetT = pow(-1,rand()%2)*(rand()%51)/100;
-				SetAction("mAttack");
+				if(!GameData::player.expired())
+					SetAction("mAttack");
+				else
+					SetAction("mIdle");
 			}
 			else {
-				if(!GameData::player.expired()) {
+				if(!GameData::player.expired())
 					NPC::SetAngleDirection(associated.box.GetCenter().GetAngle(GameData::player.lock()->box.GetCenter()));
-					associated.box.SetCenter(associated.box.GetCenter()+Vec2(Vec2::Cos(GetAngleDirection()), Vec2::Sin(GetAngleDirection()))*GetSpeed()*dt);
-				}
+				associated.box.SetCenter(associated.box.GetCenter()+Vec2(Vec2::Cos(GetAngleDirection()), Vec2::Sin(GetAngleDirection()))*GetSpeed()*dt);
 			}
 		}
 		else if(GetAction() == "mAttack") {
@@ -115,6 +113,15 @@ void Monster::Update(float dt) {
 				Game::GetInstance().GetCurrentState().AddObject(go, "EFFECT");
 			}
 		}
+
+		if(associated.box.x < 0)
+			associated.box.x = 0;
+		if(associated.box.x+associated.box.w > GameData::mapSize.x)
+			associated.box.x = GameData::mapSize.x-associated.box.w;
+		if(associated.box.y < 0)
+			associated.box.y = 0;
+		if(associated.box.y+associated.box.h > GameData::mapSize.y)
+			associated.box.y = GameData::mapSize.y-associated.box.h;
 	}
 }
 
@@ -131,7 +138,6 @@ void Monster::NotifyCollision(GameObject& other) {
 						if(mDamageT.Get() > mDamageCD) {
 							Damage(attack->GetDamage());
 							mDamageT.Restart();
-							mOffsetT = pow(-1,rand()%2)*(rand()%51)/100;
 						}
 					}
 				}
@@ -139,6 +145,10 @@ void Monster::NotifyCollision(GameObject& other) {
 			else if(GetAction() == "mStun") {
 				if(attack->GetDamage() == 0) {
 					associated.RequestDelete();
+					GameObject* go = new GameObject();
+					go->AddComponent(new Sprite(*go, "assets/img/characters/monster/capture.png", 7, 0.12, false, 0.84));
+					go->box.SetCenter(Vec2(associated.box.x+associated.box.w/2, associated.box.y+associated.box.h-go->box.h/2));
+					Game::GetInstance().GetCurrentState().AddObject(go, "MAIN");
 				}
 			}
 		}

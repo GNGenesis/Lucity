@@ -11,9 +11,13 @@ private:
 	enum AttackMode { BASIC, CAPTURE };
 
 	int pNumber;
+	AttackMode mode;
+
+	Timer attackT;
+	float attackCD;
+
 	Timer damageT;
 	float damageCD;
-	AttackMode mode;
 
 public:
 	Player(GameObject& associated, std::string name, int n);

@@ -11,6 +11,7 @@ Player::Player(GameObject& associated, std::string name, int n) : Character(asso
 	SetHealth(5);
 	SetSpeed(200);
 	pNumber = n;
+	attackCD = 0.4;
 	damageCD = 0.5;
 	mode = BASIC;
 }
@@ -22,14 +23,15 @@ Player::~Player() {
 void Player::Start() {
 	GameData::player = Game::GetInstance().GetCurrentState().GetObjectPtr(&associated, "MAIN");
 
-	GameObject* go = new GameObject();
+	/*GameObject* go = new GameObject();
 	char n[3];
 	sprintf(n, "%d", pNumber+1);
 	go->AddComponent(new Compass(*go, associated, n));
-	Game::GetInstance().GetCurrentState().AddObject(go, "GUI");
+	Game::GetInstance().GetCurrentState().AddObject(go, "GUI");*/
 }
 
 void Player::Update(float dt) {
+	attackT.Update(dt);
 	damageT.Update(dt);
 	SetAngleDirection(dt);
 	
@@ -54,17 +56,19 @@ void Player::Update(float dt) {
 			mode = BASIC;
 	}
 	if(Attacking()) {
-		if(GetAction() != ATTACK) {
+		if(attackT.Get() > attackCD) {
 			if(mode == BASIC) {
 				GameObject* go = new GameObject();
-				go->AddComponent(new Attack(*go, associated, Attack::DIRECTED, 0.5, 0, GetAngleDirection(), 0));
+				go->AddComponent(new Attack(*go, associated, Attack::DIRECTED, 0.1, 0, GetAngleDirection(), 0));
 				Game::GetInstance().GetCurrentState().AddObject(go, "MAIN");
 			}
 			else if(mode == CAPTURE) {
 				GameObject* go = new GameObject();
-				go->AddComponent(new Attack(*go, associated, Attack::PROJECTED, 0.5, 0, GetAngleDirection(), 400, 0));
+				go->AddComponent(new Attack(*go, associated, Attack::PROJECTED, 5, 0, GetAngleDirection(), 400, 0));
 				Game::GetInstance().GetCurrentState().AddObject(go, "MAIN");
 			}
+
+			attackT.Restart();
 		}
 		SetAction(ATTACK);
 		if(Walking()) {

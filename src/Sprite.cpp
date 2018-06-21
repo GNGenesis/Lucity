@@ -55,6 +55,10 @@ void Sprite::SetFrame(int frame) {
 	currentFrame = frame;
 }
 
+void Sprite::SetTime(float time) {
+	timeElapsed = time;
+}
+
 void Sprite::SetFrameCount(int frameCount) {
 	Sprite::frameCount = frameCount;
 }
@@ -110,6 +114,10 @@ int Sprite::GetWidth() {
 
 int Sprite::GetHeight() {
 	return (int)height*scale.y;
+}
+
+Vec2 Sprite::GetSize() {
+	return Vec2((width/frameCount)*scale.x, height*scale.y);
 }
 
 Vec2 Sprite::GetScale() {

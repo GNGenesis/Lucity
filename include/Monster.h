@@ -10,12 +10,14 @@
 class Monster : public NPC {
 private:
 	bool transformed;
+
 	Timer mActionT;
 	float mIdleT;
 	float mWalkT;
 	float mAttackT;
 	float mStunT;
 	float mOffsetT;
+
 	Timer mDamageT;
 	float mDamageCD;
 

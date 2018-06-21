@@ -17,23 +17,33 @@ Attack::Attack(GameObject& associated, GameObject& owner, AttackType type, float
 		associated.box.SetSize(Vec2(radius, radius)*2);
 		associated.AddComponent(new Collider(associated, radius));
 		Rect box = Attack::owner.lock()->box;
-		associated.box.SetCenter(Vec2(box.x+box.w/2, box.y+box.h));
+		associated.box.SetCenter(Vec2(box.x+box.w/2, box.y+box.h/2));
 	}
 	else if(type == DIRECTED) {
-		Sprite* s = new Sprite(associated, "assets/img/sword.png");
+		std::string projectileSprite;
+		if(owner.GetComponent("Player"))
+			projectileSprite = "assets/img/sword.png";
+		else if(owner.GetComponent("Boss"))
+			projectileSprite = "assets/img/laser.png";
+		Sprite* s = new Sprite(associated, projectileSprite);
 		s->SetScale(Vec2(2, 2));
 		associated.AddComponent(s);
 		associated.AddComponent(new Collider(associated));
 		associated.rotation = angle;
-		associated.box.SetCenter(Attack::owner.lock()->box.GetCenter()+(Vec2(Vec2::Cos(angle), Vec2::Sin(angle))*40));
+		associated.box.SetCenter(Attack::owner.lock()->box.GetCenter()+(Vec2(Vec2::Cos(angle), Vec2::Sin(angle))*20));
 	}
 	else if(type == PROJECTED) {
-		Sprite* s = new Sprite(associated, "assets/img/sword.png");
+		std::string projectileSprite;
+		if(owner.GetComponent("Player"))
+			projectileSprite = "assets/img/captureBeam.png";
+		else if(owner.GetComponent("Boss"))
+			projectileSprite = "assets/img/laser.png";
+		Sprite* s = new Sprite(associated, projectileSprite);
 		s->SetScale(Vec2(2, 2));
 		associated.AddComponent(s);
 		associated.AddComponent(new Collider(associated));
 		associated.rotation = angle;
-		associated.box.SetCenter(Attack::owner.lock()->box.GetCenter()+(Vec2(Vec2::Cos(angle), Vec2::Sin(angle))*40));
+		associated.box.SetCenter(Attack::owner.lock()->box.GetCenter()+(Vec2(Vec2::Cos(angle), Vec2::Sin(angle))*15));
 	}
 }
 
@@ -51,9 +61,9 @@ void Attack::Update(float dt) {
 		if(lifeTimeT.Get() > lifeTime)
 			associated.RequestDelete();
 		else if(type == CENTERED)
-			associated.box.SetCenter(Vec2(box.x+box.w/2, box.y+box.h));
+			associated.box.SetCenter(Vec2(box.x+box.w/2, box.y+box.h/2));
 		else if(type == DIRECTED)
-			associated.box.SetCenter(box.GetCenter()+(Vec2(Vec2::Cos(angle), Vec2::Sin(angle))*40));
+			associated.box.SetCenter(box.GetCenter()+(Vec2(Vec2::Cos(angle), Vec2::Sin(angle))*30));
 		else if(type == PROJECTED)
 			associated.box.SetCenter(associated.box.GetCenter()+(Vec2(Vec2::Cos(angle), Vec2::Sin(angle))*speed*dt));
 	}
@@ -76,8 +86,16 @@ void Attack::NotifyCollision(GameObject& other) {
 			}
 		}
 	}
+	else if(other.GetComponent("Boss")) {
+		if(!IsAlly("Boss")) {
+			if(type == PROJECTED) {
+				associated.RequestDelete();
+				associated.Deactivate();
+			}
+		}
+	}
 	else if(other.GetComponent("MainObject")) {
-		if(type != CENTERED) {
+		if(type == PROJECTED) {
 			associated.RequestDelete();
 			associated.Deactivate();
 		}
