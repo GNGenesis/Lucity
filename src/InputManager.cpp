@@ -5,6 +5,7 @@ std::unordered_map<int, bool> InputManager::keyState;
 std::unordered_map<int, int> InputManager::keyUpdate;
 bool InputManager::mouseState [6];
 int InputManager::mouseUpdate [6];
+int InputManager::mouseWheel;
 int InputManager::mouseX;
 int InputManager::mouseY;
 int InputManager::updateCounter;
@@ -16,6 +17,7 @@ std::vector<SDL_Joystick*> InputManager::joysticks;
 void InputManager::Update() {
 	SDL_Event event;
 	SDL_GetMouseState(&mouseX, &mouseY);
+	mouseWheel = 0;
 	mouseX += Camera::pos.x;
 	mouseY += Camera::pos.y;
 	updateCounter++;
@@ -31,6 +33,15 @@ void InputManager::Update() {
 			if(event.type == SDL_MOUSEBUTTONUP) {
 				mouseState[event.button.button] = false;
 				mouseUpdate[event.button.button] = updateCounter;
+			}
+			if(event.type == SDL_MOUSEWHEEL) {
+				mouseWheel = event.wheel.y;
+				if(event.wheel.y > 0) {
+
+				}
+				else if(event.wheel.y < 0) {
+
+				}
 			}
 			if(event.type == SDL_KEYDOWN) {
 				keyState[event.key.keysym.sym] = true;
@@ -66,6 +77,10 @@ bool InputManager::MouseRelease(int button) {
 
 bool InputManager::IsMouseDown(int button) {
 	return mouseState[button];
+}
+
+int InputManager::GetMouseWheel() {
+	return mouseWheel;
 }
 
 int InputManager::GetMouseX() {

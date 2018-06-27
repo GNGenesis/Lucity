@@ -2,34 +2,32 @@
 #define ATTACK_H_
 
 #include "Component.h"
+#include "Sprite.h"
 #include "Timer.h"
 
 #include <string>
 #include <memory>
 
 class Attack : public Component {
-public:
-	enum AttackType { CENTERED, DIRECTED, PROJECTED };
-
 private:
-	std::weak_ptr<GameObject> owner;
-	AttackType type;
+	std::string owner;
+	std::string name;
 	Timer lifeTimeT;
 	float lifeTime;
-	float radius;
-	float angle;
+	float direction;
 	float speed;
 	int damage;
+	bool pierce;
 
 public:
-	Attack(GameObject& associated, GameObject& owner, AttackType type, float lifeTime, 	float radius = 0, float angle = 0, float speed = 0, int damage = 1);
+	Attack(GameObject& associated, std::string owner, std::string name, Vec2 origin, float lifeTime, float direction, float speed, int damage = 1, bool pierce = false);
 	~Attack();
 	void Update(float dt);
 	void NotifyCollision(GameObject& other);
 	bool Is(std::string type);
 	bool IsAlly(std::string ally);
-	bool IsOwner(GameObject& owner);
 	int GetDamage();
+	std::string GetOwner();
 };
 
 #endif /* ATTACK_H_ */

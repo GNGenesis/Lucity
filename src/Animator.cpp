@@ -1,9 +1,8 @@
 #include "Animator.h"
 
-#include "Sprite.h"
-
 Animator::Animator(GameObject& associated, Character* character, std::string name) : Component(associated) {
 	Animator::character = character;
+	Animator::action = "";
 	Animator::name = name;
 }
 
@@ -25,18 +24,15 @@ void Animator::BuildSprites() {
 	unsigned int walkFrames = 0;
 	unsigned int shockFrames = 0;
 	unsigned int panicFrames = 0;
-	unsigned int attackFrames = 0;
 	
 	if(associated.GetComponent("Player")) {
 		idleFrames = 4;
 		walkFrames = 4;
 
-		attackFrames = 4;
-
-		sprites.emplace("attackNW", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/attackNW.png", attackFrames, 0.1)));
-		sprites.emplace("attackNE", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/attackNE.png", attackFrames, 0.1)));
-		sprites.emplace("attackSW", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/attackSW.png", attackFrames, 0.1)));
-		sprites.emplace("attackSE", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/attackSE.png", attackFrames, 0.1)));
+		sprites.emplace("attackNW", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/attackNW.png", 4, 0.1)));
+		sprites.emplace("attackNE", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/attackNE.png", 4, 0.1)));
+		sprites.emplace("attackSW", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/attackSW.png", 4, 0.1)));
+		sprites.emplace("attackSE", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/attackSE.png", 4, 0.1)));
 	}
 	else if(associated.GetComponent("NPC")) {
 		if(name == "girl") {
@@ -147,18 +143,15 @@ void Animator::RebuildSprites(std::string name) {
 	unsigned int walkFrames = 0;
 	unsigned int shockFrames = 0;
 	unsigned int panicFrames = 0;
-	unsigned int attackFrames = 0;
 	
 	if(associated.GetComponent("Player")) {
 		idleFrames = 4;
 		walkFrames = 4;
 
-		attackFrames = 4;
-
-		sprites["attackNW"]->Open(path+"/attackNW.png", attackFrames, 0.1);
-		sprites["attackNE"]->Open(path+"/attackNE.png", attackFrames, 0.1);
-		sprites["attackSW"]->Open(path+"/attackSW.png", attackFrames, 0.1);
-		sprites["attackSE"]->Open(path+"/attackSE.png", attackFrames, 0.1);
+		sprites["attackNW"]->Open(path+"/attackNW.png", 4, 0.1);
+		sprites["attackNE"]->Open(path+"/attackNE.png", 4, 0.1);
+		sprites["attackSW"]->Open(path+"/attackSW.png", 4, 0.1);
+		sprites["attackSE"]->Open(path+"/attackSE.png", 4, 0.1);
 	}
 	else if(associated.GetComponent("NPC")) {
 		if(name == "girl") {
@@ -221,8 +214,16 @@ void Animator::Update(float dt) {
 	if(sprites.count(character->GetSprite())) {
 		if(sprites[character->GetSprite()] != activeSprite) {
 			activeSprite->Deactivate();
+			int frame = 0;
+			float time = 0;
+			if(character->GetAction() == action) {
+				frame = activeSprite->GetFrame();
+				time = activeSprite->GetTime();
+			}
+			action = character->GetAction();
 			activeSprite = sprites[character->GetSprite()];
-			activeSprite->SetTime();
+			activeSprite->SetFrame(frame);
+			activeSprite->SetTime(time);
 			Vec2 pos = associated.box.GetPos();
 			Vec2 size = associated.box.GetSize();
 			Vec2 newSize = activeSprite->GetSize();
@@ -232,10 +233,6 @@ void Animator::Update(float dt) {
 			activeSprite->Activate();
 		}
 	}
-}
-
-void Animator::Render() {
-
 }
 
 bool Animator::Is(std::string type) {

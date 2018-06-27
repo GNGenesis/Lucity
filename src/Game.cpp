@@ -51,7 +51,7 @@ Game::Game(std::string title, int width, int height) {
 
 	//SDL_Rect screen;
 	//SDL_GetDisplayBounds(0, &screen);
-	Uint32 flags = 0;//SDL_WINDOW_RESIZABLE | SDL_WINDOW_FULLSCREEN;
+	Uint32 flags = 0;//SDL_WINDOW_FULLSCREEN;//SDL_WINDOW_RESIZABLE | SDL_WINDOW_FULLSCREEN;
 	window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags);//screen.w, screen.h, flags);
 	if(!window) {
 		printf("SDL_CreateWindow failed: %s\n", SDL_GetError());

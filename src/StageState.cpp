@@ -8,6 +8,7 @@
 #include "Sprite.h"
 #include "Sound.h"
 #include "Text.h"
+#include "HUD.h"
 #include "TileMap.h"
 #include "Collider.h"
 #include "CameraFollower.h"
@@ -19,7 +20,9 @@
 
 #include <algorithm>
 
-bool SortRenderOrder_MS(std::shared_ptr<GameObject> i, std::shared_ptr<GameObject> j) { return (i->box.y + i->box.h < j->box.y + j->box.h); }
+bool SortRenderOrder_MS(std::shared_ptr<GameObject> i, std::shared_ptr<GameObject> j) {
+	return (i->box.y < j->box.y);
+}
 
 StageState::StageState() : State() {
 	gameOver = false;
@@ -50,28 +53,21 @@ StageState::StageState() : State() {
 	int mh = 64*map->GetHeight();
 	GameData::mapSize = Vec2(mw, mh);
 
-	//Remaining Health
-	go = new GameObject();
-	go->AddComponent(new Text(*go, "assets/font/Sabo-Filled.ttf", 72, " ", SDL_Color {}, Text::SOLID));
-	go->AddComponent(new CameraFollower(*go, Vec2(0, 600-go->box.h)));
-	AddObject(go, "GUI");
-
-	//Remaining NPCs
-	go = new GameObject();
-	go->AddComponent(new Text(*go, "assets/font/Sabo-Filled.ttf", 72, " ", SDL_Color {}, Text::SOLID));
-	go->AddComponent(new CameraFollower(*go, Vec2(0, 0)));
-	AddObject(go, "GUI");
-
 	//Event Countdown
-	waitingT = 60;
+	GameData::eventCD = 60;
 	go = new GameObject();
 	go->AddComponent(new Text(*go, "assets/font/Sabo-Filled.ttf", 72, "00.0 ", SDL_Color {}, Text::SOLID));
-	go->AddComponent(new CameraFollower(*go, Vec2(1024-go->box.w, 0)));
-	go->box.SetPos(1024-go->box.w, 0);
+	go->AddComponent(new CameraFollower(*go, Vec2(1024-go->box.w, 200)));
+	AddObject(go, "GUI");
+
+	//HUD
+	go = new GameObject();
+	go->AddComponent(new HUD(*go));
+	go->AddComponent(new CameraFollower(*go, Vec2(0, 0)));
 	AddObject(go, "GUI");
 	
 	//Bench
-	for(int i = 0; i < 4; i++) {
+	for(int i = 0; i < 1; i++) {
 		go = new GameObject();
 		go->AddComponentAsFirst(new MainObject(*go, "bench", 1, Vec2(3, 3), true));
 		go->box.SetPos(Vec2(rand()%mw, rand()%mh));
@@ -79,7 +75,7 @@ StageState::StageState() : State() {
 	}
 
 	//Trashcan
-	for(int i = 0; i < 4; i++) {
+	for(int i = 0; i < 1; i++) {
 		go = new GameObject();
 		go->AddComponentAsFirst(new MainObject(*go, "trashcan", 1, Vec2(3, 3), true));
 		go->box.SetPos(Vec2(rand()%mw, rand()%mh));
@@ -87,7 +83,7 @@ StageState::StageState() : State() {
 	}
 
 	//Tree
-	for(int i = 0; i < 4; i++) {
+	for(int i = 0; i < 1; i++) {
 		go = new GameObject();
 		go->AddComponentAsFirst(new MainObject(*go, "tree", 1, Vec2(3, 3), true));
 		go->box.SetPos(Vec2(rand()%mw, rand()%mh));
@@ -95,7 +91,7 @@ StageState::StageState() : State() {
 	}
 
 	//Monsters
-	for(int i = 0; i < 10; i++) {
+	for(int i = 0; i < 5; i++) {
 		go = new GameObject();
 		go->AddComponentAsFirst(new Monster(*go, monsterList[rand()%monsterList.size()]));
 		go->box.SetCenter(rand()%mw, rand()%mh);
@@ -105,7 +101,7 @@ StageState::StageState() : State() {
 	}
 
 	//NPCs
-	for(int i = 0; i < 30; i++) {
+	for(int i = 0; i < 10; i++) {
 		go = new GameObject();
 		go->AddComponentAsFirst(new NPC(*go, NPCList[rand()%NPCList.size()]));
 		go->box.SetCenter(rand()%mw, rand()%mh);
@@ -125,7 +121,7 @@ StageState::StageState() : State() {
 	Camera::Follow(go);
 
 	backgroundMusic = Music("assets/audio/theme.ogg");
-	backgroundMusic.Play();
+	//backgroundMusic.Play();
 }
 
 StageState::~StageState() {
@@ -193,7 +189,7 @@ void StageState::DeletionCheck() {
 
 				if(i.second[j]->GetComponent("Monster")) {
 					GameData::nMonsters--;
-					countdownT.Restart();
+					GameData::eventT.Restart();
 				}
 				else if(i.second[j]->GetComponent("NPC")) {
 					GameData::nCivilians--;
@@ -208,62 +204,40 @@ void StageState::Update(float dt) {
 	quitRequested = InputManager::QuitRequested();
 	if(InputManager::KeyPress(ESCAPE_KEY)) {
 		popRequested = true;
-		GameData::playerVictory = false;
+		GameData::playerVictory = true;
 	}
 
-	if(InputManager::KeyPress(SDLK_TAB))
+	if(InputManager::KeyPress(SDLK_F1))
 		GameData::debug = !GameData::debug;
 
+	if(InputManager::KeyPress(SDLK_F2))
+		GameData::paused = !GameData::paused;
+
 	if(!gameOver) {
-		countdownT.Update(dt);
-		if(countdownT.Get() > waitingT) {
+		if(!GameData::paused)
+			GameData::eventT.Update(dt);
+		if(GameData::eventT.Get() > GameData::eventCD) {
 			for(unsigned int i = 0; i < objects["MAIN"].size(); i++) {
 				Monster* mon = (Monster*) objects["MAIN"][i]->GetComponent("Monster");
 				if(mon) {
 					if(!mon->IsTransformed()) {
 						mon->Transform();
-						countdownT.Restart();
+						GameData::eventT.Restart();
 						break;
 					}
 				}
 			}
 		}
 
-		Text* health = (Text*)objects["GUI"][0]->GetComponent("Text");
-		if(health) {
-			char a[3];
-			if(!GameData::player.expired()) {
-				Player* p = (Player*) GameData::player.lock()->GetComponent("Player");
-				sprintf(a, "%d", p->GetHealth());
-			}
-			else {
-				sprintf(a, "%d", 0);
-			}
-			std::string hp = "HP: ";
-			std::string text = hp+a;
-			health->SetText(text);
-		}
-
-		Text* remaining = (Text*)objects["GUI"][1]->GetComponent("Text");
-		if(remaining) {
-			char a[3], b[3];
-			sprintf(a, "%d", GameData::nMonsters);
-			sprintf(b, "%d", GameData::nCivilians);
-			std::string nm = "NM ";
-			std::string nc = " NC ";
-			std::string text = nm+a+nc+b;
-			remaining->SetText(text);
-		}
-
-		Text* countdown = (Text*)objects["GUI"][2]->GetComponent("Text");
+		Text* countdown = (Text*)objects["GUI"][0]->GetComponent("Text");
 		if(countdown) {
 			char a[3], b[3];
-			sprintf(a, "%d", ((int)waitingT-1)-(int)countdownT.Get());
-			sprintf(b, "%d", 9-(int)(countdownT.Get()*10)%10);
+			sprintf(a, "%d", ((int)GameData::eventCD-1)-(int)GameData::eventT.Get());
+			sprintf(b, "%d", 9-(int)(GameData::eventT.Get()*10)%10);
 			std::string p = ".";
 			std::string z = "0";
 			std::string text;
-			if(((int)waitingT-1)-(int)countdownT.Get() > 9) {
+			if(((int)GameData::eventCD-1)-(int)GameData::eventT.Get() > 9) {
 				text = a+p+b;
 				countdown->SetColor(SDL_Color {});
 			}

@@ -24,6 +24,7 @@ private:
 	static std::unordered_map<int, int> keyUpdate;
 	static bool mouseState [6];
 	static int mouseUpdate [6];
+	static int mouseWheel;
 	static int mouseX;
 	static int mouseY;
 	static int updateCounter;
@@ -43,6 +44,7 @@ public:
 	static bool MousePress(int button);
 	static bool MouseRelease(int button);
 	static bool IsMouseDown(int button);
+	static int GetMouseWheel();
 	static int GetMouseX();
 	static int GetMouseY();
 	static Vec2 GetMousePos();

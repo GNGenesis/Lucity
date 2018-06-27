@@ -8,13 +8,7 @@
 
 class Player : public Character {
 private:
-	enum AttackMode { BASIC, CAPTURE };
-
 	int pNumber;
-	AttackMode mode;
-
-	Timer attackT;
-	float attackCD;
 
 	Timer damageT;
 	float damageCD;
@@ -26,9 +20,7 @@ public:
 	void Update(float dt);
 	void NotifyCollision(GameObject& other);
 	bool Is(std::string type);
-	bool ModeSwitch();
-	bool Attacking();
-	bool Walking();
+	bool IsWalking();
 	void SetAngleDirection(float dt);
 };
 

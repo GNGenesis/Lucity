@@ -5,15 +5,16 @@
 
 #include "Sprite.h"
 #include "Attack.h"
+#include "Book.h"
 #include "Compass.h"
+#include "HP.h"
 
 Player::Player(GameObject& associated, std::string name, int n) : Character(associated, name) {
 	SetHealth(5);
+	associated.AddComponent(new HP(associated, 5));
 	SetSpeed(200);
 	pNumber = n;
-	attackCD = 0.4;
-	damageCD = 0.5;
-	mode = BASIC;
+	damageCD = 1;
 }
 
 Player::~Player() {
@@ -23,87 +24,63 @@ Player::~Player() {
 void Player::Start() {
 	GameData::player = Game::GetInstance().GetCurrentState().GetObjectPtr(&associated, "MAIN");
 
-	/*GameObject* go = new GameObject();
+	GameObject* go = new GameObject();
+	go->AddComponent(new Book(*go, associated));
+	Game::GetInstance().GetCurrentState().AddObject(go, "MAIN");
+
+	go = new GameObject();
 	char n[3];
 	sprintf(n, "%d", pNumber+1);
 	go->AddComponent(new Compass(*go, associated, n));
-	Game::GetInstance().GetCurrentState().AddObject(go, "GUI");*/
+	Game::GetInstance().GetCurrentState().AddObject(go, "GUI");
 }
 
 void Player::Update(float dt) {
-	attackT.Update(dt);
-	damageT.Update(dt);
-	SetAngleDirection(dt);
-	
-	if(GetAngleDirection() > 360)
-		Character::SetAngleDirection(GetAngleDirection()-360);
-	else if(GetAngleDirection() < 0)
-		Character::SetAngleDirection(GetAngleDirection()+360);
+	if(!GameData::paused) {
+		damageT.Update(dt);
+		SetAngleDirection(dt);
+		
+		if(GetAngleDirection() > 360)
+			Character::SetAngleDirection(GetAngleDirection()-360);
+		else if(GetAngleDirection() < 0)
+			Character::SetAngleDirection(GetAngleDirection()+360);
 
-	if(GetAngleDirection() >= 0 && GetAngleDirection() < 90)
-		SetDirection("SE");
-	else if(GetAngleDirection() >= 90 && GetAngleDirection() < 180)
-		SetDirection("SW");
-	else if(GetAngleDirection() >= 180 && GetAngleDirection() < 270)
-		SetDirection("NW");
-	else if(GetAngleDirection() >= 270 && GetAngleDirection() < 360)
-		SetDirection("NE");
+		if(GetAngleDirection() >= 0 && GetAngleDirection() < 90)
+			SetDirection("SE");
+		else if(GetAngleDirection() >= 90 && GetAngleDirection() < 180)
+			SetDirection("SW");
+		else if(GetAngleDirection() >= 180 && GetAngleDirection() < 270)
+			SetDirection("NW");
+		else if(GetAngleDirection() >= 270 && GetAngleDirection() < 360)
+			SetDirection("NE");
 
-	if(ModeSwitch()) {
-		if(mode == BASIC)
-			mode = CAPTURE;
-		else if(mode == CAPTURE)
-			mode = BASIC;
-	}
-	if(Attacking()) {
-		if(attackT.Get() > attackCD) {
-			if(mode == BASIC) {
+		if(IsWalking()) {
+			if(GetAction() != WALK) {
 				GameObject* go = new GameObject();
-				go->AddComponent(new Attack(*go, associated, Attack::DIRECTED, 0.1, 0, GetAngleDirection(), 0));
-				Game::GetInstance().GetCurrentState().AddObject(go, "MAIN");
+				if(GetDirection() == "NE" || GetDirection() == "SE")
+					go->AddComponent(new Sprite(*go, "assets/img/effects/dustE.png", 6, 0.05, false, 0.3));
+				else if(GetDirection() == "NW" || GetDirection() == "SW")
+					go->AddComponent(new Sprite(*go, "assets/img/effects/dustW.png", 6, 0.05, false, 0.3));
+				go->box.SetCenter(associated.box.GetCenter()+(Vec2(Vec2::Cos(GetAngleDirection()+180), Vec2::Sin(GetAngleDirection()+180))*30));
+				Game::GetInstance().GetCurrentState().AddObject(go, "EFFECT");
 			}
-			else if(mode == CAPTURE) {
-				GameObject* go = new GameObject();
-				go->AddComponent(new Attack(*go, associated, Attack::PROJECTED, 5, 0, GetAngleDirection(), 400, 0));
-				Game::GetInstance().GetCurrentState().AddObject(go, "MAIN");
-			}
-
-			attackT.Restart();
-		}
-		SetAction(ATTACK);
-		if(Walking()) {
+			SetAction(WALK);
 			Vec2 mov = Vec2(Vec2::Cos(GetAngleDirection()), Vec2::Sin(GetAngleDirection()))*GetSpeed()*dt;
 			associated.box.SetCenter(associated.box.GetCenter()+mov);
 		}
-	}
-	else if(Walking()) {
-		if(GetAction() != WALK) {
-			GameObject* go = new GameObject();
-			if(GetDirection() == "NE" || GetDirection() == "SE")
-				go->AddComponent(new Sprite(*go, "assets/img/effects/dustE.png", 6, 0.05, false, 0.3));
-			else if(GetDirection() == "NW" || GetDirection() == "SW")
-				go->AddComponent(new Sprite(*go, "assets/img/effects/dustW.png", 6, 0.05, false, 0.3));
-			go->box.SetCenter(associated.box.GetCenter()+(Vec2(Vec2::Cos(GetAngleDirection()+180), Vec2::Sin(GetAngleDirection()+180))*30));
-			Game::GetInstance().GetCurrentState().AddObject(go, "EFFECT");
+		else {
+			SetAction(IDLE);
 		}
-		SetAction(WALK);
-		Vec2 mov = Vec2(Vec2::Cos(GetAngleDirection()), Vec2::Sin(GetAngleDirection()))*GetSpeed()*dt;
-		associated.box.SetCenter(associated.box.GetCenter()+mov);
-	}
-	else {
-		SetAction(IDLE);
 	}
 }
 
 void Player::NotifyCollision(GameObject& other) {
 	Attack* attack = (Attack*) other.GetComponent("Attack");
 	if(attack) {
-		if(!attack->IsOwner(associated)) {
-			if(!attack->IsAlly("Player")) {
-				if(damageT.Get() > damageCD) {
-					Damage(attack->GetDamage());
-					damageT.Restart();
-				}
+		if(!attack->IsAlly("Player")) {
+			if(damageT.Get() > damageCD) {
+				Damage(attack->GetDamage());
+				damageT.Restart();
 			}
 		}
 	}
@@ -113,39 +90,7 @@ bool Player::Is(std::string type) {
 	return (type == "Player" || Character::Is(type));
 }
 
-bool Player::ModeSwitch() {
-	if(InputManager::GetJoystick(pNumber))
-		return (InputManager::IsJButtonDown(pNumber, 3));
-	else if(pNumber == 0)
-		return InputManager::KeyPress(SDLK_z);
-	else if(pNumber == 1)
-		return InputManager::KeyPress(SDLK_q);
-	else if(pNumber == 2)
-		return InputManager::KeyPress(SDLK_u);
-	else if(pNumber == 3)
-		return InputManager::KeyPress(SDLK_RETURN);
-	else	
-		return false;
-}
-
-bool Player::Attacking() {
-	if(InputManager::GetJoystick(pNumber))
-		return (InputManager::IsJButtonDown(pNumber, 2));
-	else if(pNumber == 0)
-		return InputManager::IsMouseDown(RIGHT_MOUSE_BUTTON);
-	else if(pNumber == 1)
-		return InputManager::IsKeyDown(SDLK_e);
-	else if(pNumber == 2)
-		return InputManager::IsKeyDown(SDLK_o);
-	else if(pNumber == 3)
-		return InputManager::IsKeyDown(SDLK_RSHIFT);
-	else	
-		return false;
-}
-
-
-
-bool Player::Walking() {
+bool Player::IsWalking() {
 	if(InputManager::GetJoystick(pNumber))
 		return (InputManager::JoyAxisEvent(pNumber));
 	else if(pNumber == 0)

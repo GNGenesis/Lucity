@@ -12,8 +12,6 @@
 
 class StageState : public State {
 private:
-	Timer countdownT;
-	float waitingT;
 	bool gameOver;
 	TileSet* set;
 	Music backgroundMusic;

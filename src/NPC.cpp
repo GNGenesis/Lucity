@@ -30,82 +30,82 @@ void NPC::Start() {
 }
 
 void NPC::Update(float dt) {
-	actionT.Update(dt);
-	damageT.Update(dt);
+	if(!GameData::paused) {
+		actionT.Update(dt);
+		damageT.Update(dt);
 
-	if(GetAction() == IDLE) {
-		if(actionT.Get() > person.GetTime(IDLE)+offsetT) {
-			actionT.Restart();
-			offsetT = pow(-1,rand()%2)*(rand()%51)/100;
-			SetAction(WALK);
-			SetSpeed(person.GetNormalSpeed());
-			SetAngleDirection(rand()%360);
-		}
-	}
-	else if(GetAction() == WALK) {
-		if(actionT.Get() > person.GetTime(WALK)+offsetT) {
-			actionT.Restart();
-			offsetT = pow(-1,rand()%2)*(rand()%51)/100;
-			SetAction(IDLE);
-		}else{
-			associated.box.SetPos(associated.box.GetPos()+(Vec2(Vec2::Cos(GetAngleDirection()), Vec2::Sin(GetAngleDirection()))*GetSpeed()*dt));
-		}
-	}
-	else if(GetAction() == SHOCK) {
-		if(actionT.Get() > person.GetTime(SHOCK)+offsetT) {
-			actionT.Restart();
-			offsetT = pow(-1,rand()%2)*(rand()%51)/100;
-			if(scared) {
-				SetAction(PANIC);
-				SetSpeed(person.GetPanicSpeed());
-				SetAngleDirection(GetAngleDirection()-180);
-
-				GameObject* go = new GameObject();
-				if(GetDirection() == "NE" || GetDirection() == "SE")
-					go->AddComponent(new Sprite(*go, "assets/img/effects/dustE.png", 6, 0.05, false, 0.3));
-				else if(GetDirection() == "NW" || GetDirection() == "SW")
-					go->AddComponent(new Sprite(*go, "assets/img/effects/dustW.png", 6, 0.05, false, 0.3));
-				go->box.SetCenter(associated.box.GetCenter()+(Vec2(Vec2::Cos(GetAngleDirection()+180), Vec2::Sin(GetAngleDirection()+180))*30));
-				Game::GetInstance().GetCurrentState().AddObject(go, "EFFECT");
-			}
-			else {
+		if(GetAction() == IDLE) {
+			if(actionT.Get() > person.GetTime(IDLE)+offsetT) {
+				actionT.Restart();
+				offsetT = pow(-1,rand()%2)*(rand()%51)/100;
 				SetAction(WALK);
 				SetSpeed(person.GetNormalSpeed());
 				SetAngleDirection(rand()%360);
 			}
 		}
-	}
-	else if(GetAction() == PANIC) {
-		if(actionT.Get() > person.GetTime(PANIC)+offsetT) {
-			actionT.Restart();
-			offsetT = pow(-1,rand()%2)*(rand()%51)/100;
-			SetAction(IDLE);
-		}else{
-			associated.box.SetPos(associated.box.GetPos()+(Vec2(Vec2::Cos(GetAngleDirection()), Vec2::Sin(GetAngleDirection()))*GetSpeed()*dt));
+		else if(GetAction() == WALK) {
+			if(actionT.Get() > person.GetTime(WALK)+offsetT) {
+				actionT.Restart();
+				offsetT = pow(-1,rand()%2)*(rand()%51)/100;
+				SetAction(IDLE);
+			}else{
+				associated.box.SetPos(associated.box.GetPos()+(Vec2(Vec2::Cos(GetAngleDirection()), Vec2::Sin(GetAngleDirection()))*GetSpeed()*dt));
+			}
 		}
-	}
+		else if(GetAction() == SHOCK) {
+			if(actionT.Get() > person.GetTime(SHOCK)+offsetT) {
+				actionT.Restart();
+				offsetT = pow(-1,rand()%2)*(rand()%51)/100;
+				if(scared) {
+					SetAction(PANIC);
+					SetSpeed(person.GetPanicSpeed());
+					SetAngleDirection(GetAngleDirection()-180);
 
-	if(associated.box.x < 0)
-		associated.box.x = 0;
-	if(associated.box.x+associated.box.w > GameData::mapSize.x)
-		associated.box.x = GameData::mapSize.x-associated.box.w;
-	if(associated.box.y < 0)
-		associated.box.y = 0;
-	if(associated.box.y+associated.box.h > GameData::mapSize.y)
-		associated.box.y = GameData::mapSize.y-associated.box.h;
+					GameObject* go = new GameObject();
+					if(GetDirection() == "NE" || GetDirection() == "SE")
+						go->AddComponent(new Sprite(*go, "assets/img/effects/dustE.png", 6, 0.05, false, 0.3));
+					else if(GetDirection() == "NW" || GetDirection() == "SW")
+						go->AddComponent(new Sprite(*go, "assets/img/effects/dustW.png", 6, 0.05, false, 0.3));
+					go->box.SetCenter(associated.box.GetCenter()+(Vec2(Vec2::Cos(GetAngleDirection()+180), Vec2::Sin(GetAngleDirection()+180))*30));
+					Game::GetInstance().GetCurrentState().AddObject(go, "EFFECT");
+				}
+				else {
+					SetAction(WALK);
+					SetSpeed(person.GetNormalSpeed());
+					SetAngleDirection(rand()%360);
+				}
+			}
+		}
+		else if(GetAction() == PANIC) {
+			if(actionT.Get() > person.GetTime(PANIC)+offsetT) {
+				actionT.Restart();
+				offsetT = pow(-1,rand()%2)*(rand()%51)/100;
+				SetAction(IDLE);
+			}else{
+				associated.box.SetPos(associated.box.GetPos()+(Vec2(Vec2::Cos(GetAngleDirection()), Vec2::Sin(GetAngleDirection()))*GetSpeed()*dt));
+			}
+		}
+
+		if(associated.box.x < 0)
+			associated.box.x = 0;
+		if(associated.box.x+associated.box.w > GameData::mapSize.x)
+			associated.box.x = GameData::mapSize.x-associated.box.w;
+		if(associated.box.y < 0)
+			associated.box.y = 0;
+		if(associated.box.y+associated.box.h > GameData::mapSize.y)
+			associated.box.y = GameData::mapSize.y-associated.box.h;
+	}
 }
 
 void NPC::NotifyCollision(GameObject& other) {
 	if(other.GetComponent("Attack")) {
 		Attack* attack = (Attack*) other.GetComponent("Attack");
-		if(!attack->IsOwner(associated)) {
-			actionT.Restart();
-			offsetT = pow(-1,rand()%2)*(rand()%51)/100;
-			scared = true;
-			SetAction(PANIC);
-			SetAngleDirection(associated.box.GetCenter().GetAngle(other.box.GetCenter()));
-			Damage(attack->GetDamage());
-		}
+		actionT.Restart();
+		offsetT = pow(-1,rand()%2)*(rand()%51)/100;
+		scared = true;
+		SetAction(PANIC);
+		SetAngleDirection(associated.box.GetCenter().GetAngle(other.box.GetCenter()));
+		Damage(attack->GetDamage());
 	}
 	else if(other.GetComponent("NPC")) {
 		if(other.GetComponent("Monster")) {
