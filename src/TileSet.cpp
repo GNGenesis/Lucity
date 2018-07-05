@@ -11,6 +11,10 @@ TileSet::~TileSet() {
 
 }
 
+void TileSet::SetTileSet(std::string file) {
+	tileSet.Open(file);
+}
+
 void TileSet::RenderTile(int index, int x, int y) {
 	if(index > -1 && index < rows*columns) {
 		int clipX = tileWidth*(index%columns);

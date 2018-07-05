@@ -1,83 +1,107 @@
 #include "Attack.h"
 #include "Game.h"
+#include "GameData.h"
 
-#include "Sprite.h"
 #include "Collider.h"
 
-Attack::Attack(GameObject& associated, GameObject& owner, AttackType type, float lifeTime, 	float radius, float angle, float speed) : Component(associated) {
-	Attack::owner = Game::GetInstance().GetCurrentState().GetObjectPtr(&owner, "MAIN");
-	Attack::type = type;
+Attack::Attack(GameObject& associated, std::string owner, std::string name, Vec2 origin, float lifeTime, float direction, float speed, int damage,
+			   bool pierce) : Component(associated) {
+	Attack::owner = owner;
+	Attack::name = name;
 	Attack::lifeTime = lifeTime;
-	Attack::radius = radius;
-	Attack::angle = angle;
+	Attack::direction = direction;
 	Attack::speed = speed;
+	Attack::damage = damage;
+	Attack::pierce = pierce;
 	
-
-	if(type == CENTERED) {
-		associated.box.SetSize(Vec2(radius, radius)*2);
-		associated.AddComponent(new Collider(associated, radius));
-		Rect box = Attack::owner.lock()->box;
-		associated.box.SetCenter(Vec2(box.x+box.w/2, box.y+box.h));
+	Sprite* sp;
+	int scale;
+	int frameCount;
+	if(name == "blast") {
+		scale = 2;
+		frameCount = 1;
 	}
-	else if(type == DIRECTED) {
-		Sprite* s = new Sprite(associated, "assets/img/sword.png");
-		s->SetScale(Vec2(2, 2));
-		associated.AddComponent(s);
-		associated.AddComponent(new Collider(associated));
-		associated.rotation = angle;
-		associated.box.SetCenter(Attack::owner.lock()->box.GetCenter()+(Vec2(Vec2::Cos(angle), Vec2::Sin(angle))*40));
+	else if(name == "bubbles") {
+		scale = 2;
+		frameCount = 3;
 	}
-	else if(type == PROJECTED) {
-		Sprite* s = new Sprite(associated, "assets/img/sword.png");
-		s->SetScale(Vec2(2, 2));
-		associated.AddComponent(s);
-		associated.AddComponent(new Collider(associated));
-		associated.rotation = angle;
-		associated.box.SetCenter(Attack::owner.lock()->box.GetCenter()+(Vec2(Vec2::Cos(angle), Vec2::Sin(angle))*40));
+	else {
+		scale = 2;
+		frameCount = 2;
 	}
+	sp = new Sprite(associated, "assets/img/effects/" + name + ".png", frameCount, 0.1);
+	sp->SetScale(Vec2(scale, scale));
+	associated.AddComponent(sp);
+	associated.AddComponent(new Collider(associated));
+	associated.rotation = direction;
+	associated.box.SetCenter(origin+(Vec2(Vec2::Cos(direction), Vec2::Sin(direction))*30));
 }
 
 Attack::~Attack() {
+	GameObject* go = new GameObject();
 
+	if(name == "blast") {
+		//do nothing
+	}
+	else if(name == "bubbles") {
+		go->AddComponent(new Sprite(*go, "assets/img/effects/" + name + "_end.png", 3, 0.1, false, 0.3));
+		go->box.SetCenter(associated.box.GetCenter());
+		Game::GetInstance().GetCurrentState().AddObject(go, "EFFECT");
+	}
+	else if(name == "fireball") {
+		go->AddComponent(new Attack(*go, "Player", "blast", Vec2(), 0.3, 0, 0, 1, true));
+		go->box.SetCenter(associated.box.GetCenter());
+		Game::GetInstance().GetCurrentState().AddObject(go, "EFFECT");
+	}
+	else {
+		//do nothing
+	}
 }
 
 void Attack::Update(float dt) {
-	if(owner.expired()) {
-		associated.RequestDelete();
-	}
-	else {
+	if(!GameData::paused) {
 		lifeTimeT.Update(dt);
-		Rect box = Attack::owner.lock()->box;
 		if(lifeTimeT.Get() > lifeTime)
 			associated.RequestDelete();
-		else if(type == CENTERED)
-			associated.box.SetCenter(Vec2(box.x+box.w/2, box.y+box.h));
-		else if(type == DIRECTED)
-			associated.box.SetCenter(box.GetCenter()+(Vec2(Vec2::Cos(angle), Vec2::Sin(angle))*40));
-		else if(type == PROJECTED)
-			associated.box.SetCenter(associated.box.GetCenter()+(Vec2(Vec2::Cos(angle), Vec2::Sin(angle))*speed*dt));
+		else
+			associated.box.SetCenter(associated.box.GetCenter()+(Vec2(Vec2::Cos(direction), Vec2::Sin(direction))*speed*dt));
 	}
 }
 
 void Attack::NotifyCollision(GameObject& other) {
-	if(other.GetComponent("Player")) {
-		if(!IsAlly("Player")) {
-			if(type != CENTERED) {
+	if(!pierce) {
+		if(other.GetComponent("Player")) {
+			if(!IsAlly("Player")) {
 				associated.RequestDelete();
 				associated.Deactivate();
 			}
 		}
-	}
-	else if(other.GetComponent("Monster")) {
-		if(!IsAlly("Monster")) {
-			if(type != CENTERED) {
+		else if(other.GetComponent("NPC")) {
+			if(other.GetComponent("Monster")) {
+				if(!IsAlly("Monster")) {
+					associated.RequestDelete();
+					associated.Deactivate();
+				}
+			}
+			else if(other.GetComponent("Boss")) {
+				if(!IsAlly("Boss")) {
+					associated.RequestDelete();
+					associated.Deactivate();
+				}
+			}
+			else {
 				associated.RequestDelete();
 				associated.Deactivate();
 			}
 		}
-	}
-	else if(other.GetComponent("MainObject")) {
-		if(type != CENTERED) {
+		else if(other.GetComponent("Attack")) {
+			Attack* a = (Attack*) other.GetComponent("Attack");
+			if(!IsAlly(a->GetOwner())) {
+				associated.RequestDelete();
+				associated.Deactivate();
+			}
+		}
+		else if(other.GetComponent("MainObject")) {
 			associated.RequestDelete();
 			associated.Deactivate();
 		}
@@ -89,13 +113,13 @@ bool Attack::Is(std::string type) {
 }
 
 bool Attack::IsAlly(std::string ally) {
-	if(!Attack::owner.expired())
-		return (Attack::owner.lock()->GetComponent(ally));
-	return false;
+	return (ally == owner);
 }
 
-bool Attack::IsOwner(GameObject& owner) {
-	if(!Attack::owner.expired())
-		return (Attack::owner.lock() == Game::GetInstance().GetCurrentState().GetObjectPtr(&owner, "MAIN").lock());
-	return false;
+int Attack::GetDamage() {
+	return damage;
+}
+
+std::string Attack::GetOwner() {
+	return owner;
 }

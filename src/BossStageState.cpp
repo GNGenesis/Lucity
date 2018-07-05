@@ -16,99 +16,125 @@
 #include "Player.h"
 #include "NPC.h"
 #include "Monster.h"
+#include "Boss.h"
 #include "Animator.h"
 
+#include <algorithm>
+
+bool SortRenderOrder_BS(std::shared_ptr<GameObject> i, std::shared_ptr<GameObject> j) { return (i->box.y + i->box.h < j->box.y + j->box.h); }
+
 BossStageState::BossStageState() : State() {
+	gameOver = false;
+
 	GameObject* go;
 
-	//Background
-	/*go = new GameObject();
-	go->AddComponent(new Sprite(*go, "assets/img/ocean.jpg"));
-	go->AddComponent(new CameraFollower(*go));
-	go->box.SetSize(Vec2());
-	AddObject(go, "BG");*/
-
-	NPCList.emplace_back(Personality("girl", 150, 200, 1, 3, 1, 3, { "hobo" }, { "suit", "tree" }));
-	NPCList.emplace_back(Personality("hobo", 150, 150, 2, 2, 1, 2, {}, { "suit", "trashcan" }));
-	NPCList.emplace_back(Personality("luv", 150, 50, 3, 1, 2, 2, { "old" }, { "girl", "suit" }));
-	NPCList.emplace_back(Personality("old", 50, 250, 3, 1, 1.5, 2, {}, { "luv", "bench" }));
+	NPCList.emplace_back(Personality("girl", 150, 200, 1, 3, 1, 3, {"hobo"}, {"suit", "tree"}));
+	NPCList.emplace_back(Personality("hobo", 150, 150, 2, 2, 1, 2, {}, {"suit", "trashcan"}));
+	NPCList.emplace_back(Personality("luv", 150, 50, 3, 1, 2, 2, {"old"}, {"girl", "suit"}));
+	NPCList.emplace_back(Personality("old", 50, 250, 3, 1, 1.5, 2, {}, {"luv", "bench"}));
 	NPCList.emplace_back(Personality("suit", 150, 150, 2, 2, 0.5, 1, {}, {}));
 
-	monsterList.emplace_back(Personality("girl", 50, 200, 0.3, 5, 1, 1, { "luv" }, { "hobo" }));
-	monsterList.emplace_back(Personality("hobo", 250, 50, 1, 3, 3, 1, {}, { "girl", "luv", "old", "suit" }));
-	monsterList.emplace_back(Personality("luv", 150, 150, 10, 2, 1, 2, {}, { "old", "tree" }));
-	monsterList.emplace_back(Personality("old", 300, 250, 1, 2, 2, 2, { "tree" }, { "trashcan" }));
-	monsterList.emplace_back(Personality("suit", 150, 4000, 5, 0.3, 5, 1, { "bench" }, {}));
+	monsterList.emplace_back(Personality("girl", 50, 200, 0.3, 5, 1, 1, {"luv"}, {"hobo"}));
+	monsterList.emplace_back(Personality("hobo", 250, 50, 1, 3, 3, 1, {}, {"girl", "luv", "old", "suit"}));
+	monsterList.emplace_back(Personality("luv", 150, 150, 10, 2, 1, 2, {}, {"old", "tree"}));
+	monsterList.emplace_back(Personality("old", 300, 250, 1, 2, 2, 2, {"tree"}, {"trashcan"}));
+	monsterList.emplace_back(Personality("suit", 150, 4000, 5, 0.3, 5, 1, {"bench"}, {}));
 
 	//TileMap
 	go = new GameObject();
-	set = new TileSet(*go, "assets/img/tileSet2.png", 64, 64);
+	set = new TileSet(*go, "assets/img/tileSet.png", 64, 64);
 	TileMap* map = new TileMap(*go, set, "assets/map/tileMap.txt");
 	go->AddComponent(map);
 	go->box.SetSize(Vec2());
 	AddObject(go, "BG");
 
-	int mw = 64 * map->GetWidth();
-	int mh = 64 * map->GetHeight();
+	int mw = 64*map->GetWidth();
+	int mh = 64*map->GetHeight();
 	GameData::mapSize = Vec2(mw, mh);
 
-	//Text
+	//Remaining Health
 	go = new GameObject();
-	go->AddComponent(new Text(*go, "assets/font/Sabo-Filled.ttf", 72, " ", SDL_Color{}, Text::SOLID));
+	go->AddComponent(new Text(*go, "assets/font/Sabo-Filled.ttf", 72, " ", SDL_Color {}, Text::SOLID));
+	go->AddComponent(new CameraFollower(*go, Vec2(0, 600-go->box.h)));
+	AddObject(go, "GUI");
+
+	//Remaining NPCs
+	go = new GameObject();
+	go->AddComponent(new Text(*go, "assets/font/Sabo-Filled.ttf", 72, " ", SDL_Color {}, Text::SOLID));
 	go->AddComponent(new CameraFollower(*go, Vec2(0, 0)));
 	AddObject(go, "GUI");
 
+	//Event Countdown
+	waitingT = 30;
+	go = new GameObject();
+	go->AddComponent(new Text(*go, "assets/font/Sabo-Filled.ttf", 72, "00.0 ", SDL_Color {}, Text::SOLID));
+	go->AddComponent(new CameraFollower(*go, Vec2(1024-go->box.w, 0)));
+	AddObject(go, "GUI");
+	
 	//Bench
-	for (int i = 0; i < 4; i++) {
+	for(int i = 0; i < 4; i++) {
 		go = new GameObject();
-		go->AddComponentAsFirst(new MainObject(*go, "bench", 1, Vec2(3, 3), true, true));
-		go->box.SetPos(Vec2(rand() % mw, rand() % mh));
+		go->AddComponentAsFirst(new MainObject(*go, "bench", 1, Vec2(3, 3), true));
+		go->box.SetPos(Vec2(rand()%mw, rand()%mh));
 		AddObject(go, "MAIN");
 	}
 
 	//Trashcan
-	for (int i = 0; i < 4; i++) {
+	for(int i = 0; i < 4; i++) {
 		go = new GameObject();
-		go->AddComponentAsFirst(new MainObject(*go, "trashcan", 1, Vec2(3, 3), true, true));
-		go->box.SetPos(Vec2(rand() % mw, rand() % mh));
+		go->AddComponentAsFirst(new MainObject(*go, "trashcan", 1, Vec2(3, 3), true));
+		go->box.SetPos(Vec2(rand()%mw, rand()%mh));
 		AddObject(go, "MAIN");
 	}
 
 	//Tree
-	for (int i = 0; i < 4; i++) {
+	for(int i = 0; i < 4; i++) {
 		go = new GameObject();
 		go->AddComponentAsFirst(new MainObject(*go, "tree", 1, Vec2(3, 3), true));
-		go->box.SetPos(Vec2(rand() % mw, rand() % mh));
+		go->box.SetPos(Vec2(rand()%mw, rand()%mh));
 		AddObject(go, "MAIN");
 	}
 
 	//Boss
-		go = new GameObject();
-		go->AddComponentAsFirst(new Monster(*go, monsterList[rand() % monsterList.size()]));
-		go->box.SetCenter(rand() % mw, rand() % mh);
-		AddObject(go, "MAIN");
+	go = new GameObject();
+	boss = new Boss(*go, monsterList[rand()%monsterList.size()]);
+	go->AddComponentAsFirst(boss);
+	go->box.SetCenter(rand()%mw, rand()%mh);
+	AddObject(go, "MAIN");
+
+	GameData::nMonsters++;
 
 	//NPCs
-	for (int i = 0; i < 1; i++) {
+	for(int i = 0; i < 30; i++) {
 		go = new GameObject();
-		go->AddComponentAsFirst(new NPC(*go, NPCList[rand() % NPCList.size()]));
-		go->box.SetCenter(rand() % mw, rand() % mh);
+		go->AddComponentAsFirst(new NPC(*go, NPCList[rand()%NPCList.size()]));
+		go->box.SetCenter(rand()%mw, rand()%mh);
 		AddObject(go, "MAIN");
+
+		GameData::nCivilians++;
 	}
 
 	//Players
+	for(int i = 0; i >= 0; i--) {
 		go = new GameObject();
-		go->AddComponentAsFirst(new Player(*go, "lucas", 1));
-		go->box.SetCenter(mw / 2, mh / 2);
+		go->AddComponentAsFirst(new Player(*go, "lucas", i));
+		go->box.SetCenter(mw/2, mh/2);
 		AddObject(go, "MAIN");
+	}
 
 	Camera::Follow(go);
 
-	backgroundMusic = Music("assets/audio/themeTeste.ogg");
+	flipped = false;
+
+	backgroundMusic = Music("assets/audio/theme.ogg");
 	backgroundMusic.Play();
 }
 
 BossStageState::~BossStageState() {
+	GameData::mapSize = Vec2();
+	GameData::nMonsters = 0;
+	GameData::nCivilians = 0;
+	GameData::player = std::weak_ptr<GameObject>();
 	delete set;
 }
 
@@ -128,6 +154,43 @@ void BossStageState::Pause() {
 
 void BossStageState::Resume() {
 
+}
+
+void BossStageState::Ramble() {
+	for(unsigned i = 0; i < objects["MAIN"].size(); i++) {
+		if(objects["MAIN"][i]->IsActive() && objects["MAIN"][i]->GetComponent("NPC")) {
+			objects["MAIN"][i]->box.SetCenter(rand()%(int)GameData::mapSize.x, rand()%(int)GameData::mapSize.y);
+			if(objects["MAIN"][i]->GetComponent("Boss")) {
+				NPC* objNPC = (NPC*) objects["MAIN"][i]->GetComponent("NPC");
+				objNPC->SetPerson(monsterList[rand()%monsterList.size()]);
+			}
+		}
+	}
+
+	rambleT.Restart();
+}
+
+void BossStageState::Flip() {
+	if(!flipped) {
+		set->SetTileSet("assets/img/bossTileSet.png");
+		backgroundMusic.Open("assets/audio/bossTheme.ogg");
+		backgroundMusic.Play();
+		if(!boss->IsTransformed())
+			boss->Transform();
+		for(int i = objects["MAIN"].size() - 1; i >= 0 ; i--) {
+			if(objects["MAIN"][i]->GetComponent("NPC") && !objects["MAIN"][i]->GetComponent("Boss")) {
+				if(Camera::GetFocus() == objects["MAIN"][i].get())
+					Camera::Unfollow();
+				objects["MAIN"].erase(objects["MAIN"].begin() + i);
+			}
+		}
+		flipped = true;
+	}
+}
+
+void BossStageState::Clear() {
+	GameData::nCivilians = 0;
+	Flip();
 }
 
 void BossStageState::CollisionCheck() {
@@ -161,11 +224,15 @@ void BossStageState::CollisionCheck() {
 }
 
 void BossStageState::DeletionCheck() {
-	for (auto& i : objects) {
-		for (int j = i.second.size() - 1; j >= 0; j--) {
-			if (i.second[j]->IsDead()) {
-				if (Camera::GetFocus() == i.second[j].get())
+	for(auto& i : objects) {
+		for(int j = i.second.size() - 1; j >= 0; j--) {
+			if(i.second[j]->IsDead()) {
+				if(Camera::GetFocus() == i.second[j].get())
 					Camera::Unfollow();
+				if(i.second[j]->GetComponent("Boss"))
+					GameData::nMonsters--;
+				else if(i.second[j]->GetComponent("NPC"))
+					GameData::nCivilians--;
 				i.second.erase(i.second.begin() + j);
 			}
 		}
@@ -174,60 +241,139 @@ void BossStageState::DeletionCheck() {
 
 void BossStageState::Update(float dt) {
 	quitRequested = InputManager::QuitRequested();
-	if (InputManager::KeyPress(ESCAPE_KEY))
+	if(InputManager::KeyPress(ESCAPE_KEY)) {
 		popRequested = true;
+		GameData::playerVictory = false;
+	}
 
-	if (InputManager::KeyPress(F1_KEY))
-		Ramble();
+	if(InputManager::KeyPress(SDLK_TAB))
+		GameData::debug = !GameData::debug;
 
+	if(!gameOver) {
+		if(InputManager::KeyPress(SDLK_F1))
+			Flip();
 
-	rambleT.Update(dt);
-	if (objects["GUI"].size() > 0) {
-		Text* txt = (Text*)objects["GUI"][0]->GetComponent("Text");
-		if (txt) {
+		if(InputManager::KeyPress(SDLK_F2))
+			Clear();
+		
+		rambleT.Update(dt);
+		if(boss->Ramble())
+			Ramble();
+		if(!flipped)	
+			if(boss->IsTransformed() || GameData::nCivilians == 0)
+				Flip();
+
+		if(!flipped)
+			countdownT.Update(dt);
+		if(countdownT.Get() > waitingT) {
+			for(unsigned int i = 0; i < objects["MAIN"].size(); i++) {
+				if(objects["MAIN"][i]->GetComponent("NPC") && !objects["MAIN"][i]->GetComponent("Boss")) {
+					objects["MAIN"][i]->RequestDelete();
+					countdownT.Restart();
+					break;
+				}
+			}
+		}
+
+		Text* health = (Text*)objects["GUI"][0]->GetComponent("Text");
+		if(health) {
+			char a[3];
+			if(!GameData::player.expired()) {
+				Player* p = (Player*) GameData::player.lock()->GetComponent("Player");
+				sprintf(a, "%d", p->GetHealth());
+			}
+			else {
+				sprintf(a, "%d", 0);
+			}
+			std::string hp = "HP: ";
+			std::string text = hp+a;
+			health->SetText(text);
+		}
+
+		Text* remaining = (Text*)objects["GUI"][1]->GetComponent("Text");
+		if(remaining) {
 			char a[3], b[3];
 			sprintf(a, "%d", GameData::nMonsters);
 			sprintf(b, "%d", GameData::nCivilians);
 			std::string nm = "NM ";
 			std::string nc = " NC ";
-			std::string text = nm + a + nc + b;
-			txt->SetText(text);
+			std::string text = nm+a+nc+b;
+			remaining->SetText(text);
+		}
+
+		Text* countdown = (Text*)objects["GUI"][2]->GetComponent("Text");
+		if(countdown) {
+			char a[3], b[3];
+			sprintf(a, "%d", ((int)waitingT-1)-(int)countdownT.Get());
+			sprintf(b, "%d", 9-(int)(countdownT.Get()*10)%10);
+			std::string p = ".";
+			std::string z = "0";
+			std::string text;
+			if(((int)waitingT-1)-(int)countdownT.Get() > 9) {
+				text = a+p+b;
+				countdown->SetColor(SDL_Color {});
+			}
+			else {
+			 	text = z+a+p+b;
+			 	countdown->SetColor(SDL_Color { 255, 0, 0, 0 });
+			}
+			countdown->SetText(text);
+		}
+
+		if(GameData::nMonsters == 0) {
+			gameOver = true;
+			GameData::playerVictory = true;
+
+			//GameOver message
+			GameObject* go = new GameObject();
+			go->AddComponent(new Text(*go, "assets/font/Sabo-Filled.ttf", 48, "Well done kiddo, you got them all!", SDL_Color {}, Text::SOLID));
+			go->AddComponent(new CameraFollower(*go, Vec2(512-go->box.w/2, 300-go->box.h/2)));
+			AddObject(go, "GUI");
+
+			go = new GameObject();
+			go->AddComponent(new Text(*go, "assets/font/Sabo-Filled.ttf", 48, "Press Return to play again!", SDL_Color {}, Text::SOLID));
+			go->AddComponent(new CameraFollower(*go, Vec2(512-go->box.w/2, 360-go->box.h/2)));
+			AddObject(go, "GUI");
+		}
+		else if(GameData::player.expired()) {
+			gameOver = true;
+			GameData::playerVictory = false;
+			
+			//GameOver message
+			GameObject* go = new GameObject();
+			go->AddComponent(new Text(*go, "assets/font/Sabo-Filled.ttf", 48, "You are a fucking failure...", SDL_Color {}, Text::SOLID));
+			go->AddComponent(new CameraFollower(*go, Vec2(512-go->box.w/2, 300-go->box.h/2)));
+			AddObject(go, "GUI");
+
+			go = new GameObject();
+			go->AddComponent(new Text(*go, "assets/font/Sabo-Filled.ttf", 48, "Press Return to play again!", SDL_Color {}, Text::SOLID));
+			go->AddComponent(new CameraFollower(*go, Vec2(512-go->box.w/2, 360-go->box.h/2)));
+			AddObject(go, "GUI");
 		}
 	}
-		UpdateArray(dt, "BG");
-		UpdateArray(dt, "EFFECT");
-		UpdateArray(dt, "MAIN");
-		UpdateArray(dt, "MISC");
-		UpdateArray(dt, "GUI");
-		CollisionCheck();
-		DeletionCheck();
+	else {
+		if(InputManager::KeyPress(SDLK_RETURN))
+			popRequested = true;
+	}
+
+	UpdateArray(dt, "BG");
+	UpdateArray(dt, "EFFECT");
+	UpdateArray(dt, "MAIN");
+	UpdateArray(dt, "MISC");
+	UpdateArray(dt, "GUI");
+	CollisionCheck();
+	DeletionCheck();
+
+	std::sort(objects["EFFECT"].begin(), objects["EFFECT"].end(), SortRenderOrder_BS);
+	std::sort(objects["MAIN"].begin(), objects["MAIN"].end(), SortRenderOrder_BS);
 }
 
 void BossStageState::Render() {
-	if (rambleT.Get() > 0.25) {
+	if(rambleT.Get() > 0.5) {
 		RenderArray("BG");
 		RenderArray("EFFECT");
 		RenderArray("MAIN");
 		RenderArray("MISC");
 		RenderArray("GUI");
 	}
-}
-
-void BossStageState::Ramble() {
-	for (unsigned i = 0; i < objects["MAIN"].size(); i++) {
-		if (objects["MAIN"][i]->IsActive() && objects["MAIN"][i]->GetComponent("NPC")) {
-			objects["MAIN"][i]->Deactivate();
-			if (objects["MAIN"][i]->GetComponent("NPC")) {
-				objects["MAIN"][i]->box.SetCenter(rand() % (int)GameData::mapSize.x, rand() % (int)GameData::mapSize.y);
-			}
-			if (objects["MAIN"][i]->GetComponent("Monster")) {
-				int rng = rand() % monsterList.size();
-				NPC* objNPC = (NPC*)objects["MAIN"][i]->GetComponent("NPC");
-				objNPC->SetPerson(monsterList[rng]);
-			}
-			objects["MAIN"][i]->Activate();
-		}
-	}
-	rambleT.Restart();
-
 }

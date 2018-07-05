@@ -112,6 +112,7 @@ void Text::Render() {
 	SDL_SetRenderDrawColor(Game::GetInstance().GetRenderer(), 0, 255, 0, SDL_ALPHA_OPAQUE);
 	SDL_RenderDrawLines(Game::GetInstance().GetRenderer(), points, 5);
 #endif // DEBUG
+
 	SDL_Rect clipRect = SDL_Rect {0, 0, (int)associated.box.w, (int)associated.box.h};
 	SDL_Rect dstRect = clipRect;
 	dstRect.x = (int)associated.box.x-Camera::pos.x;

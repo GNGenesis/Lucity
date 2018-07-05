@@ -47,16 +47,14 @@ void MainObject::Damage(int damage) {
 }
 
 void MainObject::Update(float dt) {
-	
+
 }
 
 void MainObject::NotifyCollision(GameObject & other){
 	Attack* attack = (Attack*) other.GetComponent("Attack");
-	if(attack) {
-		if(attack->IsAlly("Monster")) {
-			Damage(1);
-		}
-	}
+	if(attack)
+		if(attack->IsAlly("Monster"))
+			Damage(attack->GetDamage());
 
 	Character* character = (Character*) other.GetComponent("Character");
 	if(character) {

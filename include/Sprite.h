@@ -36,7 +36,8 @@ public:
 	void Open(std::string file, int frameCount = 1, float frameTime = 1);
 	void SetClip(int x, int y, int w, int h);
 	void SetScale(Vec2 scale);
-	void SetFrame(int frame);
+	void SetFrame(int frame = 0);
+	void SetTime(float time = 0);
 	void SetFrameCount(int frameCount);
 	void SetFrameTime(float frameTime);
 	void SetFrameInterval(Vec2 frameInterval);
@@ -46,6 +47,9 @@ public:
 	bool Is(std::string type);
 	int GetWidth();
 	int GetHeight();
+	int GetFrame();
+	float GetTime();
+	Vec2 GetSize();
 	Vec2 GetScale();
 	bool IsOpen();
 };

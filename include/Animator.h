@@ -12,7 +12,8 @@
 class Animator : public Component {
 private:
 	Character* character;
-	Component* activeSprite;
+	Sprite* activeSprite;
+	std::string action;
 	std::string name;
 	std::unordered_map<std::string, Sprite*> sprites;
 
@@ -23,7 +24,6 @@ public:
 	void BuildSprites();
 	void RebuildSprites(std::string name);
 	void Update(float dt);
-	void Render();
 	bool Is(std::string type);
 };
 

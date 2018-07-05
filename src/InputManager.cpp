@@ -1,14 +1,19 @@
 #include "InputManager.h"
 #include "Camera.h"
+#include "GameData.h"
 
 std::unordered_map<int, bool> InputManager::keyState;
 std::unordered_map<int, int> InputManager::keyUpdate;
+bool InputManager::ToggleMouse = false;
 bool InputManager::mouseState [6];
 int InputManager::mouseUpdate [6];
+int InputManager::mouseWheel;
 int InputManager::mouseX;
 int InputManager::mouseY;
+int InputManager::lastKey;
 int InputManager::updateCounter;
 bool InputManager::quitRequested = false;
+
 
 //Joystick Related
 std::vector<SDL_Joystick*> InputManager::joysticks;
@@ -16,6 +21,7 @@ std::vector<SDL_Joystick*> InputManager::joysticks;
 void InputManager::Update() {
 	SDL_Event event;
 	SDL_GetMouseState(&mouseX, &mouseY);
+	mouseWheel = 0;
 	mouseX += Camera::pos.x;
 	mouseY += Camera::pos.y;
 	updateCounter++;
@@ -32,7 +38,21 @@ void InputManager::Update() {
 				mouseState[event.button.button] = false;
 				mouseUpdate[event.button.button] = updateCounter;
 			}
+			if(event.type == SDL_MOUSEWHEEL) {
+				mouseWheel = event.wheel.y;
+				if(event.wheel.y > 0) {
+
+				}
+				else if(event.wheel.y < 0) {
+
+				}
+			}
+			if (event.type == SDL_MOUSEMOTION) {
+				ToggleMouse = true;
+			}
 			if(event.type == SDL_KEYDOWN) {
+				ToggleMouse = false;
+				lastKey = event.key.keysym.sym;
 				keyState[event.key.keysym.sym] = true;
 				keyUpdate[event.key.keysym.sym] = updateCounter;
 			}
@@ -40,21 +60,6 @@ void InputManager::Update() {
 				keyState[event.key.keysym.sym] = false;
 				keyUpdate[event.key.keysym.sym] = updateCounter;
 			}
-			
-			//Joystick Related
-			/*if(event.type == SDL_JOYAXISMOTION) {
-				joyAxis.x = (float)SDL_JoystickGetAxis(joystick, 0)/32768;
-				joyAxis.y = (float)SDL_JoystickGetAxis(joystick, 1)/32768;
-			}
-			if(event.type == SDL_JOYBUTTONDOWN) {
-				joyState[event.jbutton.button] = true;
-				joyUpdate[event.jbutton.button] = updateCounter;
-				printf("%i\n", event.jbutton.button);
-			}
-			if(event.type == SDL_JOYBUTTONUP) {
-				joyState[event.jbutton.button] = false;
-				joyUpdate[event.jbutton.button] = updateCounter;
-			}*/
 		}
 	}
 }
@@ -70,7 +75,10 @@ bool InputManager::KeyRelease(int key) {
 bool InputManager::IsKeyDown(int key) {
 	return keyState[key];
 }
-
+int InputManager::GetLastKey() {
+	GameData::key = lastKey;
+	return lastKey;
+}
 bool InputManager::MousePress(int button) {
 	return (mouseUpdate[button] == updateCounter) ? (mouseState[button]) : false;
 }
@@ -83,6 +91,10 @@ bool InputManager::IsMouseDown(int button) {
 	return mouseState[button];
 }
 
+int InputManager::GetMouseWheel() {
+	return mouseWheel;
+}
+
 int InputManager::GetMouseX() {
 	return mouseX;
 }
@@ -93,6 +105,16 @@ int InputManager::GetMouseY() {
 
 Vec2 InputManager::GetMousePos() {
 	return Vec2(mouseX, mouseY);
+}
+
+Vec2 InputManager::GetMouseTruePos() {
+	int mX, mY;
+	SDL_GetMouseState(&mX, &mY);
+	return Vec2(mX, mY);
+}
+
+bool InputManager::GetToggle() {
+	return ToggleMouse;
 }
 
 bool InputManager::QuitRequested() {

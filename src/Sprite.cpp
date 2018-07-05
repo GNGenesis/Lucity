@@ -53,6 +53,11 @@ void Sprite::SetScale(Vec2 scale) {
 
 void Sprite::SetFrame(int frame) {
 	currentFrame = frame;
+	SetClip(currentFrame*(width/frameCount), 0, (width/frameCount), height);
+}
+
+void Sprite::SetTime(float time) {
+	timeElapsed = time;
 }
 
 void Sprite::SetFrameCount(int frameCount) {
@@ -73,7 +78,7 @@ void Sprite::Update(float dt) {
 		if(selfDestructCount.Get() > secondsToSelfDestruct)
 			associated.RequestDelete();
 	}
-	if(frameCount > 1) {
+	if(frameCount > 1 && frameTime > 0) {
 		timeElapsed += dt;
 		if(timeElapsed > frameTime) {
 			timeElapsed -= frameTime; 
@@ -81,7 +86,7 @@ void Sprite::Update(float dt) {
 					currentFrame++;
 				else if(loop)
 					currentFrame = frameInterval.x;
-				SetClip(currentFrame*(width/frameCount), 0, (width/frameCount), height);
+				SetFrame(currentFrame);
 		}
 	}
 }
@@ -110,6 +115,18 @@ int Sprite::GetWidth() {
 
 int Sprite::GetHeight() {
 	return (int)height*scale.y;
+}
+
+int Sprite::GetFrame() {
+	return currentFrame;
+}
+
+float Sprite::GetTime() {
+	return timeElapsed;
+}
+
+Vec2 Sprite::GetSize() {
+	return Vec2((width/frameCount)*scale.x, height*scale.y);
 }
 
 Vec2 Sprite::GetScale() {

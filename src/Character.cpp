@@ -9,8 +9,8 @@ Character::Character(GameObject& associated, std::string name) : Component(assoc
 	directionAngle = 0;
 	action = IDLE;
 	direction = "SE";
-	associated.AddComponent(new Animator(associated, this, name));
-	associated.AddComponent(new Collider(associated));
+	associated.AddComponentAsFirst(new Collider(associated));
+	associated.AddComponentAsFirst(new Animator(associated, this, name));
 }
 
 Character::~Character() {

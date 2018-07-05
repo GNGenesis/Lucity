@@ -10,10 +10,13 @@
 class NPC : public Character {
 private:
 	Personality person;
+
 	Timer actionT;
 	float offsetT;
+
 	Timer damageT;
 	float damageCD;
+
 	bool scared;
 
 public:
@@ -24,8 +27,8 @@ public:
 	virtual void NotifyCollision(GameObject& other);
 	virtual bool Is(std::string type);
 	void SetAngleDirection(int angle);
-	std::string GetName();
 	void SetPerson(Personality p);
+	std::string GetName();
 };
 
 #endif /* NPC_H_ */

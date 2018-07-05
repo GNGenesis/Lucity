@@ -16,6 +16,7 @@ private:
 public:
 	TileSet(GameObject& associated, std::string file, int tileWidth, int tileHeight);
 	~TileSet();
+	void SetTileSet(std::string file);
 	void RenderTile(int index, int x, int y);
 	int GetTileWidth();
 	int GetTileHeight();

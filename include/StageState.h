@@ -5,12 +5,14 @@
 #include "GameObject.h"
 #include "Music.h"
 #include "TileSet.h"
+#include "Timer.h"
 #include "Personality.h"
 
 #include <vector>
 
 class StageState : public State {
 private:
+	bool gameOver;
 	TileSet* set;
 	Music backgroundMusic;
 	std::vector<Personality> NPCList;

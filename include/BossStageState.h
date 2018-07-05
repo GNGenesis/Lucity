@@ -5,14 +5,22 @@
 #include "GameObject.h"
 #include "Music.h"
 #include "TileSet.h"
+#include "Timer.h"
 #include "Personality.h"
+
+#include "Boss.h"
 
 #include <vector>
 
 class BossStageState : public State {
 private:
-	Timer  rambleT;
-	TileSet * set;
+	Boss* boss;
+	Timer rambleT;
+	bool flipped;
+	Timer countdownT;
+	float waitingT;
+	bool gameOver;
+	TileSet* set;
 	Music backgroundMusic;
 	std::vector<Personality> NPCList;
 	std::vector<Personality> monsterList;
@@ -24,11 +32,13 @@ public:
 	void Start();
 	void Pause();
 	void Resume();
+	void Ramble();
+	void Flip();
+	void Clear();
 	void CollisionCheck();
 	void DeletionCheck();
 	void Update(float dt);
 	void Render();
-	void Ramble();
 };
 
-#endif /* STAGESTATE_H_ */
+#endif /* BOSSSTAGESTATE_H_ */

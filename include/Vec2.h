@@ -9,6 +9,8 @@ public:
 	Vec2();
 	Vec2(float x, float y);
 	~Vec2();
+	bool operator==(const Vec2& rhs) const;
+	bool operator!=(const Vec2& rhs) const;
 	Vec2 operator+(const Vec2& rhs) const;
 	Vec2 operator+(const float rhs) const;
 	Vec2 operator-(const Vec2& rhs) const;

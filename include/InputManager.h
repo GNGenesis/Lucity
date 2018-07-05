@@ -1,15 +1,10 @@
 #ifndef INPUTMANAGER_H_
 #define INPUTMANAGER_H_
 
-#define LEFT_ARROW_KEY SDLK_LEFT
-#define RIGHT_ARROW_KEY SDLK_RIGHT
-#define UP_ARROW_KEY SDLK_UP
-#define DOWN_ARROW_KEY SDLK_DOWN
-#define ESCAPE_KEY SDLK_ESCAPE
-#define SPACE_KEY SDLK_SPACE
-#define F1_KEY SDLK_F1
 #define LEFT_MOUSE_BUTTON SDL_BUTTON_LEFT
 #define RIGHT_MOUSE_BUTTON SDL_BUTTON_RIGHT
+#define ESCAPE_KEY  SDLK_ESCAPE
+#define CONFIRM  SDLK_RETURN
 
 #define INCLUDE_SDL
 #include "SDL_include.h"
@@ -23,8 +18,11 @@ class InputManager {
 private:
 	static std::unordered_map<int, bool> keyState;
 	static std::unordered_map<int, int> keyUpdate;
+	static bool ToggleMouse;
 	static bool mouseState [6];
 	static int mouseUpdate [6];
+	static int lastKey;
+	static int mouseWheel;
 	static int mouseX;
 	static int mouseY;
 	static int updateCounter;
@@ -44,9 +42,13 @@ public:
 	static bool MousePress(int button);
 	static bool MouseRelease(int button);
 	static bool IsMouseDown(int button);
+	static int GetLastKey();
+	static int GetMouseWheel();
 	static int GetMouseX();
 	static int GetMouseY();
 	static Vec2 GetMousePos();
+	static Vec2 GetMouseTruePos();
+	static bool GetToggle();
 	static bool QuitRequested();
 
 	//Joystick Related
