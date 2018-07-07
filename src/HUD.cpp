@@ -85,7 +85,7 @@ void HUD::Start() {
 
 	//Timer Fill
 	go = new GameObject();
-	sp = new Sprite(*go, "assets/img/HUD/timer_fill.png", 10, 0, false);
+	sp = new Sprite(*go, "assets/img/HUD/timer_fill2.png", 10, 0, false);
 	sp->SetScale(Vec2(4, 4));
 	go->AddComponent(sp);
 	go->AddComponent(new CameraFollower(*go, Vec2(1024 - go->box.w - 10, 10)));
@@ -113,7 +113,7 @@ void HUD::Start() {
 
 	//Monsters
 	go = new GameObject();
-	sp = new Sprite(*go, "assets/img/characters/monster/idleSW.png", 5, 0.2);
+	sp = new Sprite(*go, "assets/img/characters/monster/idleSW.png", 6, 0.2);
 	go->AddComponent(sp);
 	go->AddComponent(new CameraFollower(*go, Vec2(1024-go->box.w-10, 140)));
 	monsters = Game::GetInstance().GetCurrentState().AddObject(go, "GUI");
@@ -130,7 +130,7 @@ void HUD::Update(float dt) {
 		Player* p = (Player*) GameData::player.lock()->GetComponent("Player");
 		if(p) {
 			if(p->GetHealth() < healthTrack && p->GetHealth() > 0) {
-				for(int i = healthTrack-1; i < health.size(); i++) {
+				for(unsigned int i = healthTrack-1; i < health.size(); i++) {
 					Sprite* s = (Sprite*) health[i].lock()->GetComponent("Sprite");
 					s->SetFrameTime(0.2);
 				}
@@ -141,7 +141,7 @@ void HUD::Update(float dt) {
 		//Attack
 		Book* b = (Book*) GameData::book.lock()->GetComponent("Book");
 		if(b) {
-			for(int i = 0; i < attack.size(); i++) {
+			for(unsigned int i = 0; i < attack.size(); i++) {
 				Sprite* s = (Sprite*) attack[i].lock()->GetComponent("Sprite");
 
 				std::string path = "assets/img/HUD/";
@@ -159,7 +159,7 @@ void HUD::Update(float dt) {
 						mode = "fireball_off";
 				}
 				else if(i == 2) {
-					if(b->GetAttackMode() == "mysticbolt")
+					if(b->GetAttackMode() == "bind")
 						mode = "mysticbolt_on";
 					else
 						mode = "mysticbolt_off";

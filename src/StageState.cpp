@@ -17,6 +17,7 @@
 #include "Player.h"
 #include "NPC.h"
 #include "Monster.h"
+#include "Boss.h"
 
 #include <algorithm>
 
@@ -67,23 +68,23 @@ StageState::StageState() : State() {
 	AddObject(go, "GUI");
 	
 	//Bench
-	for(int i = 0; i < 1; i++) {
+	for(int i = 0; i < 5; i++) {
 		go = new GameObject();
-		go->AddComponentAsFirst(new MainObject(*go, "bench", 1, Vec2(3, 3), true));
+		go->AddComponentAsFirst(new MainObject(*go, "bench", 1, Vec2(3, 3), true, true));
 		go->box.SetPos(Vec2(rand()%mw, rand()%mh));
 		AddObject(go, "MAIN");
 	}
 
 	//Trashcan
-	for(int i = 0; i < 1; i++) {
+	for(int i = 0; i < 5; i++) {
 		go = new GameObject();
-		go->AddComponentAsFirst(new MainObject(*go, "trashcan", 1, Vec2(3, 3), true));
+		go->AddComponentAsFirst(new MainObject(*go, "trashcan", 1, Vec2(3, 3), true, true));
 		go->box.SetPos(Vec2(rand()%mw, rand()%mh));
 		AddObject(go, "MAIN");
 	}
 
 	//Tree
-	for(int i = 0; i < 1; i++) {
+	for(int i = 0; i < 2; i++) {
 		go = new GameObject();
 		go->AddComponentAsFirst(new MainObject(*go, "tree", 1, Vec2(3, 3), true));
 		go->box.SetPos(Vec2(rand()%mw, rand()%mh));
@@ -91,7 +92,7 @@ StageState::StageState() : State() {
 	}
 
 	//Monsters
-	for(int i = 0; i < 5; i++) {
+	for(int i = 0; i < 0; i++) {
 		go = new GameObject();
 		go->AddComponentAsFirst(new Monster(*go, monsterList[rand()%monsterList.size()]));
 		go->box.SetCenter(rand()%mw, rand()%mh);
@@ -100,8 +101,16 @@ StageState::StageState() : State() {
 		GameData::nMonsters++;
 	}
 
+	//Boss
+	for(int i = 0; i < 1; i++) {
+		go = new GameObject();
+		go->AddComponentAsFirst(new Boss(*go, monsterList[rand()%monsterList.size()]));
+		go->box.SetCenter(rand()%mw, rand()%mh);
+		AddObject(go, "MAIN");
+	}
+
 	//NPCs
-	for(int i = 0; i < 10; i++) {
+	for(int i = 0; i < 0; i++) {
 		go = new GameObject();
 		go->AddComponentAsFirst(new NPC(*go, NPCList[rand()%NPCList.size()]));
 		go->box.SetCenter(rand()%mw, rand()%mh);

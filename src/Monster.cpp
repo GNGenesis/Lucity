@@ -6,16 +6,17 @@
 #include "Sprite.h"
 #include "Attack.h"
 #include "HP.h"
+#include "Soul.h"
 
 #include <math.h>
 
 Monster::Monster(GameObject& associated, Personality p) : NPC(associated, p) {
 	transformed = false;
-	mIdleT = 2;
-	mWalkT = 3;
-	mAttackT = 1;
+	mIdleT = 1.2;
+	mWalkT = 1.8;
+	mAttackT = 0.7;
 	mStunT = 1.5;
-	mDamageCD = 0.5;
+	mDamageCD = 1;
 }
 
 Monster::~Monster() {
@@ -25,14 +26,18 @@ Monster::~Monster() {
 void Monster::Transform() {
 	transformed = true;
 	SetAction("mTransform");
-	SetDirection("");
+	SetDirection("SE");
 	associated.AddComponent(new HP(associated, 2));
 }
 
 void Monster::Damage(int damage) {
 	SetHealth(GetHealth()-damage);
-	if(!transformed && damage > 0)
-		Transform();
+	if(damage > 0) {
+		mDamageT.Restart();
+		if(!transformed) {
+			Transform();
+		}
+	}
 }
 
 void Monster::Update(float dt) {
@@ -48,14 +53,14 @@ void Monster::Update(float dt) {
 					mActionT.Restart();
 					mOffsetT = pow(-1,rand()%2)*(rand()%51)/100;
 					SetAction("mIdle");
-					SetDirection("SE");
 
 					for(int i = 0; i < 6; i++) {
 						GameObject* go = new GameObject();
-						go->AddComponent(new Attack(*go, "Monster", "shockwave", associated.box.GetCenter()+Vec2(0, associated.box.h/2), 1, GetAngleDirection()+i*360/6, 50, 1, true));
+						go->AddComponent(new Attack(*go, "Monster", "shockwave", associated.box.GetCenter()+Vec2(0, associated.box.h/2), 50, 1, GetAngleDirection()+i*360/6,
+										 			50, 1, true));
 						Game::GetInstance().GetCurrentState().AddObject(go, "MAIN");
 						Camera::tremorT.Restart();
-					}
+					} 
 				}
 			}
 			else if(GetAction() == "mStun") {
@@ -63,16 +68,14 @@ void Monster::Update(float dt) {
 					mActionT.Restart();
 					mOffsetT = pow(-1,rand()%2)*(rand()%51)/100;
 					SetAction("mAttack");
-					SetDirection("SE");
 					SetHealth(2);
 				}
 			}
 			else if(GetHealth() < 1) {
 				mActionT.Restart();
 				SetAction("mStun");
-				SetDirection("");
 			}
-			else if(GetAction() == "mIdle") {
+			else if(GetAction() == "mIdle"  || GetAction() == "hurt/mIdle") {
 				if(mActionT.Get() > mIdleT + mOffsetT) {
 					mActionT.Restart();
 					mOffsetT = pow(-1,rand()%2)*(rand()%51)/100;
@@ -81,7 +84,7 @@ void Monster::Update(float dt) {
 					NPC::SetAngleDirection(rand()%360);
 				}
 			}
-			else if(GetAction() == "mWalk") {
+			else if(GetAction() == "mWalk" || GetAction() == "hurt/mWalk") {
 				if(mActionT.Get() > mWalkT + mOffsetT) {
 					mActionT.Restart();
 					mOffsetT = pow(-1,rand()%2)*(rand()%51)/100;
@@ -96,7 +99,7 @@ void Monster::Update(float dt) {
 					associated.box.SetCenter(associated.box.GetCenter()+Vec2(Vec2::Cos(GetAngleDirection()), Vec2::Sin(GetAngleDirection()))*GetSpeed()*dt);
 				}
 			}
-			else if(GetAction() == "mAttack") {
+			else if(GetAction() == "mAttack" || GetAction() == "hurt/mAttack") {
 				if(mActionT.Get() > mAttackT) {
 					mActionT.Restart();
 					mOffsetT = pow(-1,rand()%2)*(rand()%51)/100;
@@ -104,12 +107,17 @@ void Monster::Update(float dt) {
 
 					for(int i = 0; i < 6; i++) {
 						GameObject* go = new GameObject();
-						go->AddComponent(new Attack(*go, "Monster", "shockwave", associated.box.GetCenter()+Vec2(0, associated.box.h/2), 1, GetAngleDirection()+i*360/6, 50, 1, true));
+						go->AddComponent(new Attack(*go, "Monster", "shockwave", associated.box.GetCenter()+Vec2(0, associated.box.h/2), 50, 1, GetAngleDirection()+i*360/6, 
+										 			50, 1, true));
 						Game::GetInstance().GetCurrentState().AddObject(go, "MAIN");
 						Camera::tremorT.Restart();
 					}
 				}
 			}
+
+			if(mDamageT.Get() < mDamageCD)
+				if(GetAction() == "mIdle" || GetAction() == "mWalk" || GetAction() == "mAttack")
+					SetAction("hurt/" + GetAction());
 
 			if(associated.box.x < 0)
 				associated.box.x = 0;
@@ -132,20 +140,24 @@ void Monster::NotifyCollision(GameObject& other) {
 		if(attack) {
 			if(!attack->IsAlly("Monster")) {
 				if(GetAction() != "mStun" && GetAction() != "mTransform") {
-					if(attack->GetDamage() > 0) {
-						if(mDamageT.Get() > mDamageCD) {
-							Damage(attack->GetDamage());
-							mDamageT.Restart();
-						}
+					if(mDamageT.Get() > mDamageCD) {
+						Damage(attack->GetDamage());
 					}
 				}
 				else if(GetAction() == "mStun") {
-					if(attack->GetDamage() == 0) {
+					if(attack->GetName() == "bind") {
 						associated.RequestDelete();
 						GameObject* go = new GameObject();
-						go->AddComponent(new Sprite(*go, "assets/img/characters/monster/capture.png", 7, 0.12, false, 0.84));
+						Sprite* sp = new Sprite(*go, "assets/img/characters/monster/capture" + GetDirection() + ".png", 11, 0.1, false, 1.1);
+						sp->SetScale(Vec2(2, 2));
+						go->AddComponent(sp);
 						go->box.SetCenter(Vec2(associated.box.x+associated.box.w/2, associated.box.y+associated.box.h-go->box.h/2));
 						Game::GetInstance().GetCurrentState().AddObject(go, "MAIN");
+
+						GameObject* soul = new GameObject();
+						soul->AddComponent(new Soul(*soul));
+						soul->box.SetCenter(go->box.GetCenter());
+						Game::GetInstance().GetCurrentState().AddObject(soul, "MAIN");
 					}
 				}
 			}

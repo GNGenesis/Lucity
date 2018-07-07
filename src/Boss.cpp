@@ -9,7 +9,7 @@
 #include <math.h>
 
 Boss::Boss(GameObject& associated, Personality p) : NPC(associated, p) {
-	SetHealth(3);
+	SetHealth(1);
 	transformed = false;
 	ramble = false;
 	bIdleT = 2;
@@ -34,11 +34,14 @@ void Boss::Transform() {
 
 void Boss::Damage(int damage) {
 	SetHealth(GetHealth()-damage);
-	if(!transformed) {
-		if(GetHealth() > 0)
-			ramble = true;
-		else
-			Transform();
+	if(damage > 0) {
+		bDamageT.Restart();
+		if(!transformed) {
+			if(GetHealth() > 0)
+				ramble = true;
+			else
+				Transform();
+		}
 	}
 }
 
@@ -65,13 +68,12 @@ void Boss::Update(float dt) {
 					bActionT.Restart();
 					SetAction("bAttack");
 					SetDirection("SE");
-					SetHealth(3);
+					SetHealth(1);
 				}
 			}
 			else if(GetHealth() < 1) {
 				bActionT.Restart();
 				SetAction("bStun");
-				SetDirection("");
 			}
 			else if(GetAction() == "bHurt") {
 				if(bActionT.Get() > bHurtT-bOffsetT) {
@@ -83,17 +85,15 @@ void Boss::Update(float dt) {
 				else {
 					associated.box.SetPos(associated.box.GetPos()+(Vec2(Vec2::Cos(GetAngleDirection()), Vec2::Sin(GetAngleDirection()))*GetSpeed()*dt));
 				}
-				if(bSubActionT.Get() > 0.5) {
+				if(bSubActionT.Get() > 0.4) {
 					bSubActionT.Restart();
-					GameObject* go = new GameObject();
-					//go->AddComponent(new Attack(*go, associated, Attack::CENTERED, 0.1, 80));
-					//Game::GetInstance().GetCurrentState().AddObject(go, "MAIN");
-					//Camera::tremorT.Restart();
-
-					//go = new GameObject();
-					go->AddComponent(new Sprite(*go, "assets/img/effects/crack.png", 4, 0.125, false, 0.5));
-					go->box.SetCenter(Vec2(associated.box.x + associated.box.w/2, associated.box.y + associated.box.h));
-					Game::GetInstance().GetCurrentState().AddObject(go, "EFFECT");
+					GameObject* go;
+					int n = rand()%360;
+					for(int i = 0; i < 8; i++) {
+						go = new GameObject();
+						go->AddComponent(new Attack(*go, "Boss", "energyball", associated.box.GetCenter(), 80, 2, n+i*360/8, 100, 1, false));
+						Game::GetInstance().GetCurrentState().AddObject(go, "MAIN");
+					}
 				}
 			}
 			else if(!GameData::player.expired()) {
@@ -109,17 +109,17 @@ void Boss::Update(float dt) {
 					}
 				}
 				else if(GetAction() == "bAttack") {
+					NPC::SetAngleDirection(associated.box.GetCenter().GetAngle(GameData::player.lock()->box.GetCenter()));
 					if(bActionT.Get() > bAttackT) {
 						bActionT.Restart();
+
+						GameObject* go;
+						go = new GameObject();
+						go->AddComponent(new Attack(*go, "Boss", "laserbeam", associated.box.GetCenter(), 250, 0.5, GetAngleDirection(), 0, 1, true));
+						Game::GetInstance().GetCurrentState().AddObject(go, "MAIN");
+
 						SetAction("bIdle");
 						NPC::SetAngleDirection(rand()%360);
-					}
-					else if(bSubActionT.Get() > 0.1) {
-						bSubActionT.Restart();
-						NPC::SetAngleDirection(associated.box.GetCenter().GetAngle(GameData::player.lock()->box.GetCenter()));
-						//GameObject* go = new GameObject();
-						//go->AddComponent(new Attack(*go, associated, Attack::PROJECTED, 4, 0, GetAngleDirection(), 300));
-						//Game::GetInstance().GetCurrentState().AddObject(go, "MAIN");
 					}
 				}
 
@@ -155,19 +155,17 @@ void Boss::NotifyCollision(GameObject& other) {
 		if(attack) {
 			if(!attack->IsAlly("Boss")) {
 				if(GetAction() != "bStun" && GetAction() != "bTransform") {
-					if(attack->GetDamage() > 0) {
-						if(bDamageT.Get() > bDamageCD) {
-							Damage(attack->GetDamage());
-							bDamageT.Restart();
-							bActionT.Restart();
-							SetAction("bHurt");
-							SetSpeed(200);
-							NPC::SetAngleDirection(associated.box.GetCenter().GetAngle(other.box.GetCenter())-180);
-						}
+					if(bDamageT.Get() > bDamageCD) {
+						Damage(attack->GetDamage());
+						bDamageT.Restart();
+						bActionT.Restart();
+						SetAction("bHurt");
+						SetSpeed(200);
+						NPC::SetAngleDirection(associated.box.GetCenter().GetAngle(other.box.GetCenter())-180);
 					}
 				}
 				else if(GetAction() == "bStun") {
-					if(attack->GetDamage() == 0) {
+					if(attack->GetName() == "bind") {
 						associated.RequestDelete();
 						GameObject* go = new GameObject();
 						go->AddComponent(new Sprite(*go, "assets/img/characters/boss/capture.png", 7, 0.12, false, 0.84));

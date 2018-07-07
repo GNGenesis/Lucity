@@ -25,10 +25,15 @@ void BookAnimator::BuildSprites() {
 	sprites.emplace("idleSW", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/idleSW.png")));
 	sprites.emplace("idleSE", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/idleSE.png")));
 
-	sprites.emplace("channelNW", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/channelNW.png", 4, 0.05, false)));
-	sprites.emplace("channelNE", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/channelNE.png", 4, 0.05, false)));
-	sprites.emplace("channelSW", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/channelSW.png", 4, 0.05, false)));
-	sprites.emplace("channelSE", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/channelSE.png", 4, 0.05, false)));
+	sprites.emplace("openNW", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/openNW.png", 4, 0.1, false)));
+	sprites.emplace("openNE", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/openNE.png", 4, 0.1, false)));
+	sprites.emplace("openSW", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/openSW.png", 4, 0.1, false)));
+	sprites.emplace("openSE", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/openSE.png", 4, 0.1, false)));
+
+	sprites.emplace("channelNW", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/channelNW.png", 5, 0.05)));
+	sprites.emplace("channelNE", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/channelNE.png", 5, 0.05)));
+	sprites.emplace("channelSW", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/channelSW.png", 5, 0.05)));
+	sprites.emplace("channelSE", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/channelSE.png", 5, 0.05)));
 
 	sprites.emplace("closeNW", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/closeNW.png", 4, 0.1, false)));
 	sprites.emplace("closeNE", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/closeNE.png", 4, 0.1, false)));

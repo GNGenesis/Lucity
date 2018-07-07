@@ -9,6 +9,7 @@
 class Player : public Character {
 private:
 	int pNumber;
+	Vec2 mousePos;
 
 	Timer damageT;
 	float damageCD;
@@ -21,6 +22,7 @@ public:
 	void NotifyCollision(GameObject& other);
 	bool Is(std::string type);
 	bool IsWalking();
+	bool IsWalkingBackwards();
 	void SetAngleDirection(float dt);
 };
 

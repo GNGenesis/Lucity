@@ -14,12 +14,11 @@ private:
 	std::string action;
 	float arc;
 
-	Timer attackT;
-	float attackCD;
-	bool attacking;
-
-	Timer channelT;
+	Timer actionT;
+	float openCD;
 	float channelCD;
+	float closeCD;
+	bool attacking;
 
 	Timer executeT;
 	float executeCD;

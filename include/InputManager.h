@@ -1,14 +1,10 @@
 #ifndef INPUTMANAGER_H_
 #define INPUTMANAGER_H_
 
-#define LEFT_ARROW_KEY SDLK_LEFT
-#define RIGHT_ARROW_KEY SDLK_RIGHT
-#define UP_ARROW_KEY SDLK_UP
-#define DOWN_ARROW_KEY SDLK_DOWN
-#define ESCAPE_KEY SDLK_ESCAPE
-#define SPACE_KEY SDLK_SPACE
 #define LEFT_MOUSE_BUTTON SDL_BUTTON_LEFT
 #define RIGHT_MOUSE_BUTTON SDL_BUTTON_RIGHT
+#define ESCAPE_KEY  SDLK_ESCAPE
+#define CONFIRM  SDLK_RETURN
 
 #define INCLUDE_SDL
 #include "SDL_include.h"
@@ -22,8 +18,10 @@ class InputManager {
 private:
 	static std::unordered_map<int, bool> keyState;
 	static std::unordered_map<int, int> keyUpdate;
+	static bool toggleMouse;
 	static bool mouseState [6];
 	static int mouseUpdate [6];
+	static int lastKey;
 	static int mouseWheel;
 	static int mouseX;
 	static int mouseY;
@@ -47,18 +45,21 @@ public:
 	static int GetMouseWheel();
 	static int GetMouseX();
 	static int GetMouseY();
+	static int GetLastKey();
 	static Vec2 GetMousePos();
+	static Vec2 GetMouseTruePos();
+	static bool GetToggle();
 	static bool QuitRequested();
 
 	//Joystick Related
 	static void LoadJoysticks();
 	static void CloseJoysticks();
 	static void AddJoystick(SDL_Joystick* joystick);
-	static SDL_Joystick* GetJoystick(int nJoy);
-	static Vec2 GetJoyAxis(int nJoy);
-	static int JoyAxisAngle(int nJoy);
-	static bool JoyAxisEvent(int nJoy);
-	static bool IsJButtonDown(int nJoy, int jbutton);
+	static SDL_Joystick* GetJoystick(unsigned int nJoy);
+	static Vec2 GetJoyAxis(unsigned int nJoy);
+	static int JoyAxisAngle(unsigned int nJoy);
+	static bool JoyAxisEvent(unsigned int nJoy);
+	static bool IsJButtonDown(unsigned int nJoy, int jbutton);
 };
 
 #endif /* INPUTMANAGER_H_ */

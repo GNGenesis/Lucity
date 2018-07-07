@@ -1,13 +1,16 @@
 #include "InputManager.h"
 #include "Camera.h"
+#include "GameData.h"
 
 std::unordered_map<int, bool> InputManager::keyState;
 std::unordered_map<int, int> InputManager::keyUpdate;
+bool InputManager::toggleMouse = false;
 bool InputManager::mouseState [6];
 int InputManager::mouseUpdate [6];
 int InputManager::mouseWheel;
 int InputManager::mouseX;
 int InputManager::mouseY;
+int InputManager::lastKey;
 int InputManager::updateCounter;
 bool InputManager::quitRequested = false;
 
@@ -26,6 +29,9 @@ void InputManager::Update() {
 		if(event.key.repeat != 1) {
 			if(event.type == SDL_QUIT)
 				quitRequested = true;
+			if(event.type == SDL_MOUSEMOTION) {
+				toggleMouse = true;
+			}
 			if(event.type == SDL_MOUSEBUTTONDOWN) {
 				mouseState[event.button.button] = true;
 				mouseUpdate[event.button.button] = updateCounter;
@@ -44,6 +50,8 @@ void InputManager::Update() {
 				}
 			}
 			if(event.type == SDL_KEYDOWN) {
+				toggleMouse = false;
+				lastKey = event.key.keysym.sym;
 				keyState[event.key.keysym.sym] = true;
 				keyUpdate[event.key.keysym.sym] = updateCounter;
 			}
@@ -91,8 +99,23 @@ int InputManager::GetMouseY() {
 	return mouseY;
 }
 
+int InputManager::GetLastKey() {
+	GameData::key = lastKey;
+	return lastKey;
+}
+
 Vec2 InputManager::GetMousePos() {
 	return Vec2(mouseX, mouseY);
+}
+
+Vec2 InputManager::GetMouseTruePos() {
+	int mX, mY;
+	SDL_GetMouseState(&mX, &mY);
+	return Vec2(mX, mY);
+}
+
+bool InputManager::GetToggle() {
+	return toggleMouse;
 }
 
 bool InputManager::QuitRequested() {
@@ -101,7 +124,7 @@ bool InputManager::QuitRequested() {
 
 //Joystick Related
 void InputManager::LoadJoysticks() {
-	for(unsigned int i = 0; i < SDL_NumJoysticks(); i++) {
+	for(int i = 0; i < SDL_NumJoysticks(); i++) {
 		AddJoystick(SDL_JoystickOpen(i));
 		if(!GetJoystick(i))
 			printf("Warning: Unable to open game controller! SDL Error: %s\n", SDL_GetError());
@@ -118,34 +141,34 @@ void InputManager::AddJoystick(SDL_Joystick* joystick) {
 	joysticks.emplace_back(joystick);
 }
 
-SDL_Joystick* InputManager::GetJoystick(int nJoy) {
+SDL_Joystick* InputManager::GetJoystick(unsigned int nJoy) {
 	if(nJoy < joysticks.size())
 		return joysticks[nJoy];
 	else
 		return nullptr;
 }
 
-Vec2 InputManager::GetJoyAxis(int nJoy) {
+Vec2 InputManager::GetJoyAxis(unsigned int nJoy) {
 	if(nJoy < joysticks.size())
 		return Vec2(SDL_JoystickGetAxis(joysticks[nJoy], 0), SDL_JoystickGetAxis(joysticks[nJoy], 1));
 	else
 		return Vec2();
 }
 
-int InputManager::JoyAxisAngle(int nJoy) {
+int InputManager::JoyAxisAngle(unsigned int nJoy) {
 	if(nJoy < joysticks.size())
 		return Vec2().GetAngle(GetJoyAxis(nJoy)/32768);
 	else
 		return 0;
 }
 
-bool InputManager::JoyAxisEvent(int nJoy) {
+bool InputManager::JoyAxisEvent(unsigned int nJoy) {
 	if(nJoy < joysticks.size())
 		return (GetJoyAxis(nJoy).x != 0 || GetJoyAxis(nJoy).y != 0);
 	else
 		return false;
 }
 
-bool InputManager::IsJButtonDown(int nJoy, int jbutton) {
+bool InputManager::IsJButtonDown(unsigned int nJoy, int jbutton) {
 	return SDL_JoystickGetButton(joysticks[nJoy], jbutton);
 }

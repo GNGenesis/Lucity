@@ -3,6 +3,7 @@
 #define INCLUDE_SDL_TTF
 
 #include "Game.h"
+#include "GameData.h"
 #include "Resources.h"
 #include "InputManager.h"
 #include "Camera.h"
@@ -15,6 +16,18 @@ std::stack<std::unique_ptr<State>> Game::stateStack;
 State* Game::storedState;
 
 Game::Game(std::string title, int width, int height) {
+	//Default Settings
+	GameData::LEFT_MOV = SDLK_LEFT;
+	GameData::RIGHT_MOV = SDLK_RIGHT;
+	GameData::UP_MOV = SDLK_UP;
+	GameData::DOWN_MOV = SDLK_DOWN;
+	GameData::PAUSE = SDLK_p;
+	GameData::MAGIC_BUBBLES = SDLK_1;
+	GameData::MAGIC_FIREBALL = SDLK_2;
+	GameData::MAGIC_CAPTURE = SDLK_3;
+	GameData::globalScale = Vec2(1, 1);
+	GameData::fullscreen = false;
+
 	if(instance) {
 		printf("Multiple Instances\n");
 		exit(EXIT_FAILURE);
@@ -49,16 +62,14 @@ Game::Game(std::string title, int width, int height) {
 		exit(EXIT_FAILURE);
 	}
 
-	//SDL_Rect screen;
-	//SDL_GetDisplayBounds(0, &screen);
-	Uint32 flags = 0;//SDL_WINDOW_FULLSCREEN;//SDL_WINDOW_RESIZABLE | SDL_WINDOW_FULLSCREEN;
-	window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags);//screen.w, screen.h, flags);
+	Uint32 flags = 0;
+	window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags);
 	if(!window) {
 		printf("SDL_CreateWindow failed: %s\n", SDL_GetError());
 		exit(EXIT_FAILURE);
 	}
 
-	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 	if(!renderer) {
 		printf("SDL_CreateRenderer failed: %s\n", SDL_GetError());
 		exit(EXIT_FAILURE);
