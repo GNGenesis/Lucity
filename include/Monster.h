@@ -8,7 +8,7 @@
 #include <string>
 
 class Monster : public NPC {
-private:
+protected:
 	bool transformed;
 
 	Timer mActionT;

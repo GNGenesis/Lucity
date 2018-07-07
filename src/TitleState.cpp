@@ -8,6 +8,7 @@
 #include "SettingState.h"
 #include "StageState.h"
 #include "BossStageState.h"
+#include "TutorialStageState.h"
 
 #include "Sprite.h"
 #include "Sound.h"
@@ -209,7 +210,7 @@ void TitleState::CollisionCheck() {
 						if(objB->GetMode() == Collider::RECT)
 							collided = Collision::IsCollidingCircleRect(objA->circle, objB->box, objB->rotation);
 						else
-							collided = Collision::IsCollidingCircleCircle(objA->circle, objB->circle);	
+							collided = Collision::IsCollidingCircleCircle(objA->circle, objB->circle);
 					}
 					if(collided) {
 						objects["MAIN"][i]->NotifyCollision(*objects["MAIN"][j]);
@@ -257,12 +258,14 @@ void TitleState::Update(float dt) {
 			else if (SelectedOptionIs(menuOptions, "Exit")) {
 				quitRequested = true; // Set to truth the variable that is responsible to validate the quit request of the game.
 			}
+		} else if (InputManager::KeyPress(SDLK_BACKSPACE)) {
+				Game::GetInstance().Push(new TutorialStageState());
 		}
 	}
 	else if ((InputManager::KeyPress(SDLK_KP_ENTER) || InputManager::KeyPress(CONFIRM))) {
 		//PageFaddingEsq
 		go = new GameObject();
-		effectF = new Sprite(*go, "assets/img/Title/PageFaddingEsq.png", 4, 0.2, false, 0.0);
+		effectF = new Sprite(*go, "assets/img/Title/pageFaddingEsq.png", 4, 0.2, false, 0.0);
 		effectF->SetScale(Vec2(4, 4)*GameData::globalScale);
 		go->AddComponent(effectF);
 		go->AddComponent(new CameraFollower(*go, Vec2(275, 300)*GameData::globalScale - (go->box.GetSize() / 2)));
@@ -270,7 +273,7 @@ void TitleState::Update(float dt) {
 
 		//PageFaddingDir
 		go = new GameObject();
-		effectF = new Sprite(*go, "assets/img/Title/PageFaddingDir.png", 4, 0.2, false, 0.0);
+		effectF = new Sprite(*go, "assets/img/Title/pageFaddingDir.png", 4, 0.2, false, 0.0);
 		effectF->SetScale(Vec2(4, 4)*GameData::globalScale);
 		go->AddComponent(effectF);
 		go->AddComponent(new CameraFollower(*go, Vec2(750, 300)*GameData::globalScale - (go->box.GetSize() / 2)));
