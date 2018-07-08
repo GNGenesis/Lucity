@@ -25,14 +25,24 @@ bool SortRenderOrderTutorial_MS(std::shared_ptr<GameObject> i, std::shared_ptr<G
 }
 
 TutorialStageState::TutorialStageState() : State() {
+	tutorialScene = 0;
 	gameOver = false;
+	GameData::eventCD = 5;
+	hudChecked = false;
 
 	GameObject* go;
 
 	NPCList.emplace_back(Personality("girl", 150, 200, 1, 3, 1, 3, {"hobo"}, {"suit", "tree"}));
 	NPCList.emplace_back(Personality("hobo", 150, 150, 2, 2, 1, 2, {}, {"suit", "trashcan"}));
 	NPCList.emplace_back(Personality("luv", 150, 50, 3, 1, 2, 2, {"old"}, {"girl", "suit"}));
+	NPCList.emplace_back(Personality("old", 50, 250, 3, 1, 1.5, 2, {}, {"luv", "bench"}));
 	NPCList.emplace_back(Personality("suit", 150, 150, 2, 2, 0.5, 1, {}, {}));
+
+	monsterList.emplace_back(Personality("girl", 50, 200, 0.3, 5, 1, 1, {"luv"}, {"hobo"}));
+	monsterList.emplace_back(Personality("hobo", 250, 50, 1, 3, 3, 1, {}, {"girl", "luv", "old", "suit"}));
+	monsterList.emplace_back(Personality("luv", 150, 150, 10, 2, 1, 2, {}, {"old", "tree"}));
+	monsterList.emplace_back(Personality("old", 300, 250, 1, 2, 2, 2, {"tree"}, {"trashcan"}));
+	monsterList.emplace_back(Personality("suit", 150, 4000, 5, 0.3, 5, 1, {"bench"}, {}));
 
 	//TileMap
 	go = new GameObject();
@@ -46,32 +56,18 @@ TutorialStageState::TutorialStageState() : State() {
 	int mh = 64*map->GetHeight();
 	GameData::mapSize = Vec2(mw, mh);
 
-	//Event Countdown
-	GameData::eventCD = 30;
-	go = new GameObject();
-	go->AddComponent(new Text(*go, "assets/font/Sabo-Filled.ttf", 72, "00.0 ", SDL_Color {}, Text::SOLID));
-	go->AddComponent(new CameraFollower(*go, Vec2(1024-go->box.w, 200)));
-	AddObject(go, "GUI");
-
 	//HUD
 	go = new GameObject();
 	go->AddComponent(new HUD(*go));
 	go->AddComponent(new CameraFollower(*go, Vec2(0, 0)));
+	go->Deactivate();
 	AddObject(go, "GUI");
-
-	//Bench
-	for(int i = 0; i < 1; i++) {
-		go = new GameObject();
-		go->AddComponentAsFirst(new MainObject(*go, "bench", 1, Vec2(3, 3), true));
-		go->box.SetPos(Vec2(rand()%mw, rand()%mh));
-		AddObject(go, "MAIN");
-	}
 
 	//Trashcan
 	for(int i = 0; i < 1; i++) {
 		go = new GameObject();
 		go->AddComponentAsFirst(new MainObject(*go, "trashcan", 1, Vec2(3, 3), true));
-		go->box.SetPos(Vec2(rand()%mw, rand()%mh));
+		go->box.SetPos((i * 200) + 200, 700);
 		AddObject(go, "MAIN");
 	}
 
@@ -79,34 +75,37 @@ TutorialStageState::TutorialStageState() : State() {
 	for(int i = 0; i < 1; i++) {
 		go = new GameObject();
 		go->AddComponentAsFirst(new MainObject(*go, "tree", 1, Vec2(3, 3), true));
-		go->box.SetPos(Vec2(rand()%mw, rand()%mh));
+		go->box.SetPos((i * 200) + 100, 700);
 		AddObject(go, "MAIN");
 	}
 
-	//Monster
+	//Monster 1
 	go = new GameObject();
-	go->AddComponentAsFirst(new MonsterTutorial(*go, Personality("old", 300, 250, 1, 2, 2, 2, {"tree"}, {"trashcan"})));
-	go->box.SetCenter(rand()%mw, rand()%mh);
+	go->AddComponentAsFirst(new MonsterTutorial(*go, Personality("old", 300, 250, 1, 2, 2, 2, {"girl"}, {"trashcan"})));
+	go->box.SetCenter((mw/2) + 200, (mh/2) + 200);
 	AddObject(go, "MAIN");
+	GameData::nMonsters++;
 
+	//Monster 2
+	go = new GameObject();
+	go->AddComponentAsFirst(new MonsterTutorial(*go, monsterList[rand()%monsterList.size()]));
+	go->box.SetCenter((mw/2) - 200, (mh/2) + 200);
+	AddObject(go, "MAIN");
 	GameData::nMonsters++;
 
 	// Librarian
 	go = new GameObject();
 	go->AddComponentAsFirst(new MonsterTutorial(*go, Personality("blib", 300, 250, 1, 2, 2, 2, {}, {})));
-	go->box.SetCenter(512, 300);
-	static_cast<MonsterTutorial*>(go->GetComponent("MonsterTutorial"))->ToggleTutorialControl();
+	go->box.SetCenter(mw/2, mh/2);
 	AddObject(go, "MAIN");
-
 	GameData::nMonsters++;
 
 	//NPCs
-	for(int i = 0; i < 4; i++) {
+	for(int i = 0; i < 5; i++) {
 		go = new GameObject();
 		go->AddComponentAsFirst(new NPCTutorial(*go, NPCList[rand()%NPCList.size()]));
-		go->box.SetCenter(rand()%mw, rand()%mh);
+		go->box.SetCenter((i * 200) + 100, 100);
 		AddObject(go, "MAIN");
-
 		GameData::nCivilians++;
 	}
 
@@ -114,7 +113,7 @@ TutorialStageState::TutorialStageState() : State() {
 	for(int i = 0; i >= 0; i--) {
 		go = new GameObject();
 		go->AddComponentAsFirst(new Player(*go, "lucas", i));
-		go->box.SetCenter(mw/2, mh/2);
+		go->box.SetCenter((mw/2) - 200, (mh/2) - 200);
 		AddObject(go, "MAIN");
 	}
 
@@ -122,6 +121,10 @@ TutorialStageState::TutorialStageState() : State() {
 
 	backgroundMusic = Music("assets/audio/theme.ogg");
 	backgroundMusic.Play();
+
+	for (unsigned i = 0; i < objects["GUI"].size(); i++) {
+		objects["GUI"][i]->Deactivate();
+	}
 }
 
 TutorialStageState::~TutorialStageState() {
@@ -213,93 +216,103 @@ void TutorialStageState::Update(float dt) {
 	if(InputManager::KeyPress(SDLK_F2))
 		GameData::paused = !GameData::paused;
 
-	if (InputManager::KeyPress(SDLK_F6)) {
-		for(unsigned int i = 0; i < objects["MAIN"].size(); i++) {
-			NPCTutorial* npc = static_cast<NPCTutorial*>(objects["MAIN"][i]->GetComponent("NPCTutorial"));
-			if (npc) {
-				if (npc->GetTutorialControl()) {
-					npc->WalkToPoint(InputManager::GetMousePos(), dt);
-				}
-			}
+	if (hudChecked == false) {
+		for (unsigned i = 0; i < objects["GUI"].size(); i++) {
+			objects["GUI"][i]->Deactivate();
 		}
+		hudChecked = true;
 	}
 
-	if(!gameOver) {
-		if(!GameData::paused)
-			GameData::eventT.Update(dt);
-		if(GameData::eventT.Get() > GameData::eventCD) {
-			GameData::eventT.Restart();
+	if(GameData::nMonsters == 0) {
+		gameOver = true;
+		GameData::playerVictory = true;
 
-			for(unsigned int i = 0; i < objects["MAIN"].size(); i++) {
-				NPCTutorial* npc = static_cast<NPCTutorial*>(objects["MAIN"][i]->GetComponent("NPCTutorial"));
-				MonsterTutorial* monster = static_cast<MonsterTutorial*>(objects["MAIN"][i]->GetComponent("MonsterTutorial"));
-				if (npc) {
-					npc->SetAction(IDLE);
-					npc->ToggleTutorialControl();
-				} else if (monster) {
-					if (!(monster->IsTransformed())) {
-						npc->SetAction(IDLE);
-						npc->ToggleTutorialControl();
-					}
-				}
-			}
-		}
+		//GameOver message
+		GameObject* go = new GameObject();
+		go->AddComponent(new Text(*go, "assets/font/Sabo-Filled.ttf", 48, "Well done kiddo, you got them all!", SDL_Color {}, Text::SOLID));
+		go->AddComponent(new CameraFollower(*go, Vec2(512-go->box.w/2, 300-go->box.h/2)));
+		AddObject(go, "GUI");
 
-		Text* countdown = (Text*)objects["GUI"][0]->GetComponent("Text");
-		if(countdown) {
-			char a[3], b[3];
-			sprintf(a, "%d", ((int)GameData::eventCD-1)-(int)GameData::eventT.Get());
-			sprintf(b, "%d", 9-(int)(GameData::eventT.Get()*10)%10);
-			std::string p = ".";
-			std::string z = "0";
-			std::string text;
-			if(((int)GameData::eventCD-1)-(int)GameData::eventT.Get() > 9) {
-				text = a+p+b;
-				countdown->SetColor(SDL_Color {});
-			}
-			else {
-			 	text = z+a+p+b;
-			 	countdown->SetColor(SDL_Color { 255, 0, 0, 0 });
-			}
-			countdown->SetText(text);
-		}
+		go = new GameObject();
+		go->AddComponent(new Text(*go, "assets/font/Sabo-Filled.ttf", 48, "Press Return to play again!", SDL_Color {}, Text::SOLID));
+		go->AddComponent(new CameraFollower(*go, Vec2(512-go->box.w/2, 360-go->box.h/2)));
+		AddObject(go, "GUI");
+	}
+	else if(GameData::player.expired()) {
+		gameOver = true;
+		GameData::playerVictory = false;
 
-		if(GameData::nMonsters == 0) {
-			gameOver = true;
-			GameData::playerVictory = true;
-			GameData::bossStageUnlocked = true;
+		//GameOver message
+		GameObject* go = new GameObject();
+		go->AddComponent(new Text(*go, "assets/font/Sabo-Filled.ttf", 48, "You are a fucking failure...", SDL_Color {}, Text::SOLID));
+		go->AddComponent(new CameraFollower(*go, Vec2(512-go->box.w/2, 300-go->box.h/2)));
+		AddObject(go, "GUI");
 
-			//GameOver message
-			GameObject* go = new GameObject();
-			go->AddComponent(new Text(*go, "assets/font/Sabo-Filled.ttf", 48, "Well done kiddo, you got them all!", SDL_Color {}, Text::SOLID));
-			go->AddComponent(new CameraFollower(*go, Vec2(512-go->box.w/2, 300-go->box.h/2)));
-			AddObject(go, "GUI");
-
-			go = new GameObject();
-			go->AddComponent(new Text(*go, "assets/font/Sabo-Filled.ttf", 48, "Press Return to play again!", SDL_Color {}, Text::SOLID));
-			go->AddComponent(new CameraFollower(*go, Vec2(512-go->box.w/2, 360-go->box.h/2)));
-			AddObject(go, "GUI");
-		}
-		else if(GameData::player.expired()) {
-			gameOver = true;
-			GameData::playerVictory = false;
-
-			//GameOver message
-			GameObject* go = new GameObject();
-			go->AddComponent(new Text(*go, "assets/font/Sabo-Filled.ttf", 48, "You are a fucking failure...", SDL_Color {}, Text::SOLID));
-			go->AddComponent(new CameraFollower(*go, Vec2(512-go->box.w/2, 300-go->box.h/2)));
-			AddObject(go, "GUI");
-
-			go = new GameObject();
-			go->AddComponent(new Text(*go, "assets/font/Sabo-Filled.ttf", 48, "Press Return to play again!", SDL_Color {}, Text::SOLID));
-			go->AddComponent(new CameraFollower(*go, Vec2(512-go->box.w/2, 360-go->box.h/2)));
-			AddObject(go, "GUI");
-		}
+		go = new GameObject();
+		go->AddComponent(new Text(*go, "assets/font/Sabo-Filled.ttf", 48, "Press Return to play again!", SDL_Color {}, Text::SOLID));
+		go->AddComponent(new CameraFollower(*go, Vec2(512-go->box.w/2, 360-go->box.h/2)));
+		AddObject(go, "GUI");
 	}
 	else {
 		if(InputManager::KeyPress(SDLK_RETURN))
 			popRequested = true;
 	}
+
+	if (!gameOver) {
+		if (!GameData::paused) {
+			GameData::eventT.Update(dt);
+		}
+		switch (tutorialScene) {
+		 case 0:
+				LibrarianTutorialUpdate(dt);
+				break;
+			case 1:
+				SecondMonsterTutorialUpdate(dt);
+				break;
+			case 2:
+				FreeTutorialUpdate(dt);
+				break;
+		}
+	}
+
+	std::sort(objects["EFFECT"].begin(), objects["EFFECT"].end(), SortRenderOrderTutorial_MS);
+	std::sort(objects["MAIN"].begin(), objects["MAIN"].end(), SortRenderOrderTutorial_MS);
+}
+
+void TutorialStageState::LibrarianTutorialUpdate(float dt) {
+
+	UpdateArray(dt, "BG");
+	UpdateArray(dt, "EFFECT");
+	UpdateArray(dt, "MAIN");
+	UpdateArray(dt, "MISC");
+	CollisionCheck();
+	DeletionCheck();
+	if (GameData::eventT.Get() > GameData::eventCD) {
+		GameData::eventT.Restart();
+		tutorialScene++;
+	}
+
+}
+
+void TutorialStageState::SecondMonsterTutorialUpdate(float dt) {
+
+	UpdateArray(dt, "BG");
+	UpdateArray(dt, "EFFECT");
+	UpdateArray(dt, "MAIN");
+	UpdateArray(dt, "MISC");
+	CollisionCheck();
+	DeletionCheck();
+	if (GameData::eventT.Get() > GameData::eventCD) {
+		for (unsigned i = 0; i < objects["GUI"].size(); i++) {
+			objects["GUI"][i]->Activate();
+		}
+		GameData::eventT.Restart();
+		tutorialScene++;
+	}
+
+}
+
+void TutorialStageState::FreeTutorialUpdate(float dt) {
 
 	UpdateArray(dt, "BG");
 	UpdateArray(dt, "EFFECT");
@@ -308,9 +321,14 @@ void TutorialStageState::Update(float dt) {
 	UpdateArray(dt, "GUI");
 	CollisionCheck();
 	DeletionCheck();
+	if (GameData::eventT.Get() > GameData::eventCD) {
+		for (unsigned i = 0; i < objects["GUI"].size(); i++) {
+			objects["GUI"][i]->Deactivate();
+		}
+		GameData::eventT.Restart();
+		tutorialScene = 0;
+	}
 
-	std::sort(objects["EFFECT"].begin(), objects["EFFECT"].end(), SortRenderOrderTutorial_MS);
-	std::sort(objects["MAIN"].begin(), objects["MAIN"].end(), SortRenderOrderTutorial_MS);
 }
 
 void TutorialStageState::Render() {

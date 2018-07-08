@@ -17,6 +17,8 @@ private:
 	Music backgroundMusic;
 	std::vector<Personality> NPCList;
 	std::vector<Personality> monsterList;
+	int tutorialScene;
+	bool hudChecked;
 
 public:
 	TutorialStageState();
@@ -28,6 +30,9 @@ public:
 	void CollisionCheck();
 	void DeletionCheck();
 	void Update(float dt);
+	void LibrarianTutorialUpdate(float dt);
+	void SecondMonsterTutorialUpdate(float dt);
+	void FreeTutorialUpdate(float dt);
 	void Render();
 };
 
