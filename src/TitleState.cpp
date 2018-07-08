@@ -4,7 +4,7 @@
 #include "InputManager.h"
 #include "Camera.h"
 
-//#include "TutorialStageState.h"
+#include "TutorialState.h"
 #include "StageState.h"
 //#include "BossStageState.h"
 
@@ -646,7 +646,7 @@ void TitleState::ExecuteButton() {
 	}
 	else if(layer == "stage") {
 		if(index == 0) {
-			//Game::GetInstance().Push(new TutorialStageState());
+			Game::GetInstance().Push(new TutorialState());
 		}
 		else if(index == 1) {
 			Game::GetInstance().Push(new StageState());

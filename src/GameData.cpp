@@ -17,6 +17,7 @@ std::weak_ptr<GameObject> GameData::book;
 std::weak_ptr<GameObject> GameData::player;
 SDL_Window* GameData::window;
 
+int GameData::upperLimit;
 int GameData::key;
 int GameData::UP_MOV;
 int GameData::DOWN_MOV;

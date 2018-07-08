@@ -86,6 +86,15 @@ void Player::Update(float dt) {
 			SetAction(IDLE);
 		}
 	}
+
+	if (associated.box.x < 0)
+		associated.box.x = 0;
+	if (associated.box.x + associated.box.w > GameData::mapSize.x)
+		associated.box.x = GameData::mapSize.x - associated.box.w;
+	if (associated.box.y < GameData::upperLimit)
+		associated.box.y = GameData::upperLimit;
+	if (associated.box.y + associated.box.h > GameData::mapSize.y)
+		associated.box.y = GameData::mapSize.y - associated.box.h;
 }
 
 void Player::NotifyCollision(GameObject& other) {

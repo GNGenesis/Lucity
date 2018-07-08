@@ -29,6 +29,7 @@ public:
 	static std::weak_ptr<GameObject> book;
 	static std::weak_ptr<GameObject> player;
 
+	static int upperLimit;
 	static int key;
 	static int UP_MOV;
 	static int DOWN_MOV;
