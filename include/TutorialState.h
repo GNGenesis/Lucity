@@ -1,5 +1,5 @@
-#ifndef TUTORIALSTAGESTATE_H_
-#define TUTORIALSTAGESTATE_H_
+#ifndef TUTORIALSTATESTATE_H_
+#define TUTORIALSTATESTATE_H_
 
 #include "State.h"
 #include "GameObject.h"
@@ -10,19 +10,17 @@
 
 #include <vector>
 
-class TutorialStageState : public State {
+class TutorialState : public State {
 private:
 	bool gameOver;
 	TileSet* set;
 	Music backgroundMusic;
 	std::vector<Personality> NPCList;
 	std::vector<Personality> monsterList;
-	int tutorialScene;
-	bool hudChecked;
 
 public:
-	TutorialStageState();
-	~TutorialStageState();
+	TutorialState();
+	~TutorialState();
 	void LoadAssets();
 	void Start();
 	void Pause();
@@ -30,10 +28,7 @@ public:
 	void CollisionCheck();
 	void DeletionCheck();
 	void Update(float dt);
-	void LibrarianTutorialUpdate(float dt);
-	void SecondMonsterTutorialUpdate(float dt);
-	void FreeTutorialUpdate(float dt);
 	void Render();
 };
 
-#endif /* TUTORIALSTAGESTATE_H_ */
+#endif /* TUTORIALSTATESTATE_H_ */
