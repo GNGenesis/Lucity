@@ -34,7 +34,7 @@ void Animator::BuildSprites() {
 		sprites.emplace("attackSW", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/attackSW.png", 4, 0.1)));
 		sprites.emplace("attackSE", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/attackSE.png", 4, 0.1)));
 	}
-	else if(associated.GetComponent("NPC")) {
+	else if(associated.GetComponent("NPC") || associated.GetComponent("NPCTutorial")) {
 		if(name == "girl") {
 			idleFrames = 4;
 			walkFrames = 4;
@@ -82,7 +82,7 @@ void Animator::BuildSprites() {
 			sprites.emplace("panicSE", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/panicSE.png", panicFrames, 0.2)));
 		}
 
-		if(associated.GetComponent("Monster")) {
+		if(associated.GetComponent("Monster") || associated.GetComponent("MonsterTutorial")) {
 			std::string monsterPath = "assets/img/characters/monster";
 
 			sprites.emplace("mTransformSE", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/transformSE.png", 7, 0.12)));
@@ -121,36 +121,6 @@ void Animator::BuildSprites() {
 			sprites.emplace("hurt/mAttackNE", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/hurt/attackNE.png", 7, 0.14)));
 			sprites.emplace("hurt/mAttackSW", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/hurt/attackSW.png", 7, 0.14)));
 			sprites.emplace("hurt/mAttackSE", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/hurt/attackSE.png", 7, 0.14)));
-		}
-		else if (associated.GetComponent("TutorialLibrarian")) {
-			std::string monsterPath = "assets/img/characters/monster";
-
-			sprites.emplace("mTransformSE", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/transformSE.png", 7, 0.12)));
-
-			sprites.emplace("mStunNW", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/stunNW.png", 4, 0.2)));
-			sprites.emplace("mStunNE", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/stunNE.png", 4, 0.2)));
-			sprites.emplace("mStunSW", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/stunSW.png", 4, 0.2)));
-			sprites.emplace("mStunSE", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/stunSE.png", 4, 0.2)));
-
-			sprites.emplace("mIdleNW", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/idleNW.png", 6, 0.2)));
-			sprites.emplace("mIdleNE", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/idleNE.png", 6, 0.2)));
-			sprites.emplace("mIdleSW", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/idleSW.png", 6, 0.2)));
-			sprites.emplace("mIdleSE", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/idleSE.png", 6, 0.2)));
-
-			sprites.emplace("hurt/mIdleNW", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/hurt/idleNW.png", 6, 0.2)));
-			sprites.emplace("hurt/mIdleNE", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/hurt/idleNE.png", 6, 0.2)));
-			sprites.emplace("hurt/mIdleSW", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/hurt/idleSW.png", 6, 0.2)));
-			sprites.emplace("hurt/mIdleSE", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/hurt/idleSE.png", 6, 0.2)));
-
-			sprites.emplace("mWalkNW", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/walkNW.png", 4, 0.2)));
-			sprites.emplace("mWalkNE", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/walkNE.png", 4, 0.2)));
-			sprites.emplace("mWalkSW", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/walkSW.png", 4, 0.2)));
-			sprites.emplace("mWalkSE", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/walkSE.png", 4, 0.2)));
-
-			sprites.emplace("hurt/mWalkNW", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/hurt/walkNW.png", 4, 0.2)));
-			sprites.emplace("hurt/mWalkNE", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/hurt/walkNE.png", 4, 0.2)));
-			sprites.emplace("hurt/mWalkSW", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/hurt/walkSW.png", 4, 0.2)));
-			sprites.emplace("hurt/mWalkSE", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/hurt/walkSE.png", 4, 0.2)));
 		}
 		else if(associated.GetComponent("Boss")) {
 			std::string bossPath = "assets/img/characters/boss";

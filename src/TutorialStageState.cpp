@@ -15,9 +15,8 @@
 #include "MainObject.h"
 
 #include "Player.h"
-#include "NPC.h"
-#include "Monster.h"
-#include "TutorialLibrarian.h"
+#include "NPCTutorial.h"
+#include "MonsterTutorial.h"
 
 #include <algorithm>
 
@@ -48,7 +47,7 @@ TutorialStageState::TutorialStageState() : State() {
 	GameData::mapSize = Vec2(mw, mh);
 
 	//Event Countdown
-	GameData::eventCD = 60;
+	GameData::eventCD = 30;
 	go = new GameObject();
 	go->AddComponent(new Text(*go, "assets/font/Sabo-Filled.ttf", 72, "00.0 ", SDL_Color {}, Text::SOLID));
 	go->AddComponent(new CameraFollower(*go, Vec2(1024-go->box.w, 200)));
@@ -86,7 +85,7 @@ TutorialStageState::TutorialStageState() : State() {
 
 	//Monster
 	go = new GameObject();
-	go->AddComponentAsFirst(new Monster(*go, Personality("old", 300, 250, 1, 2, 2, 2, {"tree"}, {"trashcan"})));
+	go->AddComponentAsFirst(new MonsterTutorial(*go, Personality("old", 300, 250, 1, 2, 2, 2, {"tree"}, {"trashcan"})));
 	go->box.SetCenter(rand()%mw, rand()%mh);
 	AddObject(go, "MAIN");
 
@@ -94,8 +93,9 @@ TutorialStageState::TutorialStageState() : State() {
 
 	// Librarian
 	go = new GameObject();
-	go->AddComponentAsFirst(new TutorialLibrarian(*go, Personality("blib", 300, 250, 1, 2, 2, 2, {}, {"trashcan"})));
-	go->box.SetCenter(rand()%mw, rand()%mh);
+	go->AddComponentAsFirst(new MonsterTutorial(*go, Personality("blib", 300, 250, 1, 2, 2, 2, {}, {})));
+	go->box.SetCenter(512, 300);
+	static_cast<MonsterTutorial*>(go->GetComponent("MonsterTutorial"))->ToggleTutorialControl();
 	AddObject(go, "MAIN");
 
 	GameData::nMonsters++;
@@ -103,7 +103,7 @@ TutorialStageState::TutorialStageState() : State() {
 	//NPCs
 	for(int i = 0; i < 4; i++) {
 		go = new GameObject();
-		go->AddComponentAsFirst(new NPC(*go, NPCList[rand()%NPCList.size()]));
+		go->AddComponentAsFirst(new NPCTutorial(*go, NPCList[rand()%NPCList.size()]));
 		go->box.SetCenter(rand()%mw, rand()%mh);
 		AddObject(go, "MAIN");
 
@@ -121,7 +121,7 @@ TutorialStageState::TutorialStageState() : State() {
 	Camera::Follow(go);
 
 	backgroundMusic = Music("assets/audio/theme.ogg");
-	//backgroundMusic.Play();
+	backgroundMusic.Play();
 }
 
 TutorialStageState::~TutorialStageState() {
@@ -213,17 +213,33 @@ void TutorialStageState::Update(float dt) {
 	if(InputManager::KeyPress(SDLK_F2))
 		GameData::paused = !GameData::paused;
 
+	if (InputManager::KeyPress(SDLK_F6)) {
+		for(unsigned int i = 0; i < objects["MAIN"].size(); i++) {
+			NPCTutorial* npc = static_cast<NPCTutorial*>(objects["MAIN"][i]->GetComponent("NPCTutorial"));
+			if (npc) {
+				if (npc->GetTutorialControl()) {
+					npc->WalkToPoint(InputManager::GetMousePos(), dt);
+				}
+			}
+		}
+	}
+
 	if(!gameOver) {
 		if(!GameData::paused)
 			GameData::eventT.Update(dt);
 		if(GameData::eventT.Get() > GameData::eventCD) {
+			GameData::eventT.Restart();
+
 			for(unsigned int i = 0; i < objects["MAIN"].size(); i++) {
-				Monster* mon = (Monster*) objects["MAIN"][i]->GetComponent("Monster");
-				if(mon) {
-					if(!mon->IsTransformed()) {
-						mon->Transform();
-						GameData::eventT.Restart();
-						break;
+				NPCTutorial* npc = static_cast<NPCTutorial*>(objects["MAIN"][i]->GetComponent("NPCTutorial"));
+				MonsterTutorial* monster = static_cast<MonsterTutorial*>(objects["MAIN"][i]->GetComponent("MonsterTutorial"));
+				if (npc) {
+					npc->SetAction(IDLE);
+					npc->ToggleTutorialControl();
+				} else if (monster) {
+					if (!(monster->IsTransformed())) {
+						npc->SetAction(IDLE);
+						npc->ToggleTutorialControl();
 					}
 				}
 			}
