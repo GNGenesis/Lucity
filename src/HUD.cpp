@@ -59,9 +59,9 @@ void HUD::Start() {
 	for(int i = 0; i < 5; i++) {
 		go = new GameObject();
 		sp = new Sprite(*go, "assets/img/HUD/health.png", 5, 0, false);
-		sp->SetScale(Vec2(4, 4));
+		sp->SetScale(Vec2(3, 3));
 		go->AddComponent(sp);
-		go->AddComponent(new CameraFollower(*go, Vec2(94 + i*25, 15)));
+		go->AddComponent(new CameraFollower(*go, Vec2(96 + i*24, 15)));
 		health.emplace_back(Game::GetInstance().GetCurrentState().AddObject(go, "GUI"));
 	}
 
@@ -85,7 +85,7 @@ void HUD::Start() {
 
 	//Timer Fill
 	go = new GameObject();
-	sp = new Sprite(*go, "assets/img/HUD/timer_fill2.png", 10, 0, false);
+	sp = new Sprite(*go, "assets/img/HUD/timer_fill.png", 10, 0, false);
 	sp->SetScale(Vec2(4, 4));
 	go->AddComponent(sp);
 	go->AddComponent(new CameraFollower(*go, Vec2(1024 - go->box.w - 10, 10)));
@@ -160,9 +160,9 @@ void HUD::Update(float dt) {
 				}
 				else if(i == 2) {
 					if(b->GetAttackMode() == "bind")
-						mode = "mysticbolt_on";
+						mode = "bind_on";
 					else
-						mode = "mysticbolt_off";
+						mode = "bind_off";
 				}
 				s->Open(path+mode+".png");
 			}
@@ -176,7 +176,7 @@ void HUD::Update(float dt) {
 		Text* txt;
 
 		//Number of Civilians
-		txt = (Text*)npcsTXT.lock()->GetComponent("Text");
+		txt = (Text*) npcsTXT.lock()->GetComponent("Text");
 		if(txt) {
 			char ch[3];
 			sprintf(ch, "%d", GameData::nCivilians);

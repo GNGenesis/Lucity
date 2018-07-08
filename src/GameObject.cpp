@@ -72,10 +72,14 @@ void GameObject::NotifyCollision(GameObject& other) {
 
 void GameObject::Activate() {
 	active = true;
+	for(unsigned i = 0; i < components.size(); i++)
+		components[i]->Activate();
 }
 
 void GameObject::Deactivate() {
 	active = false;
+	for(unsigned i = 0; i < components.size(); i++)
+		components[i]->Deactivate();
 }
 
 bool GameObject::IsActive() {

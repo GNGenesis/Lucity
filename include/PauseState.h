@@ -4,11 +4,21 @@
 #include "State.h"
 #include "GameObject.h"
 #include "Music.h"
-#include "TileSet.h"
 #include "Timer.h"
-#include "Personality.h"
 
 class PauseState : public State {
+private:
+	Timer animationT;
+	int animationCount;
+
+	std::unordered_map<std::string, std::vector<std::weak_ptr<GameObject>>> buttons;
+	std::weak_ptr<GameObject> selected;
+	std::string layer;
+	int index;
+
+	int enteredKey;
+	bool waitingKey;
+	bool waitingConfirmation;
 
 public:
 	PauseState();
@@ -17,30 +27,13 @@ public:
 	void Start();
 	void Pause();
 	void Resume();
-	void DeletionCheck();
+	void Opening();
+	void Passing();
+	void SetKey();
+	void Navigate();
+	void ExecuteButton();
 	void Update(float dt);
 	void Render();
-	void SetOption(int i = 0);
-	bool SelectedOptionIs(std::string opt);
-
-	struct Option
-	{
-		std::string key;
-		Vec2 pos;
-		GameObject * selectorF;
-		GameObject * selectorB;
-		GameObject * button;
-		bool selectable;
-		int current;
-	};
-
-private:
-	Sprite * book;
-	GameObject * menu;
-	std::vector<Option> menuOptions;
-	int frameCounter = 0;
-	int currentOption = 0;
 };
 
-#endif /* TITLESTATE_H_ */
-#pragma once
+#endif /* PAUSESTATE_H_ */

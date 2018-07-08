@@ -3,8 +3,8 @@
 
 #define LEFT_MOUSE_BUTTON SDL_BUTTON_LEFT
 #define RIGHT_MOUSE_BUTTON SDL_BUTTON_RIGHT
-#define ESCAPE_KEY  SDLK_ESCAPE
-#define CONFIRM  SDLK_RETURN
+#define ESCAPE_KEY SDLK_ESCAPE
+#define CONFIRM SDLK_RETURN
 
 #define INCLUDE_SDL
 #include "SDL_include.h"
@@ -42,12 +42,12 @@ public:
 	static bool MousePress(int button);
 	static bool MouseRelease(int button);
 	static bool IsMouseDown(int button);
+	static int GetLastKey();
+	static void ResetLastKey();
 	static int GetMouseWheel();
 	static int GetMouseX();
 	static int GetMouseY();
-	static int GetLastKey();
 	static Vec2 GetMousePos();
-	static Vec2 GetMouseTruePos();
 	static bool GetToggle();
 	static bool QuitRequested();
 

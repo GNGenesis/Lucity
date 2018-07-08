@@ -8,7 +8,7 @@
 #include <string>
 
 class NPC : public Character {
-protected:
+private:
 	Personality person;
 
 	Timer actionT;

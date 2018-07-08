@@ -60,7 +60,7 @@ void Monster::Update(float dt) {
 										 			50, 1, true));
 						Game::GetInstance().GetCurrentState().AddObject(go, "MAIN");
 						Camera::tremorT.Restart();
-					}
+					} 
 				}
 			}
 			else if(GetAction() == "mStun") {
@@ -107,7 +107,7 @@ void Monster::Update(float dt) {
 
 					for(int i = 0; i < 6; i++) {
 						GameObject* go = new GameObject();
-						go->AddComponent(new Attack(*go, "Monster", "shockwave", associated.box.GetCenter()+Vec2(0, associated.box.h/2), 50, 1, GetAngleDirection()+i*360/6,
+						go->AddComponent(new Attack(*go, "Monster", "shockwave", associated.box.GetCenter()+Vec2(0, associated.box.h/2), 50, 1, GetAngleDirection()+i*360/6, 
 										 			50, 1, true));
 						Game::GetInstance().GetCurrentState().AddObject(go, "MAIN");
 						Camera::tremorT.Restart();
@@ -123,8 +123,8 @@ void Monster::Update(float dt) {
 				associated.box.x = 0;
 			if(associated.box.x+associated.box.w > GameData::mapSize.x)
 				associated.box.x = GameData::mapSize.x-associated.box.w;
-			if(associated.box.y < 0)
-				associated.box.y = 0;
+			if(associated.box.y < GameData::upperLimit)
+				associated.box.y = GameData::upperLimit;
 			if(associated.box.y+associated.box.h > GameData::mapSize.y)
 				associated.box.y = GameData::mapSize.y-associated.box.h;
 		}

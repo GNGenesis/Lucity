@@ -14,12 +14,13 @@ Text::Text(GameObject& associated) : Component(associated) {
 }
 
 Text::Text(GameObject& associated, std::string fontFile, int fontSize,
-		   std::string text, SDL_Color color, TextStyle style) : Text(associated) {
+	std::string text, SDL_Color color, TextStyle style, int lineWidth) : Text(associated) {
 	Text::fontFile = fontFile;
 	Text::fontSize = fontSize;
 	Text::text = text;
 	Text::color = color;
 	Text::style = style;
+	Text::lineWidth = lineWidth;
 	Open();
 }
 
@@ -35,12 +36,18 @@ void Text::RemakeTexture() {
 		SDL_DestroyTexture(texture);
 	
 	SDL_Surface* surface = nullptr;
-	if(style == SOLID)
-		surface = TTF_RenderText_Solid(font.get(), text.c_str(), color);
-	if(style == SHADED)
-		surface = TTF_RenderText_Shaded(font.get(), text.c_str(), color, SDL_Color {});
-	if(style == BLENDED)
-		surface = TTF_RenderText_Blended(font.get(), text.c_str(), color);
+	if (lineWidth != 0) {
+		if (style == BLENDED)
+			surface = TTF_RenderText_Blended_Wrapped(font.get(), text.c_str(), color, lineWidth);
+	}
+	else {
+		if (style == SOLID)
+			surface = TTF_RenderText_Solid(font.get(), text.c_str(), color);
+		if (style == SHADED)
+			surface = TTF_RenderText_Shaded(font.get(), text.c_str(), color, SDL_Color{});
+		if (style == BLENDED)
+			surface = TTF_RenderText_Blended(font.get(), text.c_str(), color);
+	}
 	texture = SDL_CreateTextureFromSurface(Game::GetInstance().GetRenderer(), surface);
 	SDL_FreeSurface(surface);
 	

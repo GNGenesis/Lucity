@@ -24,3 +24,7 @@ void CameraFollower::Render() {
 bool CameraFollower::Is(std::string type) {
 	return (type == "CameraFollower");
 }
+
+Vec2 CameraFollower::GetTruePos() {
+	return truePos;
+}
