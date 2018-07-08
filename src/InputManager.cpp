@@ -87,6 +87,15 @@ bool InputManager::IsMouseDown(int button) {
 	return mouseState[button];
 }
 
+int InputManager::GetLastKey() {
+	GameData::key = lastKey;
+	return lastKey;
+}
+
+void InputManager::ResetLastKey() {
+	lastKey = NULL;
+}
+
 int InputManager::GetMouseWheel() {
 	return mouseWheel;
 }
@@ -99,19 +108,8 @@ int InputManager::GetMouseY() {
 	return mouseY;
 }
 
-int InputManager::GetLastKey() {
-	GameData::key = lastKey;
-	return lastKey;
-}
-
 Vec2 InputManager::GetMousePos() {
 	return Vec2(mouseX, mouseY);
-}
-
-Vec2 InputManager::GetMouseTruePos() {
-	int mX, mY;
-	SDL_GetMouseState(&mX, &mY);
-	return Vec2(mX, mY);
 }
 
 bool InputManager::GetToggle() {

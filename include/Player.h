@@ -9,7 +9,6 @@
 class Player : public Character {
 private:
 	int pNumber;
-	Vec2 mousePos;
 
 	Timer damageT;
 	float damageCD;

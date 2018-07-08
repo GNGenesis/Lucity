@@ -15,7 +15,6 @@ Player::Player(GameObject& associated, std::string name, int n) : Character(asso
 	SetSpeed(200);
 	pNumber = n;
 	damageCD = 1;
-	mousePos = InputManager::GetMouseTruePos();
 }
 
 Player::~Player() {
@@ -73,9 +72,9 @@ void Player::Update(float dt) {
 			if(GetAction() != WALK) {
 				GameObject* go = new GameObject();
 				if(GetDirection() == "NE" || GetDirection() == "SE")
-					go->AddComponent(new Sprite(*go, "assets/img/effects/dustE.png", 6, 0.05, false, 0.3));
-				else if(GetDirection() == "NW" || GetDirection() == "SW")
 					go->AddComponent(new Sprite(*go, "assets/img/effects/dustW.png", 6, 0.05, false, 0.3));
+				else if(GetDirection() == "NW" || GetDirection() == "SW")
+					go->AddComponent(new Sprite(*go, "assets/img/effects/dustE.png", 6, 0.05, false, 0.3));
 				go->box.SetCenter(associated.box.GetCenter()+(Vec2(Vec2::Cos(GetAngleDirection()), Vec2::Sin(GetAngleDirection()))*30));
 				Game::GetInstance().GetCurrentState().AddObject(go, "EFFECT");
 			}

@@ -1,6 +1,7 @@
 #include "GameData.h"
 
 bool GameData::debug;
+bool GameData::popAgain;
 
 Vec2 GameData::mapSize;
 Vec2 GameData::globalScale;
@@ -14,16 +15,14 @@ bool GameData::bossStageUnlocked;
 bool GameData::fullscreen;
 std::weak_ptr<GameObject> GameData::book;
 std::weak_ptr<GameObject> GameData::player;
- SDL_Window* GameData::window;
+SDL_Window* GameData::window;
 
 int GameData::key;
-
-int GameData::LEFT_MOV;
-int GameData::RIGHT_MOV;
 int GameData::UP_MOV;
 int GameData::DOWN_MOV;
-int GameData::PAUSE;
+int GameData::LEFT_MOV;
+int GameData::RIGHT_MOV;
 int GameData::MAGIC_BUBBLES;
 int GameData::MAGIC_FIREBALL;
 int GameData::MAGIC_CAPTURE;
-
+int GameData::PAUSE;

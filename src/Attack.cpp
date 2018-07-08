@@ -29,6 +29,10 @@ Attack::Attack(GameObject& associated, std::string owner, std::string name, Vec2
 		scale = 2;
 		frameCount = 3;
 	}
+	else if(name == "energyball") {
+		scale = 2;
+		frameCount = 3;
+	}
 	else if(name == "laserbeam") {
 		scale = 2;
 		frameCount = 4;

@@ -5,8 +5,9 @@
 #include "Camera.h"
 #include "Collision.h"
 
+#include "PauseState.h"
+
 #include "Sprite.h"
-#include "Sound.h"
 #include "Text.h"
 #include "HUD.h"
 #include "TileMap.h"
@@ -17,7 +18,6 @@
 #include "Player.h"
 #include "NPC.h"
 #include "Monster.h"
-#include "Boss.h"
 
 #include <algorithm>
 
@@ -56,10 +56,6 @@ StageState::StageState() : State() {
 
 	//Event Countdown
 	GameData::eventCD = 60;
-	go = new GameObject();
-	go->AddComponent(new Text(*go, "assets/font/Sabo-Filled.ttf", 72, "00.0 ", SDL_Color {}, Text::SOLID));
-	go->AddComponent(new CameraFollower(*go, Vec2(1024-go->box.w, 200)));
-	AddObject(go, "GUI");
 
 	//HUD
 	go = new GameObject();
@@ -84,7 +80,7 @@ StageState::StageState() : State() {
 	}
 
 	//Tree
-	for(int i = 0; i < 2; i++) {
+	for(int i = 0; i < 1; i++) {
 		go = new GameObject();
 		go->AddComponentAsFirst(new MainObject(*go, "tree", 1, Vec2(3, 3), true));
 		go->box.SetPos(Vec2(rand()%mw, rand()%mh));
@@ -92,7 +88,7 @@ StageState::StageState() : State() {
 	}
 
 	//Monsters
-	for(int i = 0; i < 0; i++) {
+	for(int i = 0; i < 5; i++) {
 		go = new GameObject();
 		go->AddComponentAsFirst(new Monster(*go, monsterList[rand()%monsterList.size()]));
 		go->box.SetCenter(rand()%mw, rand()%mh);
@@ -101,16 +97,8 @@ StageState::StageState() : State() {
 		GameData::nMonsters++;
 	}
 
-	//Boss
-	for(int i = 0; i < 1; i++) {
-		go = new GameObject();
-		go->AddComponentAsFirst(new Boss(*go, monsterList[rand()%monsterList.size()]));
-		go->box.SetCenter(rand()%mw, rand()%mh);
-		AddObject(go, "MAIN");
-	}
-
 	//NPCs
-	for(int i = 0; i < 0; i++) {
+	for(int i = 0; i < 10; i++) {
 		go = new GameObject();
 		go->AddComponentAsFirst(new NPC(*go, NPCList[rand()%NPCList.size()]));
 		go->box.SetCenter(rand()%mw, rand()%mh);
@@ -212,8 +200,7 @@ void StageState::DeletionCheck() {
 void StageState::Update(float dt) {
 	quitRequested = InputManager::QuitRequested();
 	if(InputManager::KeyPress(ESCAPE_KEY)) {
-		popRequested = true;
-		GameData::playerVictory = true;
+		Game::GetInstance().Push(new PauseState());
 	}
 
 	if(InputManager::KeyPress(SDLK_F1))
@@ -238,27 +225,9 @@ void StageState::Update(float dt) {
 			}
 		}
 
-		Text* countdown = (Text*)objects["GUI"][0]->GetComponent("Text");
-		if(countdown) {
-			char a[3], b[3];
-			sprintf(a, "%d", ((int)GameData::eventCD-1)-(int)GameData::eventT.Get());
-			sprintf(b, "%d", 9-(int)(GameData::eventT.Get()*10)%10);
-			std::string p = ".";
-			std::string z = "0";
-			std::string text;
-			if(((int)GameData::eventCD-1)-(int)GameData::eventT.Get() > 9) {
-				text = a+p+b;
-				countdown->SetColor(SDL_Color {});
-			}
-			else {
-			 	text = z+a+p+b;
-			 	countdown->SetColor(SDL_Color { 255, 0, 0, 0 });
-			}
-			countdown->SetText(text);
-		}
-
 		if(GameData::nMonsters == 0) {
 			gameOver = true;
+			InputManager::ResetLastKey();
 			GameData::playerVictory = true;
 			GameData::bossStageUnlocked = true;
 
@@ -275,6 +244,7 @@ void StageState::Update(float dt) {
 		}
 		else if(GameData::player.expired()) {
 			gameOver = true;
+			InputManager::ResetLastKey();
 			GameData::playerVictory = false;
 			
 			//GameOver message
@@ -290,7 +260,8 @@ void StageState::Update(float dt) {
 		}
 	}
 	else {
-		if(InputManager::KeyPress(SDLK_RETURN))
+		InputManager::GetLastKey();
+		if(GameData::key != NULL)
 			popRequested = true;
 	}
 
@@ -313,31 +284,3 @@ void StageState::Render() {
 	RenderArray("MISC");
 	RenderArray("GUI");
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

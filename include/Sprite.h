@@ -23,6 +23,7 @@ private:
 	float frameTime;
 	float timeElapsed;
 	bool loop;
+	bool goBack;
 	Vec2 frameInterval;
 	Timer selfDestructCount;
 	float secondsToSelfDestruct;
@@ -41,6 +42,7 @@ public:
 	void SetFrameCount(int frameCount);
 	void SetFrameTime(float frameTime);
 	void SetFrameInterval(Vec2 frameInterval);
+	void GoBack();
 	void Update(float dt);
 	void Render();
 	void Render(int x, int y);

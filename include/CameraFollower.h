@@ -15,6 +15,7 @@ public:
 	void Update(float dt);
 	void Render();
 	bool Is(std::string type);
+	Vec2 GetTruePos();
 };
 
 #endif /* CAMERAFOLLOWER_H_ */

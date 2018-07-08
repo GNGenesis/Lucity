@@ -149,7 +149,13 @@ void Game::Run() {
 				stateStack.pop();
 				Resources::Clear();
 				if(!stateStack.empty()) {
-					stateStack.top()->Resume();
+					if(GameData::popAgain) {
+						stateStack.pop();
+						Resources::Clear();
+					}
+					if(!stateStack.empty()) {
+						stateStack.top()->Resume();
+					}
 				}
 			}
 			if(storedState) {

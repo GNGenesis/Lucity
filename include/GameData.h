@@ -13,6 +13,7 @@
 class GameData {
 public:
 	static bool debug;
+	static bool popAgain;
 
 	static SDL_Window* window;
 	static Vec2 globalScale;
@@ -29,15 +30,14 @@ public:
 	static std::weak_ptr<GameObject> player;
 
 	static int key;
-	static int LEFT_MOV;
-	static int RIGHT_MOV;
 	static int UP_MOV;
 	static int DOWN_MOV;
-	static int PAUSE;
+	static int LEFT_MOV;
+	static int RIGHT_MOV;
 	static int MAGIC_BUBBLES;
 	static int MAGIC_FIREBALL;
 	static int MAGIC_CAPTURE;
-
+	static int PAUSE;
 };
 
 #endif /* GAMEDATA_H_ */
