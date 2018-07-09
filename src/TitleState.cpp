@@ -4,7 +4,7 @@
 #include "InputManager.h"
 #include "Camera.h"
 
-//#include "TutorialStageState.h"
+#include "TutorialStageState.h"
 #include "StageState.h"
 #include "BossStageState.h"
 
@@ -591,7 +591,7 @@ void TitleState::Closing() {
 			animationT.Restart();
 			if(layer == "stage") {
 				if(index == 0) {
-					//Game::GetInstance().Push(new TutorialStageState());
+					Game::GetInstance().Push(new TutorialStageState());
 				}
 				else if(index == 1) {
 					Game::GetInstance().Push(new StageState());

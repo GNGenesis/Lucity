@@ -119,14 +119,14 @@ void Monster::Update(float dt) {
 				if(GetAction() == "mIdle" || GetAction() == "mWalk" || GetAction() == "mAttack")
 					SetAction("hurt/" + GetAction());
 
-			if(associated.box.x < 0)
+			if (associated.box.x < 0)
 				associated.box.x = 0;
-			if(associated.box.x+associated.box.w > GameData::mapSize.x)
-				associated.box.x = GameData::mapSize.x-associated.box.w;
-			if(associated.box.y < 0)
-				associated.box.y = 0;
-			if(associated.box.y+associated.box.h > GameData::mapSize.y)
-				associated.box.y = GameData::mapSize.y-associated.box.h;
+			if (associated.box.x + associated.box.w > GameData::mapSize.x)
+				associated.box.x = GameData::mapSize.x - associated.box.w;
+			if (associated.box.y < GameData::upperLimit)
+				associated.box.y = GameData::upperLimit;
+			if (associated.box.y + associated.box.h > GameData::mapSize.y)
+				associated.box.y = GameData::mapSize.y - associated.box.h;
 		}
 	}
 }

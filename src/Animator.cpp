@@ -34,7 +34,7 @@ void Animator::BuildSprites() {
 		sprites.emplace("attackSW", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/attackSW.png", 4, 0.1)));
 		sprites.emplace("attackSE", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/attackSE.png", 4, 0.1)));
 	}
-	else if(associated.GetComponent("NPC")) {
+	else if(associated.GetComponent("NPC") || associated.GetComponent("NPCTutorial")) {
 		if(name == "girl") {
 			idleFrames = 4;
 			walkFrames = 4;
@@ -65,18 +65,23 @@ void Animator::BuildSprites() {
 			shockFrames = 4;
 			panicFrames = 4;
 		}
+		else if (name == "blib") {
+			idleFrames = 4;
+			walkFrames = 4;
+		}
 
-		sprites.emplace("shockNW", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/idleNW.png", shockFrames, 0.2)));
-		sprites.emplace("shockNE", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/idleNE.png", shockFrames, 0.2)));
-		sprites.emplace("shockSW", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/idleSW.png", shockFrames, 0.2)));
-		sprites.emplace("shockSE", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/idleSE.png", shockFrames, 0.2)));
+		if (name != "blib") {
+			sprites.emplace("shockNW", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/idleNW.png", shockFrames, 0.2)));
+			sprites.emplace("shockNE", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/idleNE.png", shockFrames, 0.2)));
+			sprites.emplace("shockSW", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/idleSW.png", shockFrames, 0.2)));
+			sprites.emplace("shockSE", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/idleSE.png", shockFrames, 0.2)));
 
-		sprites.emplace("panicNW", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/panicNW.png", panicFrames, 0.2)));
-		sprites.emplace("panicNE", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/panicNE.png", panicFrames, 0.2)));
-		sprites.emplace("panicSW", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/panicSW.png", panicFrames, 0.2)));
-		sprites.emplace("panicSE", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/panicSE.png", panicFrames, 0.2)));
-
-		if(associated.GetComponent("Monster")) {
+			sprites.emplace("panicNW", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/panicNW.png", panicFrames, 0.2)));
+			sprites.emplace("panicNE", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/panicNE.png", panicFrames, 0.2)));
+			sprites.emplace("panicSW", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/panicSW.png", panicFrames, 0.2)));
+			sprites.emplace("panicSE", (Sprite*)associated.AddComponent(new Sprite(associated, path+"/panicSE.png", panicFrames, 0.2)));
+		}
+		if(associated.GetComponent("Monster") || associated.GetComponent("MonsterTutorial")) {
 			std::string monsterPath = "assets/img/characters/monster";
 
 			sprites.emplace("mTransformSE", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/transform.png", 7, 0.12)));

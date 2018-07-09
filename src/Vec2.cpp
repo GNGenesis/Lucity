@@ -18,6 +18,18 @@ Vec2::~Vec2() {
 
 }
 
+bool Vec2::operator^=(const Vec2& rhs) const {
+	if ((x > rhs.x - 20 && x < rhs.x + 20) && (y > rhs.y - 20 && y < rhs.y + 20))
+		return true;
+	else return false;
+}
+
+bool Vec2::operator!=(const Vec2& rhs) const {
+	if (x != rhs.x || y != rhs.y)
+		return true;
+	else return false;
+}
+
 Vec2 Vec2::operator+(const Vec2& rhs) const {
 	return Vec2(x + rhs.x, y + rhs.y);
 }

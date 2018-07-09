@@ -17,6 +17,8 @@ State* Game::storedState;
 
 Game::Game(std::string title, int width, int height) {
 	//Default Settings
+	GameData::nMonsters = 0;
+	GameData::upperLimit = 0;
 	GameData::LEFT_MOV = SDLK_LEFT;
 	GameData::RIGHT_MOV = SDLK_RIGHT;
 	GameData::UP_MOV = SDLK_UP;
