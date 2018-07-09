@@ -79,7 +79,7 @@ void Animator::BuildSprites() {
 		if(associated.GetComponent("Monster")) {
 			std::string monsterPath = "assets/img/characters/monster";
 
-			sprites.emplace("mTransformSE", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/transformSE.png", 7, 0.12)));
+			sprites.emplace("mTransformSE", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/transform.png", 7, 0.12)));
 
 			sprites.emplace("mStunNW", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/stunNW.png", 4, 0.2)));
 			sprites.emplace("mStunNE", (Sprite*)associated.AddComponent(new Sprite(associated, monsterPath+"/stunNE.png", 4, 0.2)));
@@ -119,7 +119,7 @@ void Animator::BuildSprites() {
 		else if(associated.GetComponent("Boss")) {
 			std::string bossPath = "assets/img/characters/boss";
 
-			sprites.emplace("bTransform", (Sprite*)associated.AddComponent(new Sprite(associated, bossPath+"/transform.png", 6, 0.12)));
+			sprites.emplace("bTransformSE", (Sprite*)associated.AddComponent(new Sprite(associated, bossPath+"/transform.png", 6, 0.12)));
 
 			sprites.emplace("bStunNW", (Sprite*)associated.AddComponent(new Sprite(associated, bossPath+"/stunNW.png", 4, 0.2)));
 			sprites.emplace("bStunNE", (Sprite*)associated.AddComponent(new Sprite(associated, bossPath+"/stunNE.png", 4, 0.2)));
@@ -136,10 +136,10 @@ void Animator::BuildSprites() {
 			sprites.emplace("bAttackSW", (Sprite*)associated.AddComponent(new Sprite(associated, bossPath+"/attackSW.png", 4, 0.2)));
 			sprites.emplace("bAttackSE", (Sprite*)associated.AddComponent(new Sprite(associated, bossPath+"/attackSE.png", 4, 0.2)));
 
-			sprites.emplace("bHurtNW", (Sprite*)associated.AddComponent(new Sprite(associated, bossPath+"/hurtSE.png", 4, 0.2)));
-			sprites.emplace("bHurtNE", (Sprite*)associated.AddComponent(new Sprite(associated, bossPath+"/hurtSE.png", 4, 0.2)));
-			sprites.emplace("bHurtSW", (Sprite*)associated.AddComponent(new Sprite(associated, bossPath+"/hurtSE.png", 4, 0.2)));
-			sprites.emplace("bHurtSE", (Sprite*)associated.AddComponent(new Sprite(associated, bossPath+"/hurtSE.png", 4, 0.2)));
+			sprites.emplace("bHurtNW", (Sprite*)associated.AddComponent(new Sprite(associated, bossPath+"/hurtNW.png", 5, 0.2)));
+			sprites.emplace("bHurtNE", (Sprite*)associated.AddComponent(new Sprite(associated, bossPath+"/hurtNE.png", 5, 0.2)));
+			sprites.emplace("bHurtSW", (Sprite*)associated.AddComponent(new Sprite(associated, bossPath+"/hurtSW.png", 5, 0.2)));
+			sprites.emplace("bHurtSE", (Sprite*)associated.AddComponent(new Sprite(associated, bossPath+"/hurtSE.png", 5, 0.2)));
 		}
 	}
 

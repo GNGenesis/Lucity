@@ -16,6 +16,7 @@ private:
 	int healthTrack;
 
 	std::vector<std::weak_ptr<GameObject>> attack;
+	std::weak_ptr<GameObject> selector;
 
 	std::vector<std::weak_ptr<GameObject>> timer;
 

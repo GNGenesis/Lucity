@@ -5,9 +5,12 @@
 #include "Camera.h"
 #include "Collision.h"
 
+#include "PauseState.h"
+#include "EndState.h"
+
 #include "Sprite.h"
-#include "Sound.h"
 #include "Text.h"
+#include "HUD.h"
 #include "TileMap.h"
 #include "Collider.h"
 #include "CameraFollower.h"
@@ -15,16 +18,19 @@
 
 #include "Player.h"
 #include "NPC.h"
-#include "Monster.h"
 #include "Boss.h"
 #include "Animator.h"
 
 #include <algorithm>
 
-bool SortRenderOrder_BS(std::shared_ptr<GameObject> i, std::shared_ptr<GameObject> j) { return (i->box.y + i->box.h < j->box.y + j->box.h); }
+bool SortRenderOrder_BS(std::shared_ptr<GameObject> i, std::shared_ptr<GameObject> j) {
+	return (i->box.y < j->box.y);
+}
 
 BossStageState::BossStageState() : State() {
 	gameOver = false;
+
+	GameData::popAgain = false;
 
 	GameObject* go;
 
@@ -43,7 +49,7 @@ BossStageState::BossStageState() : State() {
 	//TileMap
 	go = new GameObject();
 	set = new TileSet(*go, "assets/img/tileSet.png", 64, 64);
-	TileMap* map = new TileMap(*go, set, "assets/map/tileMap.txt");
+	TileMap* map = new TileMap(*go, set, "assets/map/bossTileMap.txt");
 	go->AddComponent(map);
 	go->box.SetSize(Vec2());
 	AddObject(go, "BG");
@@ -52,46 +58,73 @@ BossStageState::BossStageState() : State() {
 	int mh = 64*map->GetHeight();
 	GameData::mapSize = Vec2(mw, mh);
 
-	//Remaining Health
-	go = new GameObject();
-	go->AddComponent(new Text(*go, "assets/font/Sabo-Filled.ttf", 72, " ", SDL_Color {}, Text::SOLID));
-	go->AddComponent(new CameraFollower(*go, Vec2(0, 600-go->box.h)));
-	AddObject(go, "GUI");
+	//Event Countdown
+	GameData::eventCD = 30;
 
-	//Remaining NPCs
+	//HUD
 	go = new GameObject();
-	go->AddComponent(new Text(*go, "assets/font/Sabo-Filled.ttf", 72, " ", SDL_Color {}, Text::SOLID));
+	go->AddComponent(new HUD(*go));
 	go->AddComponent(new CameraFollower(*go, Vec2(0, 0)));
 	AddObject(go, "GUI");
-
-	//Event Countdown
-	waitingT = 30;
-	go = new GameObject();
-	go->AddComponent(new Text(*go, "assets/font/Sabo-Filled.ttf", 72, "00.0 ", SDL_Color {}, Text::SOLID));
-	go->AddComponent(new CameraFollower(*go, Vec2(1024-go->box.w, 0)));
-	AddObject(go, "GUI");
 	
-	//Bench
-	for(int i = 0; i < 4; i++) {
+	if(true) {
+		//Fountain
 		go = new GameObject();
-		go->AddComponentAsFirst(new MainObject(*go, "bench", 1, Vec2(3, 3), true));
-		go->box.SetPos(Vec2(rand()%mw, rand()%mh));
+		go->AddComponentAsFirst(new MainObject(*go, "fountain", 1, Vec2(3, 3), true, true));
+		go->box.SetCenter(Vec2(mw/2, mh/2));
 		AddObject(go, "MAIN");
-	}
 
-	//Trashcan
-	for(int i = 0; i < 4; i++) {
+		//Bench
 		go = new GameObject();
-		go->AddComponentAsFirst(new MainObject(*go, "trashcan", 1, Vec2(3, 3), true));
-		go->box.SetPos(Vec2(rand()%mw, rand()%mh));
+		go->AddComponentAsFirst(new MainObject(*go, "bench", 1, Vec2(3, 3), true, true));
+		go->box.SetCenter(Vec2(mw/2, 288));
 		AddObject(go, "MAIN");
-	}
 
-	//Tree
-	for(int i = 0; i < 4; i++) {
+		go = new GameObject();
+		go->AddComponentAsFirst(new MainObject(*go, "bench", 1, Vec2(3, 3), true, true));
+		go->box.SetCenter(Vec2(mw/2, 736));
+		AddObject(go, "MAIN");
+
+		//Trashcan
+		go = new GameObject();
+		go->AddComponentAsFirst(new MainObject(*go, "trashcan", 1, Vec2(3, 3), true, true));
+		go->box.SetCenter(Vec2(800, 352));
+		AddObject(go, "MAIN");
+
+		go = new GameObject();
+		go->AddComponentAsFirst(new MainObject(*go, "trashcan", 1, Vec2(3, 3), true, true));
+		go->box.SetCenter(Vec2(480, 608));
+		AddObject(go, "MAIN");
+
+		go = new GameObject();
+		go->AddComponentAsFirst(new MainObject(*go, "trashcan", 1, Vec2(3, 3), true, true));
+		go->box.SetCenter(Vec2(224, 800));
+		AddObject(go, "MAIN");
+
+		go = new GameObject();
+		go->AddComponentAsFirst(new MainObject(*go, "trashcan", 1, Vec2(3, 3), true, true));
+		go->box.SetCenter(Vec2(1050, 160));
+		AddObject(go, "MAIN");
+
+		//Tree
 		go = new GameObject();
 		go->AddComponentAsFirst(new MainObject(*go, "tree", 1, Vec2(3, 3), true));
-		go->box.SetPos(Vec2(rand()%mw, rand()%mh));
+		go->box.SetCenter(Vec2(352, 224));
+		AddObject(go, "MAIN");
+
+		go = new GameObject();
+		go->AddComponentAsFirst(new MainObject(*go, "tree", 1, Vec2(3, 3), true));
+		go->box.SetCenter(Vec2(224, 352));
+		AddObject(go, "MAIN");
+
+		go = new GameObject();
+		go->AddComponentAsFirst(new MainObject(*go, "tree", 1, Vec2(3, 3), true));
+		go->box.SetCenter(Vec2(1056, 608));
+		AddObject(go, "MAIN");
+
+		go = new GameObject();
+		go->AddComponentAsFirst(new MainObject(*go, "tree", 1, Vec2(3, 3), true));
+		go->box.SetCenter(Vec2(928, 736));
 		AddObject(go, "MAIN");
 	}
 
@@ -103,6 +136,7 @@ BossStageState::BossStageState() : State() {
 	AddObject(go, "MAIN");
 
 	GameData::nMonsters++;
+	GameData::nMaxMonsters = GameData::nMonsters;
 
 	//NPCs
 	for(int i = 0; i < 30; i++) {
@@ -115,12 +149,10 @@ BossStageState::BossStageState() : State() {
 	}
 
 	//Players
-	for(int i = 0; i >= 0; i--) {
-		go = new GameObject();
-		go->AddComponentAsFirst(new Player(*go, "lucas", i));
-		go->box.SetCenter(mw/2, mh/2);
-		AddObject(go, "MAIN");
-	}
+	go = new GameObject();
+	go->AddComponentAsFirst(new Player(*go, "lucas", 0));
+	go->box.SetCenter(mw/2, mh/2);
+	AddObject(go, "MAIN");
 
 	Camera::Follow(go);
 
@@ -149,11 +181,17 @@ void BossStageState::Start() {
 }
 
 void BossStageState::Pause() {
-
+	Camera::Unfollow();
+	backgroundMusic.Stop();
 }
 
 void BossStageState::Resume() {
+	GameData::popAgain = false;
 
+	if(!GameData::player.expired())
+		Camera::Follow(GameData::player.lock().get());
+
+	backgroundMusic.Play();
 }
 
 void BossStageState::Ramble() {
@@ -182,6 +220,21 @@ void BossStageState::Flip() {
 				if(Camera::GetFocus() == objects["MAIN"][i].get())
 					Camera::Unfollow();
 				objects["MAIN"].erase(objects["MAIN"].begin() + i);
+			}
+			else if(objects["MAIN"][i]->GetComponent("MainObject")) {
+				MainObject* mo = (MainObject*) objects["MAIN"][i]->GetComponent("MainObject");
+				if(mo->GetName() == "tree") {
+					Vec2 pos = objects["MAIN"][i]->box.GetPos();
+					objects["MAIN"][i]->RequestDelete();
+
+					GameObject* go = new GameObject();
+					go->AddComponentAsFirst(new MainObject(*go, "deadtree", 1, Vec2(3, 3), true));
+					go->box.SetPos(pos);
+					AddObject(go, "MAIN");
+				}
+				else {
+					mo->Damage(1);				
+				}
 			}
 		}
 		flipped = true;
@@ -229,7 +282,7 @@ void BossStageState::DeletionCheck() {
 			if(i.second[j]->IsDead()) {
 				if(Camera::GetFocus() == i.second[j].get())
 					Camera::Unfollow();
-				if(i.second[j]->GetComponent("Boss"))
+				if(i.second[j]->GetComponent("Soul"))
 					GameData::nMonsters--;
 				else if(i.second[j]->GetComponent("NPC"))
 					GameData::nCivilians--;
@@ -241,19 +294,38 @@ void BossStageState::DeletionCheck() {
 
 void BossStageState::Update(float dt) {
 	quitRequested = InputManager::QuitRequested();
-	if(InputManager::KeyPress(ESCAPE_KEY)) {
-		popRequested = true;
+	if(InputManager::KeyPress(ESCAPE_KEY))
+		Game::GetInstance().Push(new PauseState());
+
+	if(InputManager::KeyPress(SDLK_F1))
+		GameData::debug = !GameData::debug;
+
+	if(InputManager::KeyPress(SDLK_F2))
+		GameData::paused = !GameData::paused;
+
+	if(InputManager::KeyPress(SDLK_F5)) {
+		gameOver = true;
 		GameData::playerVictory = false;
 	}
 
-	if(InputManager::KeyPress(SDLK_TAB))
-		GameData::debug = !GameData::debug;
+	if(InputManager::KeyPress(SDLK_F6)) {
+		gameOver = true;
+		GameData::playerVictory = true;
+	}
+
+	if(InputManager::KeyPress(SDLK_F7)) {
+		GameObject* go = new GameObject();
+		go->AddComponentAsFirst(new MainObject(*go, "tree", 1, Vec2(3, 3), true));
+		go->box.SetCenter(InputManager::GetMousePos());
+		AddObject(go, "MAIN");
+		printf("%.f - %.f\n", InputManager::GetMousePos().x, InputManager::GetMousePos().y);
+	}
 
 	if(!gameOver) {
-		if(InputManager::KeyPress(SDLK_F1))
+		if(InputManager::KeyPress(SDLK_F3))
 			Flip();
 
-		if(InputManager::KeyPress(SDLK_F2))
+		if(InputManager::KeyPress(SDLK_F4))
 			Clear();
 		
 		rambleT.Update(dt);
@@ -264,96 +336,28 @@ void BossStageState::Update(float dt) {
 				Flip();
 
 		if(!flipped)
-			countdownT.Update(dt);
-		if(countdownT.Get() > waitingT) {
+			GameData::eventT.Update(dt);
+		if(GameData::eventT.Get() > GameData::eventCD) {
 			for(unsigned int i = 0; i < objects["MAIN"].size(); i++) {
 				if(objects["MAIN"][i]->GetComponent("NPC") && !objects["MAIN"][i]->GetComponent("Boss")) {
 					objects["MAIN"][i]->RequestDelete();
-					countdownT.Restart();
+					GameData::eventT.Restart();
 					break;
 				}
 			}
 		}
 
-		Text* health = (Text*)objects["GUI"][0]->GetComponent("Text");
-		if(health) {
-			char a[3];
-			if(!GameData::player.expired()) {
-				Player* p = (Player*) GameData::player.lock()->GetComponent("Player");
-				sprintf(a, "%d", p->GetHealth());
-			}
-			else {
-				sprintf(a, "%d", 0);
-			}
-			std::string hp = "HP: ";
-			std::string text = hp+a;
-			health->SetText(text);
-		}
-
-		Text* remaining = (Text*)objects["GUI"][1]->GetComponent("Text");
-		if(remaining) {
-			char a[3], b[3];
-			sprintf(a, "%d", GameData::nMonsters);
-			sprintf(b, "%d", GameData::nCivilians);
-			std::string nm = "NM ";
-			std::string nc = " NC ";
-			std::string text = nm+a+nc+b;
-			remaining->SetText(text);
-		}
-
-		Text* countdown = (Text*)objects["GUI"][2]->GetComponent("Text");
-		if(countdown) {
-			char a[3], b[3];
-			sprintf(a, "%d", ((int)waitingT-1)-(int)countdownT.Get());
-			sprintf(b, "%d", 9-(int)(countdownT.Get()*10)%10);
-			std::string p = ".";
-			std::string z = "0";
-			std::string text;
-			if(((int)waitingT-1)-(int)countdownT.Get() > 9) {
-				text = a+p+b;
-				countdown->SetColor(SDL_Color {});
-			}
-			else {
-			 	text = z+a+p+b;
-			 	countdown->SetColor(SDL_Color { 255, 0, 0, 0 });
-			}
-			countdown->SetText(text);
-		}
-
 		if(GameData::nMonsters == 0) {
 			gameOver = true;
 			GameData::playerVictory = true;
-
-			//GameOver message
-			GameObject* go = new GameObject();
-			go->AddComponent(new Text(*go, "assets/font/Sabo-Filled.ttf", 48, "Well done kiddo, you got them all!", SDL_Color {}, Text::SOLID));
-			go->AddComponent(new CameraFollower(*go, Vec2(512-go->box.w/2, 300-go->box.h/2)));
-			AddObject(go, "GUI");
-
-			go = new GameObject();
-			go->AddComponent(new Text(*go, "assets/font/Sabo-Filled.ttf", 48, "Press Return to play again!", SDL_Color {}, Text::SOLID));
-			go->AddComponent(new CameraFollower(*go, Vec2(512-go->box.w/2, 360-go->box.h/2)));
-			AddObject(go, "GUI");
 		}
 		else if(GameData::player.expired()) {
 			gameOver = true;
 			GameData::playerVictory = false;
-			
-			//GameOver message
-			GameObject* go = new GameObject();
-			go->AddComponent(new Text(*go, "assets/font/Sabo-Filled.ttf", 48, "You are a fucking failure...", SDL_Color {}, Text::SOLID));
-			go->AddComponent(new CameraFollower(*go, Vec2(512-go->box.w/2, 300-go->box.h/2)));
-			AddObject(go, "GUI");
-
-			go = new GameObject();
-			go->AddComponent(new Text(*go, "assets/font/Sabo-Filled.ttf", 48, "Press Return to play again!", SDL_Color {}, Text::SOLID));
-			go->AddComponent(new CameraFollower(*go, Vec2(512-go->box.w/2, 360-go->box.h/2)));
-			AddObject(go, "GUI");
 		}
 	}
 	else {
-		if(InputManager::KeyPress(SDLK_RETURN))
-			popRequested = true;
+		Game::GetInstance().Push(new EndState());
 	}
 
 	UpdateArray(dt, "BG");

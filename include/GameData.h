@@ -21,7 +21,9 @@ public:
 	static Timer eventT;
 	static float eventCD;
 	static int nMonsters;
+	static int nMaxMonsters;
 	static int nCivilians;
+	static int nMaxCivilians;
 	static bool paused;
 	static bool playerVictory;
 	static bool bossStageUnlocked;

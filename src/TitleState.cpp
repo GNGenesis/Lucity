@@ -6,7 +6,7 @@
 
 //#include "TutorialStageState.h"
 #include "StageState.h"
-//#include "BossStageState.h"
+#include "BossStageState.h"
 
 #include "Sprite.h"
 #include "Text.h"
@@ -21,6 +21,8 @@ TitleState::TitleState() : State() {
 	GameData::mapSize = Vec2(mw, mh);
 	Camera::pos = Vec2(0, 0);
 
+	GameData::popAgain = false;
+
 	GameObject* go;
 	Sprite* sp;
 
@@ -29,6 +31,7 @@ TitleState::TitleState() : State() {
 	index = 0;
 	waitingKey = false;
 	waitingConfirmation = false;
+	reopen = false;
 
 	//Opening Animations
 	if(true) {
@@ -39,58 +42,66 @@ TitleState::TitleState() : State() {
 		go->AddComponent(sp);
 		go->AddComponent(new CameraFollower(*go, Vec2(0, 0)));
 		AddObject(go, "BOOK");
+		go->box.SetPos(Vec2(0, 0));
 
 		//Pass Page Book
 		go = new GameObject();
-		sp = new Sprite(*go, "assets/img/Title/passing.png", 6, 0.1, false);
+		sp = new Sprite(*go, "assets/img/title/passing.png", 6, 0.1, false);
 		sp->SetScale(Vec2(4, 4));
 		go->AddComponent(sp);
 		go->AddComponent(new CameraFollower(*go, Vec2(0, 0)));
 		AddObject(go, "PASS");
+		go->box.SetPos(Vec2(0, 0));
+		go->Deactivate();
 
 		//Page Left
 		go = new GameObject();
-		sp = new Sprite(*go, "assets/img/Title/effect_left.png", 5, 0.15, false);
+		sp = new Sprite(*go, "assets/img/title/effect_left.png", 5, 0.15, false);
 		sp->SetScale(Vec2(4, 4));
 		go->AddComponent(sp);
 		go->AddComponent(new CameraFollower(*go, Vec2(275, 300) - (go->box.GetSize() / 2)));
 		AddObject(go, "PAGES");
+		go->box.SetPos(Vec2(-2000, -2000));
 		go->Deactivate();
 
 		//Page Right
 		go = new GameObject();
-		sp = new Sprite(*go, "assets/img/Title/effect_right.png", 5, 0.15, false);
+		sp = new Sprite(*go, "assets/img/title/effect_right.png", 5, 0.15, false);
 		sp->SetScale(Vec2(4, 4));
 		go->AddComponent(sp);
 		go->AddComponent(new CameraFollower(*go, Vec2(750, 300) - (go->box.GetSize() / 2)));
 		AddObject(go, "PAGES");
+		go->box.SetPos(Vec2(-2000, -2000));
 		go->Deactivate();
 
 		//MyName
 		go = new GameObject();
-		sp = new Sprite(*go, "assets/img/Title/myname.png", 15, 0.05, false);
+		sp = new Sprite(*go, "assets/img/title/myname.png", 15, 0.05, false);
 		sp->SetScale(Vec2(4, 4));
 		go->AddComponent(sp);
 		go->AddComponent(new CameraFollower(*go, Vec2(275, 275) - (go->box.GetSize() / 2)));
 		AddObject(go, "TITLE1");
+		go->box.SetPos(Vec2(-2000, -2000));
 		go->Deactivate();
 
 		//Title
 		go = new GameObject();
-		sp = new Sprite(*go, "assets/img/Title/lucity.png", 7, 0.05, false);
+		sp = new Sprite(*go, "assets/img/title/lucity.png", 7, 0.05, false);
 		sp->SetScale(Vec2(4, 4));
 		go->AddComponent(sp);
 		go->AddComponent(new CameraFollower(*go, Vec2(750, 275) - (go->box.GetSize() / 2)));
 		AddObject(go, "TITLE2");
+		go->box.SetPos(Vec2(-2000, -2000));
 		go->Deactivate();
 
 		//Press Flag
 		go = new GameObject();
-		sp = new Sprite(*go, "assets/img/Title/press.png", 2, 0.2, true);
+		sp = new Sprite(*go, "assets/img/title/press.png", 2, 0.4, true);
 		sp->SetScale(Vec2(4, 4));
 		go->AddComponent(sp);
 		go->AddComponent(new CameraFollower(*go, Vec2(750, 475) - (go->box.GetSize() / 2)));
 		AddObject(go, "PRESS");
+		go->box.SetPos(Vec2(-2000, -2000));
 		go->Deactivate();
 	}
 
@@ -99,6 +110,7 @@ TitleState::TitleState() : State() {
 	sp->SetScale(Vec2(3, 3));
 	go->AddComponent(sp);
 	buttons["selected"].emplace_back(AddObject(go, "HUD"));
+	go->box.SetPos(Vec2(-2000, -2000));
 	go->Deactivate();
 
 	go = new GameObject();
@@ -106,12 +118,14 @@ TitleState::TitleState() : State() {
 	sp->SetScale(Vec2(3, 3));
 	go->AddComponent(sp);
 	buttons["selected"].emplace_back(AddObject(go, "HUD"));
+	go->box.SetPos(Vec2(-2000, -2000));
 	go->Deactivate();
 
 	//Main Menu: Stage Select
 	go = new GameObject();
 	go->AddComponentAsFirst(new Button(*go, "assets/img/title/button.png", "assets/font/VT323.ttf", "Stage Select", Vec2(275, 180)));
 	buttons["main"].emplace_back(AddObject(go, "MAIN"));
+	go->box.SetPos(Vec2(-2000, -2000));
 	go->Deactivate();
 
 	//Stage Menu
@@ -120,18 +134,21 @@ TitleState::TitleState() : State() {
 		go = new GameObject();
 		go->AddComponentAsFirst(new Button(*go, "assets/img/title/button.png", "assets/font/VT323.ttf", "Tutorial", Vec2(749, 180)));
 		buttons["stage"].emplace_back(AddObject(go, "MAIN"));
+		go->box.SetPos(Vec2(-2000, -2000));
 		go->Deactivate();
 		
 		//Stage Menu: City
 		go = new GameObject();
 		go->AddComponentAsFirst(new Button(*go, "assets/img/title/button.png", "assets/font/VT323.ttf", "City", Vec2(749, 220)));
 		buttons["stage"].emplace_back(AddObject(go, "MAIN"));
+		go->box.SetPos(Vec2(-2000, -2000));
 		go->Deactivate();
 		
 		//Stage Menu: Boss
 		go = new GameObject();
 		go->AddComponentAsFirst(new Button(*go, "assets/img/title/button.png", "assets/font/VT323.ttf", "Boss", Vec2(749, 260)));
 		buttons["stage"].emplace_back(AddObject(go, "MAIN"));
+		go->box.SetPos(Vec2(-2000, -2000));
 		go->Deactivate();
 	}
 	
@@ -139,18 +156,21 @@ TitleState::TitleState() : State() {
 	go = new GameObject();
 	go->AddComponentAsFirst(new Button(*go, "assets/img/title/button.png", "assets/font/VT323.ttf", "Settings", Vec2(275, 220)));
 	buttons["main"].emplace_back(AddObject(go, "MAIN"));
+	go->box.SetPos(Vec2(-2000, -2000));
 	go->Deactivate();
 	
 	//Main Menu: Quit
 	go = new GameObject();
 	go->AddComponentAsFirst(new Button(*go, "assets/img/title/button.png", "assets/font/VT323.ttf", "Quit", Vec2(275, 380)));
 	buttons["main"].emplace_back(AddObject(go, "MAIN"));
+	go->box.SetPos(Vec2(-2000, -2000));
 	go->Deactivate();
 	
 	//Settings Menu: Controls
 	go = new GameObject();
 	go->AddComponentAsFirst(new Button(*go, "assets/img/title/button.png", "assets/font/VT323.ttf", "Controls", Vec2(275, 180)));
 	buttons["settings"].emplace_back(AddObject(go, "MAIN"));
+	go->box.SetPos(Vec2(-2000, -2000));
 	go->Deactivate();
 
 	//Controls Menu
@@ -159,96 +179,112 @@ TitleState::TitleState() : State() {
 		go = new GameObject();
 		go->AddComponentAsFirst(new Button(*go, "assets/img/title/button.png", "assets/font/VT323.ttf", "Up Movement Key", Vec2(695, 150)));
 		buttons["controls"].emplace_back(AddObject(go, "MAIN"));
+		go->box.SetPos(Vec2(-2000, -2000));
 		go->Deactivate();
 
 		//Controls Menu: UP Key
 		go = new GameObject();
 		go->AddComponentAsFirst(new Button(*go, "assets/img/title/keybind_button.png", "assets/font/VT323.ttf", "Up", Vec2(870, 150)));
 		buttons["keys"].emplace_back(AddObject(go, "MAIN"));
+		go->box.SetPos(Vec2(-2000, -2000));
 		go->Deactivate();
 		
 		//Controls Menu: DOWN
 		go = new GameObject();
 		go->AddComponentAsFirst(new Button(*go, "assets/img/title/button.png", "assets/font/VT323.ttf", "Down Movement Key", Vec2(695, 190)));
 		buttons["controls"].emplace_back(AddObject(go, "MAIN"));
+		go->box.SetPos(Vec2(-2000, -2000));
 		go->Deactivate();
 
 		//Controls Menu: DOWN Key
 		go = new GameObject();
 		go->AddComponentAsFirst(new Button(*go, "assets/img/title/keybind_button.png", "assets/font/VT323.ttf", "Down", Vec2(870, 190)));
 		buttons["keys"].emplace_back(AddObject(go, "MAIN"));
+		go->box.SetPos(Vec2(-2000, -2000));
 		go->Deactivate();
 		
 		//Controls Menu: LEFT
 		go = new GameObject();
 		go->AddComponentAsFirst(new Button(*go, "assets/img/title/button.png", "assets/font/VT323.ttf", "Left Movement Key", Vec2(695, 230)));
 		buttons["controls"].emplace_back(AddObject(go, "MAIN"));
+		go->box.SetPos(Vec2(-2000, -2000));
 		go->Deactivate();
 
 		//Controls Menu: LEFT Key
 		go = new GameObject();
 		go->AddComponentAsFirst(new Button(*go, "assets/img/title/keybind_button.png", "assets/font/VT323.ttf", "Left", Vec2(870, 230)));
 		buttons["keys"].emplace_back(AddObject(go, "MAIN"));
+		go->box.SetPos(Vec2(-2000, -2000));
 		go->Deactivate();
 
 		//Controls Menu: RIGHT
 		go = new GameObject();
 		go->AddComponentAsFirst(new Button(*go, "assets/img/title/button.png", "assets/font/VT323.ttf", "Right Movement Key", Vec2(695, 270)));
 		buttons["controls"].emplace_back(AddObject(go, "MAIN"));
+		go->box.SetPos(Vec2(-2000, -2000));
 		go->Deactivate();
 
 		//Controls Menu: RIGHT Key
 		go = new GameObject();
 		go->AddComponentAsFirst(new Button(*go, "assets/img/title/keybind_button.png", "assets/font/VT323.ttf", "Right", Vec2(870, 270)));
 		buttons["keys"].emplace_back(AddObject(go, "MAIN"));
+		go->box.SetPos(Vec2(-2000, -2000));
 		go->Deactivate();
 
 		//Controls Menu: ACTION 1
 		go = new GameObject();
 		go->AddComponentAsFirst(new Button(*go, "assets/img/title/button.png", "assets/font/VT323.ttf", "Attack 1 Key", Vec2(695, 310)));
 		buttons["controls"].emplace_back(AddObject(go, "MAIN"));
+		go->box.SetPos(Vec2(-2000, -2000));
 		go->Deactivate();
 
 		//Controls Menu: ACTION 1 Key
 		go = new GameObject();
 		go->AddComponentAsFirst(new Button(*go, "assets/img/title/keybind_button.png", "assets/font/VT323.ttf", "1", Vec2(870, 310)));
 		buttons["keys"].emplace_back(AddObject(go, "MAIN"));
+		go->box.SetPos(Vec2(-2000, -2000));
 		go->Deactivate();
 
 		//Controls Menu: ACTION 2
 		go = new GameObject();
 		go->AddComponentAsFirst(new Button(*go, "assets/img/title/button.png", "assets/font/VT323.ttf", "Attack 2 Key", Vec2(695, 350)));
 		buttons["controls"].emplace_back(AddObject(go, "MAIN"));
+		go->box.SetPos(Vec2(-2000, -2000));
 		go->Deactivate();
 
 		//Controls Menu: ACTION 2 Key
 		go = new GameObject();
 		go->AddComponentAsFirst(new Button(*go, "assets/img/title/keybind_button.png", "assets/font/VT323.ttf", "2", Vec2(870, 350)));
 		buttons["keys"].emplace_back(AddObject(go, "MAIN"));
+		go->box.SetPos(Vec2(-2000, -2000));
 		go->Deactivate();
 
 		//Controls Menu: ACTION 3
 		go = new GameObject();
 		go->AddComponentAsFirst(new Button(*go, "assets/img/title/button.png", "assets/font/VT323.ttf", "Attack 3 Key", Vec2(695, 390)));
 		buttons["controls"].emplace_back(AddObject(go, "MAIN"));
+		go->box.SetPos(Vec2(-2000, -2000));
 		go->Deactivate();
 
 		//Controls Menu: ACTION 3 Key
 		go = new GameObject();
 		go->AddComponentAsFirst(new Button(*go, "assets/img/title/keybind_button.png", "assets/font/VT323.ttf", "3", Vec2(870, 390)));
 		buttons["keys"].emplace_back(AddObject(go, "MAIN"));
+		go->box.SetPos(Vec2(-2000, -2000));
 		go->Deactivate();
 
 		//Controls Menu: PAUSE
 		go = new GameObject();
 		go->AddComponentAsFirst(new Button(*go, "assets/img/title/button.png", "assets/font/VT323.ttf", "Pause Menu Key", Vec2(695, 430)));
 		buttons["controls"].emplace_back(AddObject(go, "MAIN"));
+		go->box.SetPos(Vec2(-2000, -2000));
 		go->Deactivate();
 
 		//Controls Menu: ACTION 4 Key
 		go = new GameObject();
 		go->AddComponentAsFirst(new Button(*go, "assets/img/title/keybind_button.png", "assets/font/VT323.ttf", "Escape", Vec2(870, 430)));
 		buttons["keys"].emplace_back(AddObject(go, "MAIN"));
+		go->box.SetPos(Vec2(-2000, -2000));
 		go->Deactivate();
 	}
 
@@ -256,6 +292,7 @@ TitleState::TitleState() : State() {
 	go = new GameObject();
 	go->AddComponentAsFirst(new Button(*go, "assets/img/title/button.png", "assets/font/VT323.ttf", "Screen", Vec2(275, 220)));
 	buttons["settings"].emplace_back(AddObject(go, "MAIN"));
+	go->box.SetPos(Vec2(-2000, -2000));
 	go->Deactivate();
 
 	//Screen Menu
@@ -264,6 +301,7 @@ TitleState::TitleState() : State() {
 		go = new GameObject();
 		go->AddComponentAsFirst(new Button(*go, "assets/img/title/button.png", "assets/font/VT323.ttf", "Fullsceen", Vec2(749, 180)));
 		buttons["screen"].emplace_back(AddObject(go, "MAIN"));
+		go->box.SetPos(Vec2(-2000, -2000));
 		go->Deactivate();
 	}
 	
@@ -271,6 +309,7 @@ TitleState::TitleState() : State() {
 	go = new GameObject();
 	go->AddComponentAsFirst(new Button(*go, "assets/img/title/button.png", "assets/font/VT323.ttf", "Back", Vec2(275, 380)));
 	buttons["settings"].emplace_back(AddObject(go, "MAIN"));
+	go->box.SetPos(Vec2(-2000, -2000));
 	go->Deactivate();
 }
 
@@ -293,33 +332,45 @@ void TitleState::Pause() {
 }
 
 void TitleState::Resume() {
-	/*int mw = 1024;
+	int mw = 1024;
 	int mh = 600;
 	GameData::mapSize = Vec2(mw, mh);
 	Camera::pos = Vec2(0, 0);
-	if (GameData::fullscreen) {
-		popRequested = true;
-		Game::GetInstance().Push(new TitleState());
-	}
-	else {
-		Sprite * sprite;
-		Vec2 oScale;
-		book->Deactivate();
-		press->Deactivate();
-		page->SetFrame(0);
-		//effectFE->SetFrame(0);
-		//effectFD->SetFrame(0);
-		//resume = true;
-		//waitingEnter = true;
 
-		if (GameData::playerVictory) {
-			set->SetTileSet("assets/img/tileSet.png");
+	GameData::popAgain = false;
+
+	animationCount = 0;
+	reopen = true;
+	for(unsigned int i = 0; i < objects["BOOK"].size(); i++) {
+		Sprite* sp = (Sprite*) objects["BOOK"][i]->GetComponent("Sprite");
+		if(sp) {
+			sp->GoBack();
 		}
-		if (GameData::bossStageUnlocked) {
-			Text* txt = (Text*)objects["GUI"][1]->GetComponent("Text");
-			txt->SetColor(SDL_Color{ 0,0,0,128 });
+	}
+	for(unsigned int i = 0; i < objects["PASS"].size(); i++) {
+		Sprite* sp = (Sprite*) objects["PASS"][i]->GetComponent("Sprite");
+		if(sp) {
+			sp->SetFrame(0);
 		}
-	}*/
+	}
+	for(unsigned int i = 0; i < objects["PAGES"].size(); i++) {
+		Sprite* sp = (Sprite*) objects["PAGES"][i]->GetComponent("Sprite");
+		if(sp) {
+			sp->GoBack();
+		}
+	}
+	for(unsigned int i = 0; i < objects["TITLE1"].size(); i++) {
+		Sprite* sp = (Sprite*) objects["TITLE1"][i]->GetComponent("Sprite");
+		if(sp) {
+			sp->SetFrame(0);
+		}
+	}
+	for(unsigned int i = 0; i < objects["TITLE2"].size(); i++) {
+		Sprite* sp = (Sprite*) objects["TITLE2"][i]->GetComponent("Sprite");
+		if(sp) {
+			sp->SetFrame(0);
+		}
+	}
 }
 
 void TitleState::Opening() {
@@ -337,7 +388,10 @@ void TitleState::Opening() {
 	}
 	else if(animationCount == 1) {
 		if(animationT.Get() > 0.6) {
-			animationCount++;
+			if(reopen)
+				animationCount = 8;
+			else
+				animationCount++;
 			for(unsigned int i = 0; i < objects["PAGES"].size(); i++) {
 				objects["PAGES"][i]->Activate();
 			}
@@ -364,6 +418,7 @@ void TitleState::Opening() {
 	}
 	else if(animationCount == 4) {
 		if(animationT.Get() > 0.35) {
+			InputManager::ResetLastKey();
 			animationCount++;
 			for(unsigned int i = 0; i < objects["PRESS"].size(); i++) {
 				objects["PRESS"][i]->Activate();
@@ -419,7 +474,7 @@ void TitleState::Opening() {
 	}
 	else if(animationCount == 8) {
 		if(animationT.Get() > 0.75) {
-			animationCount++;
+			animationCount = 16;
 			for(unsigned int i = 0; i < buttons["selected"].size(); i++) {
 				if(!buttons["selected"][i].expired()) {
 					buttons["selected"][i].lock()->Activate();
@@ -436,7 +491,7 @@ void TitleState::Opening() {
 }
 
 void TitleState::Passing() {
-	if(animationCount == 10) {
+	if(animationCount == 9) {
 		animationCount++;
 		for(unsigned int i = 0; i < objects["PAGES"].size(); i++) {
 			Sprite* sp = (Sprite*) objects["PAGES"][i]->GetComponent("Sprite");
@@ -446,7 +501,7 @@ void TitleState::Passing() {
 		}
 		animationT.Restart();
 	}
-	else if(animationCount == 11) {
+	else if(animationCount == 10) {
 		if(animationT.Get() > 0.75) {
 			animationCount++;
 			for(unsigned int i = 0; i < objects["PASS"].size(); i++) {
@@ -458,7 +513,7 @@ void TitleState::Passing() {
 			animationT.Restart();
 		}
 	}
-	else if(animationCount == 12) {
+	else if(animationCount == 11) {
 		if(animationT.Get() > 0.6) {
 			animationCount++;
 			for(unsigned int i = 0; i < objects["PAGES"].size(); i++) {
@@ -470,9 +525,9 @@ void TitleState::Passing() {
 			animationT.Restart();
 		}
 	}
-	else if(animationCount == 13) {
+	else if(animationCount == 12) {
 		if(animationT.Get() > 0.75) {
-			animationCount = 9;
+			animationCount = 16;
 			for(unsigned int i = 0; i < buttons["selected"].size(); i++)
 				if(!buttons["selected"][i].expired())
 					buttons["selected"][i].lock()->Activate();
@@ -482,6 +537,74 @@ void TitleState::Passing() {
 					buttons[layer][i].lock()->Activate();
 
 			animationT.Restart();
+		}
+	}
+}
+
+void TitleState::Closing() {
+	if(animationCount == 13) {
+		animationCount++;
+		for(unsigned int i = 0; i < buttons["selected"].size(); i++) {
+			if(!buttons["selected"][i].expired()) {
+				buttons["selected"][i].lock()->Deactivate();
+			}
+		}
+		for(unsigned int i = 0; i < buttons["main"].size(); i++) {
+			if(!buttons["main"][i].expired()) {
+				buttons["main"][i].lock()->Deactivate();
+			}
+		}
+		for(unsigned int i = 0; i < buttons["stage"].size(); i++) {
+			if(!buttons["stage"][i].expired()) {
+				buttons["stage"][i].lock()->Deactivate();
+			}
+		}
+		for(unsigned int i = 0; i < objects["PAGES"].size(); i++) {
+			Sprite* sp = (Sprite*) objects["PAGES"][i]->GetComponent("Sprite");
+			if(sp) {
+				sp->GoBack();
+			}
+		}
+		animationT.Restart();
+	}
+	else if(animationCount == 14) {
+		if(animationT.Get() > 0.6) {
+			animationCount++;
+			for(unsigned int i = 0; i < objects["PASS"].size(); i++) {
+				objects["PASS"][i]->Deactivate();
+			}
+			for(unsigned int i = 0; i < objects["PAGES"].size(); i++) {
+				objects["PAGES"][i]->Deactivate();
+			}
+			for(unsigned int i = 0; i < objects["BOOK"].size(); i++) {
+				objects["BOOK"][i]->Activate();
+				Sprite* sp = (Sprite*) objects["BOOK"][i]->GetComponent("Sprite");
+				if(sp) {
+					sp->GoBack();
+				}
+			}
+			animationT.Restart();
+		}
+	}
+	else if(animationCount == 15) {
+		if(animationT.Get() > 0.5) {
+			animationT.Restart();
+			if(layer == "stage") {
+				if(index == 0) {
+					//Game::GetInstance().Push(new TutorialStageState());
+				}
+				else if(index == 1) {
+					Game::GetInstance().Push(new StageState());
+				}
+				else if(index == 2) {
+					Game::GetInstance().Push(new BossStageState());
+				}
+			}
+			else if(layer == "main") {
+				if(index == 2) {
+					quitRequested = true;
+				}
+			}
 		}
 	}
 }
@@ -636,24 +759,16 @@ void TitleState::ExecuteButton() {
 				if(!buttons["selected"][i].expired())
 					buttons["selected"][i].lock()->Deactivate();
 
-			animationCount = 10;
+			animationCount = 9;
 			layer = "settings";
 			index = 0;
 		}
 		else if(index == 2) {
-			quitRequested = true;
+			animationCount = 13;
 		}
 	}
 	else if(layer == "stage") {
-		if(index == 0) {
-			//Game::GetInstance().Push(new TutorialStageState());
-		}
-		else if(index == 1) {
-			Game::GetInstance().Push(new StageState());
-		}
-		else if(index == 2) {
-			//Game::GetInstance().Push(new BossStageState());
-		}
+		animationCount = 13;
 	}
 	else if(layer == "settings") {
 		if(index == 0) {
@@ -709,7 +824,7 @@ void TitleState::ExecuteButton() {
 				if(!buttons["selected"][i].expired())
 					buttons["selected"][i].lock()->Deactivate();
 
-			animationCount = 10;
+			animationCount = 9;
 			layer = "main";
 			index = 0;
 		}
@@ -736,10 +851,8 @@ void TitleState::ExecuteButton() {
 	}
 	else if(layer == "screen") {
 		if(index == 0) {
-
-		}
-		else if(index == 1) {
-
+			Game::GetInstance().Fullscreen(GameData::fullscreen);
+			GameData::fullscreen = !GameData::fullscreen;
 		}
 	}
 }
@@ -758,7 +871,24 @@ void TitleState::Update(float dt) {
 
 		Opening();
 	}
-	else if(animationCount < 10){
+	else if(animationCount < 13){
+		animationT.Update(dt);
+
+		UpdateArray(dt, "PASS");
+		UpdateArray(dt, "PAGES");
+
+		Passing();
+	}
+	else if(animationCount < 16) {
+		animationT.Update(dt);
+
+		UpdateArray(dt, "BOOK");
+		UpdateArray(dt, "PASS");
+		UpdateArray(dt, "PAGES");
+
+		Closing();
+	}
+	else {
 		UpdateArray(dt, "PASS");
 		UpdateArray(dt, "PAGES");
 		UpdateArray(dt, "MAIN");
@@ -784,14 +914,6 @@ void TitleState::Update(float dt) {
 			SetKey();
 		}
 	}
-	else {
-		animationT.Update(dt);
-
-		UpdateArray(dt, "PASS");
-		UpdateArray(dt, "PAGES");
-
-		Passing();
-	}
 }
 
 void TitleState::Render() {
@@ -803,15 +925,21 @@ void TitleState::Render() {
 		RenderArray("TITLE2");
 		RenderArray("PRESS");
 	}
-	else if(animationCount < 10) {
+	else if(animationCount < 13) {
+		RenderArray("PASS");
+		RenderArray("PAGES");
+	}
+	else if(animationCount < 16) {
+		RenderArray("BOOK");
+		RenderArray("PASS");
+		RenderArray("PAGES");
+	}
+	else {
 		RenderArray("PASS");
 		RenderArray("PAGES");
 		RenderArray("MAIN");
 		RenderArray("MISC");
 		RenderArray("HUD");
-	}
-	else {
-		RenderArray("PASS");
-		RenderArray("PAGES");
+
 	}
 }

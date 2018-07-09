@@ -120,6 +120,16 @@ State& Game::GetCurrentState() {
 	return *stateStack.top().get();
 }
 
+void Game::Fullscreen(bool fullscreen) {
+	if(fullscreen) {
+		SDL_SetWindowFullscreen(window, 0);
+		SDL_SetWindowSize(window, 1024, 600);
+	}
+	else {
+		SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
+	}
+}
+
 void Game::Push(State* state) {
 	storedState = state;
 }

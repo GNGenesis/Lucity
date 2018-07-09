@@ -28,6 +28,9 @@ HUD::~HUD() {
 			attack[i].lock()->RequestDelete();
 	attack.clear();
 
+	if(!selector.expired())
+		selector.lock()->RequestDelete();
+
 	for(int i = timer.size()-1; i >= 0; i--)
 		if(!timer[i].expired())
 			timer[i].lock()->RequestDelete();
@@ -74,6 +77,14 @@ void HUD::Start() {
 		go->AddComponent(new CameraFollower(*go, Vec2(110 + i*35, 50)));
 		attack.emplace_back(Game::GetInstance().GetCurrentState().AddObject(go, "GUI"));
 	}
+
+	//Attack Selector
+	go = new GameObject();
+	sp = new Sprite(*go, "assets/img/HUD/selector.png");
+	sp->SetScale(Vec2(2, 2));
+	go->AddComponent(sp);
+	go->AddComponent(new CameraFollower(*go, Vec2(110 + 35, 50)));
+	selector = Game::GetInstance().GetCurrentState().AddObject(go, "GUI");
 
 	//Timer Base
 	go = new GameObject();
@@ -141,6 +152,20 @@ void HUD::Update(float dt) {
 		//Attack
 		Book* b = (Book*) GameData::book.lock()->GetComponent("Book");
 		if(b) {
+			CameraFollower* c1 = (CameraFollower*) selector.lock()->GetComponent("CameraFollower");
+			if(b->GetAttackMode() == "bubbles") {
+				CameraFollower* c2 = (CameraFollower*) attack[0].lock()->GetComponent("CameraFollower");
+				c1->SetTruePos(c2->GetTruePos() + attack[0].lock()->box.GetSize()/2 - Vec2(selector.lock()->box.w/2, selector.lock()->box.h/2));
+			}
+			else if(b->GetAttackMode() == "fireball") {
+				CameraFollower* c2 = (CameraFollower*) attack[1].lock()->GetComponent("CameraFollower");
+				c1->SetTruePos(c2->GetTruePos() + attack[1].lock()->box.GetSize()/2 - Vec2(selector.lock()->box.w/2, selector.lock()->box.h/2));
+			}
+			else if(b->GetAttackMode() == "bind") {
+				CameraFollower* c2 = (CameraFollower*) attack[2].lock()->GetComponent("CameraFollower");
+				c1->SetTruePos(c2->GetTruePos() + attack[2].lock()->box.GetSize()/2 - Vec2(selector.lock()->box.w/2, selector.lock()->box.h/2));
+			}
+
 			for(unsigned int i = 0; i < attack.size(); i++) {
 				Sprite* s = (Sprite*) attack[i].lock()->GetComponent("Sprite");
 
@@ -192,7 +217,7 @@ void HUD::Update(float dt) {
 		}
 
 		//Number of Monsters
-		txt = (Text*)monstersTXT.lock()->GetComponent("Text");
+		txt = (Text*) monstersTXT.lock()->GetComponent("Text");
 		if(txt) {
 			char ch[3];
 			sprintf(ch, "%d", GameData::nMonsters);

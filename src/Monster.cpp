@@ -15,8 +15,8 @@ Monster::Monster(GameObject& associated, Personality p) : NPC(associated, p) {
 	mIdleT = 1.2;
 	mWalkT = 1.8;
 	mAttackT = 0.7;
-	mStunT = 1.5;
-	mDamageCD = 1;
+	mStunT = 2;
+	mDamageCD = 1.5;
 }
 
 Monster::~Monster() {
@@ -80,7 +80,7 @@ void Monster::Update(float dt) {
 					mActionT.Restart();
 					mOffsetT = pow(-1,rand()%2)*(rand()%51)/100;
 					SetAction("mWalk");
-					SetSpeed(150);
+					SetSpeed(180);
 					NPC::SetAngleDirection(rand()%360);
 				}
 			}

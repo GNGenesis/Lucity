@@ -19,7 +19,7 @@ Attack::Attack(GameObject& associated, std::string owner, std::string name, Vec2
 	int frameCount;
 	if(name == "blast") {
 		scale = 2;
-		frameCount = 1;
+		frameCount = 3;
 	}
 	else if(name == "bubbles") {
 		scale = 2;
@@ -34,7 +34,7 @@ Attack::Attack(GameObject& associated, std::string owner, std::string name, Vec2
 		frameCount = 3;
 	}
 	else if(name == "laserbeam") {
-		scale = 2;
+		scale = 4;
 		frameCount = 4;
 	}
 	else {
@@ -70,7 +70,7 @@ void Attack::OnDeath() {
 		Game::GetInstance().GetCurrentState().AddObject(go, "EFFECT");
 	}
 	else if(name == "fireball") {
-		go->AddComponent(new Attack(*go, "Player", "blast", Vec2(), 0.3, 0, 0, 1, true));
+		go->AddComponent(new Attack(*go, "Player", "blast", Vec2(), 0, 0.6, 0, 0, 1, true));
 		go->box.SetCenter(associated.box.GetCenter());
 		Game::GetInstance().GetCurrentState().AddObject(go, "MAIN");
 	}

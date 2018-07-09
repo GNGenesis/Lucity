@@ -12,7 +12,6 @@ private:
 	int animationCount;
 
 	std::unordered_map<std::string, std::vector<std::weak_ptr<GameObject>>> buttons;
-	std::weak_ptr<GameObject> selected;
 	std::string layer;
 	int index;
 
@@ -29,6 +28,7 @@ public:
 	void Resume();
 	void Opening();
 	void Passing();
+	void Closing();
 	void SetKey();
 	void Navigate();
 	void ExecuteButton();

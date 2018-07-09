@@ -6,6 +6,7 @@
 #include "Collision.h"
 
 #include "PauseState.h"
+#include "EndState.h"
 
 #include "Sprite.h"
 #include "Text.h"
@@ -27,6 +28,8 @@ bool SortRenderOrder_MS(std::shared_ptr<GameObject> i, std::shared_ptr<GameObjec
 
 StageState::StageState() : State() {
 	gameOver = false;
+
+	GameData::popAgain = false;
 
 	GameObject* go;
 
@@ -64,7 +67,7 @@ StageState::StageState() : State() {
 	AddObject(go, "GUI");
 	
 	//Bench
-	for(int i = 0; i < 5; i++) {
+	for(int i = 0; i < 0; i++) {
 		go = new GameObject();
 		go->AddComponentAsFirst(new MainObject(*go, "bench", 1, Vec2(3, 3), true, true));
 		go->box.SetPos(Vec2(rand()%mw, rand()%mh));
@@ -72,7 +75,7 @@ StageState::StageState() : State() {
 	}
 
 	//Trashcan
-	for(int i = 0; i < 5; i++) {
+	for(int i = 0; i < 0; i++) {
 		go = new GameObject();
 		go->AddComponentAsFirst(new MainObject(*go, "trashcan", 1, Vec2(3, 3), true, true));
 		go->box.SetPos(Vec2(rand()%mw, rand()%mh));
@@ -80,12 +83,15 @@ StageState::StageState() : State() {
 	}
 
 	//Tree
-	for(int i = 0; i < 1; i++) {
-		go = new GameObject();
-		go->AddComponentAsFirst(new MainObject(*go, "tree", 1, Vec2(3, 3), true));
-		go->box.SetPos(Vec2(rand()%mw, rand()%mh));
-		AddObject(go, "MAIN");
-	}
+	go = new GameObject();
+	go->AddComponentAsFirst(new MainObject(*go, "tree", 1, Vec2(3, 3), true));
+	go->box.SetPos(Vec2(240, 600));
+	AddObject(go, "MAIN");
+
+	go = new GameObject();
+	go->AddComponentAsFirst(new MainObject(*go, "tree", 1, Vec2(3, 3), true));
+	go->box.SetPos(Vec2(720, 360));
+	AddObject(go, "MAIN");
 
 	//Monsters
 	for(int i = 0; i < 5; i++) {
@@ -96,6 +102,7 @@ StageState::StageState() : State() {
 
 		GameData::nMonsters++;
 	}
+	GameData::nMaxMonsters = GameData::nMonsters;
 
 	//NPCs
 	for(int i = 0; i < 10; i++) {
@@ -108,17 +115,15 @@ StageState::StageState() : State() {
 	}
 
 	//Players
-	for(int i = 0; i >= 0; i--) {
-		go = new GameObject();
-		go->AddComponentAsFirst(new Player(*go, "lucas", i));
-		go->box.SetCenter(mw/2, mh/2);
-		AddObject(go, "MAIN");
-	}
+	go = new GameObject();
+	go->AddComponentAsFirst(new Player(*go, "lucas", 0));
+	go->box.SetCenter(mw/2, mh/2);
+	AddObject(go, "MAIN");
 
 	Camera::Follow(go);
 
 	backgroundMusic = Music("assets/audio/theme.ogg");
-	//backgroundMusic.Play();
+	backgroundMusic.Play();
 }
 
 StageState::~StageState() {
@@ -140,11 +145,17 @@ void StageState::Start() {
 }
 
 void StageState::Pause() {
-
+	Camera::Unfollow();
+	backgroundMusic.Stop();
 }
 
 void StageState::Resume() {
+	GameData::popAgain = false;
 
+	if(!GameData::player.expired())
+		Camera::Follow(GameData::player.lock().get());
+
+	backgroundMusic.Play();
 }
 
 void StageState::CollisionCheck() {
@@ -184,7 +195,7 @@ void StageState::DeletionCheck() {
 				if(Camera::GetFocus() == i.second[j].get())
 					Camera::Unfollow();
 
-				if(i.second[j]->GetComponent("Monster")) {
+				if(i.second[j]->GetComponent("Soul")) {
 					GameData::nMonsters--;
 					GameData::eventT.Restart();
 				}
@@ -199,15 +210,24 @@ void StageState::DeletionCheck() {
 
 void StageState::Update(float dt) {
 	quitRequested = InputManager::QuitRequested();
-	if(InputManager::KeyPress(ESCAPE_KEY)) {
+	if(InputManager::KeyPress(ESCAPE_KEY))
 		Game::GetInstance().Push(new PauseState());
-	}
 
 	if(InputManager::KeyPress(SDLK_F1))
 		GameData::debug = !GameData::debug;
 
 	if(InputManager::KeyPress(SDLK_F2))
 		GameData::paused = !GameData::paused;
+
+	if(InputManager::KeyPress(SDLK_F5)) {
+		gameOver = true;
+		GameData::playerVictory = false;
+	}
+
+	if(InputManager::KeyPress(SDLK_F6)) {
+		gameOver = true;
+		GameData::playerVictory = true;
+	}
 
 	if(!gameOver) {
 		if(!GameData::paused)
@@ -227,42 +247,16 @@ void StageState::Update(float dt) {
 
 		if(GameData::nMonsters == 0) {
 			gameOver = true;
-			InputManager::ResetLastKey();
 			GameData::playerVictory = true;
 			GameData::bossStageUnlocked = true;
-
-			//GameOver message
-			GameObject* go = new GameObject();
-			go->AddComponent(new Text(*go, "assets/font/Sabo-Filled.ttf", 48, "Well done kiddo, you got them all!", SDL_Color {}, Text::SOLID));
-			go->AddComponent(new CameraFollower(*go, Vec2(512-go->box.w/2, 300-go->box.h/2)));
-			AddObject(go, "GUI");
-
-			go = new GameObject();
-			go->AddComponent(new Text(*go, "assets/font/Sabo-Filled.ttf", 48, "Press Return to play again!", SDL_Color {}, Text::SOLID));
-			go->AddComponent(new CameraFollower(*go, Vec2(512-go->box.w/2, 360-go->box.h/2)));
-			AddObject(go, "GUI");
 		}
 		else if(GameData::player.expired()) {
 			gameOver = true;
-			InputManager::ResetLastKey();
 			GameData::playerVictory = false;
-			
-			//GameOver message
-			GameObject* go = new GameObject();
-			go->AddComponent(new Text(*go, "assets/font/Sabo-Filled.ttf", 48, "You are a fucking failure...", SDL_Color {}, Text::SOLID));
-			go->AddComponent(new CameraFollower(*go, Vec2(512-go->box.w/2, 300-go->box.h/2)));
-			AddObject(go, "GUI");
-
-			go = new GameObject();
-			go->AddComponent(new Text(*go, "assets/font/Sabo-Filled.ttf", 48, "Press Return to play again!", SDL_Color {}, Text::SOLID));
-			go->AddComponent(new CameraFollower(*go, Vec2(512-go->box.w/2, 360-go->box.h/2)));
-			AddObject(go, "GUI");
 		}
 	}
 	else {
-		InputManager::GetLastKey();
-		if(GameData::key != NULL)
-			popRequested = true;
+		Game::GetInstance().Push(new EndState());
 	}
 
 	UpdateArray(dt, "BG");

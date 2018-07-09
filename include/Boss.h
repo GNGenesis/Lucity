@@ -22,6 +22,8 @@ private:
 	float bHurtT;
 	float bOffsetT;
 
+	bool move;
+
 	Timer bDamageT;
 	float bDamageCD;
 

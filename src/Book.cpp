@@ -15,8 +15,8 @@ Book::Book(GameObject& associated, GameObject& player) : Component(associated) {
 	action = "idle";
 	direction = "SE";
 	arc = 0;
-	openCD = 0.4;
-	closeCD = 0.4;
+	openCD = 0.2;
+	closeCD = 0.2;
 	attacking = false;
 	executeCD = 0.2;
 	executing = false;
@@ -104,7 +104,7 @@ void Book::Update(float dt) {
 				}
 				else if(GetAttackMode() == "fireball") {
 					GameObject* go = new GameObject();
-					go->AddComponent(new Attack(*go, "Player", "energyball", associated.box.GetCenter(), 30, 1, GetArc(), 400, 1));
+					go->AddComponent(new Attack(*go, "Player", "fireball", associated.box.GetCenter(), 30, 1, GetArc(), 400, 1));
 					Game::GetInstance().GetCurrentState().AddObject(go, "MAIN");
 				}
 				else if(GetAttackMode() == "bind") {

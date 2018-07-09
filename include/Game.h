@@ -29,6 +29,7 @@ public:
 	static Game& GetInstance();
 	SDL_Renderer* GetRenderer();
 	State& GetCurrentState();
+	void Fullscreen(bool fullscreen);
 	void Push(State* state);
 	void Run();
 };

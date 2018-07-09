@@ -5,18 +5,21 @@
 
 #include "Sprite.h"
 #include "Attack.h"
+#include "HP.h"
+#include "Soul.h"
 
 #include <math.h>
 
 Boss::Boss(GameObject& associated, Personality p) : NPC(associated, p) {
-	SetHealth(1);
+	SetHealth(3);
 	transformed = false;
 	ramble = false;
 	bIdleT = 2;
-	bAttackT = 0.5;
-	bStunT = 2;
+	bAttackT = 1;
+	bStunT = 2.5;
 	bHurtT = 2;
-	bDamageCD = 2;
+	bDamageCD = 3;
+	move = false;
 }
 
 Boss::~Boss() {
@@ -26,10 +29,11 @@ Boss::~Boss() {
 void Boss::Transform() {
 	transformed = true;
 	SetHealth(6);
-	SetSpeed(50);
+	SetSpeed(100);
 	SetAction("bTransform");
-	SetDirection("");
+	SetDirection("SE");
 	anchor = associated.box.GetCenter();
+	associated.AddComponent(new HP(associated, 6));
 }
 
 void Boss::Damage(int damage) {
@@ -68,7 +72,7 @@ void Boss::Update(float dt) {
 					bActionT.Restart();
 					SetAction("bAttack");
 					SetDirection("SE");
-					SetHealth(1);
+					SetHealth(3);
 				}
 			}
 			else if(GetHealth() < 1) {
@@ -81,6 +85,7 @@ void Boss::Update(float dt) {
 					SetAction("bAttack");
 					SetSpeed(50);
 					anchor = associated.box.GetCenter();
+					NPC::SetAngleDirection(associated.box.GetCenter().GetAngle(GameData::player.lock()->box.GetCenter()));
 				}
 				else {
 					associated.box.SetPos(associated.box.GetPos()+(Vec2(Vec2::Cos(GetAngleDirection()), Vec2::Sin(GetAngleDirection()))*GetSpeed()*dt));
@@ -98,24 +103,36 @@ void Boss::Update(float dt) {
 			}
 			else if(!GameData::player.expired()) {
 				if(GetAction() == "bIdle") {
-					if(bActionT.Get() > bIdleT-bOffsetT) {
-						bActionT.Restart();
-						SetAction("bAttack");
+					if(move) {
+						if(bActionT.Get() > bIdleT-bOffsetT) {
+							bActionT.Restart();
+							move = false;
+							SetAction("bAttack");
+							NPC::SetAngleDirection(associated.box.GetCenter().GetAngle(GameData::player.lock()->box.GetCenter()));
+						}
+						else {
+							associated.box.SetPos(associated.box.GetPos()+(Vec2(Vec2::Cos(GetAngleDirection()), Vec2::Sin(GetAngleDirection()))*GetSpeed()*dt));
+							if(associated.box.GetCenter().GetDS(anchor) > 300)
+								NPC::SetAngleDirection(associated.box.GetCenter().GetAngle(anchor));
+						}
 					}
 					else {
-						associated.box.SetPos(associated.box.GetPos()+(Vec2(Vec2::Cos(GetAngleDirection()), Vec2::Sin(GetAngleDirection()))*GetSpeed()*dt));
-						if(associated.box.GetCenter().GetDS(anchor) > 200)
-							NPC::SetAngleDirection(associated.box.GetCenter().GetAngle(anchor));
+						if(bActionT.Get() > bIdleT-bOffsetT) {
+							bActionT.Restart();
+							move = true;
+						}
+						else {
+							NPC::SetAngleDirection(associated.box.GetCenter().GetAngle(GameData::player.lock()->box.GetCenter()));
+						}
 					}
 				}
 				else if(GetAction() == "bAttack") {
-					NPC::SetAngleDirection(associated.box.GetCenter().GetAngle(GameData::player.lock()->box.GetCenter()));
 					if(bActionT.Get() > bAttackT) {
 						bActionT.Restart();
 
 						GameObject* go;
 						go = new GameObject();
-						go->AddComponent(new Attack(*go, "Boss", "laserbeam", associated.box.GetCenter(), 250, 0.5, GetAngleDirection(), 0, 1, true));
+						go->AddComponent(new Attack(*go, "Boss", "laserbeam", associated.box.GetCenter(), 800, 0.5, GetAngleDirection(), 0, 1, true));
 						Game::GetInstance().GetCurrentState().AddObject(go, "MAIN");
 
 						SetAction("bIdle");
@@ -168,9 +185,16 @@ void Boss::NotifyCollision(GameObject& other) {
 					if(attack->GetName() == "bind") {
 						associated.RequestDelete();
 						GameObject* go = new GameObject();
-						go->AddComponent(new Sprite(*go, "assets/img/characters/boss/capture.png", 7, 0.12, false, 0.84));
+						Sprite* sp = new Sprite(*go, "assets/img/characters/boss/capture" + GetDirection() + ".png", 11, 0.1, false, 1.1);
+						sp->SetScale(Vec2(2, 2));
+						go->AddComponent(sp);
 						go->box.SetCenter(Vec2(associated.box.x+associated.box.w/2, associated.box.y+associated.box.h-go->box.h/2));
 						Game::GetInstance().GetCurrentState().AddObject(go, "MAIN");
+
+						GameObject* soul = new GameObject();
+						soul->AddComponent(new Soul(*soul));
+						soul->box.SetCenter(go->box.GetCenter());
+						Game::GetInstance().GetCurrentState().AddObject(soul, "MAIN");
 					}
 				}
 			}

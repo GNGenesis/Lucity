@@ -19,7 +19,12 @@ MainObject::MainObject(GameObject& associated, std::string objectName, int hp, V
 		path = "assets/img/objects/" + objectName + "_bottom.png";
 	else
 		path = "assets/img/objects/" + objectName + "_full.png";
-	Sprite* object = new Sprite(associated, path);
+
+	Sprite* object;
+	if(objectName == "fountain")
+		object = new Sprite(associated, path, 7, 0.1);
+	else
+		object = new Sprite(associated, path);
 	object->SetScale(scale);
 	associated.AddComponent(object);
 	associated.AddComponent(new Collider(associated));
@@ -45,7 +50,11 @@ void MainObject::Damage(int damage) {
 	if(hp < 1) {
 		associated.RequestDelete();
 		GameObject* go = new GameObject();
-		Sprite* sp = new Sprite(*go, "assets/img/objects/" + objectName + "_end.png");
+		Sprite* sp;
+		if(objectName == "fountain")
+			sp = new Sprite(*go, "assets/img/objects/" + objectName + "_end.png", 6, 0.1);
+		else
+			sp = new Sprite(*go, "assets/img/objects/" + objectName + "_end.png");
 		sp->SetScale(scale);
 		go->AddComponent(sp);
 		go->box.SetPos(associated.box.GetPos()+Vec2(associated.box.w/2, associated.box.h)-Vec2(go->box.w/2, go->box.h));

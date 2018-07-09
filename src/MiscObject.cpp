@@ -7,7 +7,11 @@ MiscObject::MiscObject(GameObject& associated, GameObject& mainObject, std::stri
 	MiscObject::mainObject = Game::GetInstance().GetCurrentState().GetObjectPtr(&mainObject, "MAIN");
 
 	std::string path = "assets/img/objects/" + miscName + "_top.png";
-	Sprite* object = new Sprite(associated, path);
+	Sprite* object;
+	if(miscName == "fountain")
+		object = new Sprite(associated, path, 7, 0.1);
+	else
+		object = new Sprite(associated, path);
 	object->SetScale(scale);
 	associated.AddComponent(object);
 }

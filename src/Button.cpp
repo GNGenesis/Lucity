@@ -27,6 +27,7 @@ void Button::Start() {
 	GameObject* go = new GameObject();
 	go->AddComponent(new Text(*go, fontFile, 25, buttonName, SDL_Color {}, Text::SOLID));
 	go->AddComponent(new CameraFollower(*go, center-(go->box.GetSize()/2)));
+	go->box.SetPos(Vec2(-2000, -2000));
 	text = Game::GetInstance().GetCurrentState().AddObject(go, "MISC");
 	if(!associated.IsActive())
 		if(!text.expired())

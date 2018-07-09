@@ -17,8 +17,6 @@ private:
 	Boss* boss;
 	Timer rambleT;
 	bool flipped;
-	Timer countdownT;
-	float waitingT;
 	bool gameOver;
 	TileSet* set;
 	Music backgroundMusic;
