@@ -15,7 +15,8 @@ Book::Book(GameObject& associated, GameObject& player) : Component(associated) {
 	action = "idle";
 	direction = "SE";
 	arc = 0;
-	attackCD = 0.4;
+	openCD = 0.4;
+	closeCD = 0.4;
 	attacking = false;
 	executeCD = 0.2;
 	executing = false;
@@ -63,8 +64,7 @@ void Book::SetAttackMode(std::string attackMode) {
 
 void Book::Update(float dt) {
 	if(!GameData::paused) {
-		attackT.Update(dt);
-		channelT.Update(dt);
+		actionT.Update(dt);
 		executeT.Update(dt);
 		attacking = Attacking();
 		
@@ -81,45 +81,51 @@ void Book::Update(float dt) {
 		if(GetAction() == "idle") {
 			if(attacking) {
 				if(GetAttackMode() == "bubbles")
-					channelCD = 0.2;
+					channelCD = 0.1;
 				else if(GetAttackMode() == "fireball")
-					channelCD = 1;
-				else if(GetAttackMode() == "mysticbolt")
-					channelCD = 0.6;
-
-				channelT.Restart();
+					channelCD = 0.4;
+				else if(GetAttackMode() == "bind")
+					channelCD = 0.2;
+				actionT.Restart();
+				SetAction("open");
+			}
+		}
+		else if(GetAction() == "open") {
+			if(actionT.Get() > openCD) {
+				actionT.Restart();
 				SetAction("channel");
 			}
 		}
 		else if(GetAction() == "channel") {
-			if(channelT.Get() > channelCD) {
+			if(actionT.Get() > channelCD) {
 				if(GetAttackMode() == "bubbles") {
 					executing = true;
 					executeT.Restart();
 				}
 				else if(GetAttackMode() == "fireball") {
 					GameObject* go = new GameObject();
-					go->AddComponent(new Attack(*go, "Player", "fireball", associated.box.GetCenter(), 1, GetArc(), 400, 1));
+					go->AddComponent(new Attack(*go, "Player", "energyball", associated.box.GetCenter(), 30, 1, GetArc(), 400, 1));
 					Game::GetInstance().GetCurrentState().AddObject(go, "MAIN");
 				}
-				else if(GetAttackMode() == "mysticbolt") {
+				else if(GetAttackMode() == "bind") {
 					GameObject* go = new GameObject();
-					go->AddComponent(new Attack(*go, "Player", "mysticbolt", associated.box.GetCenter(), 2, GetArc(), 400, 0));
+					go->AddComponent(new Attack(*go, "Player", "bind", associated.box.GetCenter(), 30, 2, GetArc(), 400, 0));
 					Game::GetInstance().GetCurrentState().AddObject(go, "MAIN");
 				}
 
 				if(attacking) {
-					channelT.Restart();
+					actionT.Restart();
 					SetAction("channel");
 				}
 				else {
-					attackT.Restart();
+					actionT.Restart();
 					SetAction("close");
 				}
 			}
 		}
 		else if(GetAction() == "close") {
-			if(attackT.Get() > attackCD) {
+			if(actionT.Get() > closeCD) {
+				actionT.Restart();
 				SetAction("idle");
 			}
 		}
@@ -132,7 +138,7 @@ void Book::Update(float dt) {
 				float timeOS = pow(-1,rand()%2)*(rand()%31)/100;
 				float directionOS = pow(-1,rand()%2)*(rand()%45);
 				GameObject* go = new GameObject();
-				go->AddComponent(new Attack(*go, "Player", "bubbles", associated.box.GetCenter(), 0.5 + timeOS, GetArc()+ directionOS, 200, 1));
+				go->AddComponent(new Attack(*go, "Player", "bubbles", associated.box.GetCenter(), 30, 0.5 + timeOS, GetArc()+ directionOS, 200, 1));
 				Game::GetInstance().GetCurrentState().AddObject(go, "MAIN");
 			}
 		}
@@ -160,9 +166,9 @@ bool Book::Attacking() {
 		return true;
 	}
 	else if(InputManager::IsKeyDown(GameData::MAGIC_CAPTURE)) {
-		if(GetAction() == "channel" && GetAttackMode() != "mysticbolt")
+		if(GetAction() == "channel" && GetAttackMode() != "bind")
 			SetAction("close");
-		SetAttackMode("mysticbolt");
+		SetAttackMode("bind");
 		return true;
 	}
 	else
@@ -174,15 +180,15 @@ void Book::ModeSwitch(int scroll) {
 		if(scroll > 0)
 			SetAttackMode("fireball");
 		else if(scroll < 0)
-			SetAttackMode("mysticbolt");
+			SetAttackMode("bind");
 	}
 	else if(GetAttackMode() == "fireball") {
 		if(scroll > 0)
-			SetAttackMode("mysticbolt");
+			SetAttackMode("bind");
 		else if(scroll < 0)
 			SetAttackMode("bubbles");
 	}
-	else if(GetAttackMode() == "mysticbolt") {
+	else if(GetAttackMode() == "bind") {
 		if(scroll > 0)
 			SetAttackMode("bubbles");
 		else if(scroll < 0)

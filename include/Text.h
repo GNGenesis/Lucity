@@ -15,7 +15,7 @@ public:
 	enum TextStyle {SOLID, SHADED, BLENDED};
 
 	Text(GameObject& associated);
-	Text(GameObject& associated, std::string fontFile, int fontSize, std::string text, SDL_Color color, TextStyle style);
+	Text(GameObject& associated, std::string fontFile, int fontSize, std::string text, SDL_Color color, TextStyle style, int lineWidth = 0);
 	~Text();
 	void Open();
 	void SetFontFile(std::string fontFile);
@@ -36,6 +36,7 @@ private:
 	std::string text;
 	SDL_Color color;
 	TextStyle style;
+	int lineWidth;
 
 	void RemakeTexture();
 };

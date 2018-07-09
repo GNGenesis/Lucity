@@ -106,14 +106,14 @@ class Collision {
 
 				if(wy > hx)
 					if(wy > -hx)
-						a.y = b.y + b.h + 1;
+						a.y = b.y + b.h + 8;
 					else
-						a.x = b.x - a.w - 1;
+						a.x = b.x - a.w - 8;
 				else
 					if(wy > -hx)
-						a.x = b.x + b.w + 1;
+						a.x = b.x + b.w + 8;
 					else
-						a.y = b.y - a.h - 1;
+						a.y = b.y - a.h - 8;
 			}
 		}
 

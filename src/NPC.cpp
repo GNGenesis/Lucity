@@ -20,13 +20,30 @@ NPC::NPC(GameObject& associated, Personality p) : Character(associated, p.GetNam
 }
 
 NPC::~NPC() {
-
+	
 }
 
 void NPC::Start() {
 	GameObject* go = new GameObject();
 	go->AddComponent(new FOV(*go, associated, 100));
 	Game::GetInstance().GetCurrentState().AddObject(go, "MAIN");
+}
+
+void NPC::Damage(int damage) {
+	if(GetHealth() > 0) {
+		SetHealth(GetHealth()-damage);
+		if(GetHealth() < 1) {
+			associated.RequestDelete();
+			if(!associated.GetComponent("Monster")) {
+				GameObject* go = new GameObject();
+				Sprite* sp = new Sprite(*go, "assets/img/characters/" + person.GetName() + "/dead" + GetDirection() + ".png", 4, 0.2, false);
+				sp->SetScale(Vec2(2, 2));
+				go->AddComponent(sp);
+				go->box.SetCenter(associated.box.GetCenter());
+				Game::GetInstance().GetCurrentState().AddObject(go, "MAIN");
+			}
+		}
+	}
 }
 
 void NPC::Update(float dt) {
@@ -90,8 +107,8 @@ void NPC::Update(float dt) {
 			associated.box.x = 0;
 		if(associated.box.x+associated.box.w > GameData::mapSize.x)
 			associated.box.x = GameData::mapSize.x-associated.box.w;
-		if(associated.box.y < 0)
-			associated.box.y = 0;
+		if(associated.box.y < GameData::upperLimit)
+			associated.box.y = GameData::upperLimit;
 		if(associated.box.y+associated.box.h > GameData::mapSize.y)
 			associated.box.y = GameData::mapSize.y-associated.box.h;
 	}

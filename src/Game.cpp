@@ -62,17 +62,14 @@ Game::Game(std::string title, int width, int height) {
 		exit(EXIT_FAILURE);
 	}
 
-	//SDL_Rect screen;
-	//SDL_GetDisplayBounds(0, &screen);
-	Uint32 flags = 0;//SDL_WINDOW_FULLSCREEN;//SDL_WINDOW_RESIZABLE | SDL_WINDOW_FULLSCREEN;
-	window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags);//screen.w, screen.h, flags);
-	GameData::window = window;
+	Uint32 flags = 0;
+	window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags);
 	if(!window) {
 		printf("SDL_CreateWindow failed: %s\n", SDL_GetError());
 		exit(EXIT_FAILURE);
 	}
 
-	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 	if(!renderer) {
 		printf("SDL_CreateRenderer failed: %s\n", SDL_GetError());
 		exit(EXIT_FAILURE);
@@ -152,7 +149,13 @@ void Game::Run() {
 				stateStack.pop();
 				Resources::Clear();
 				if(!stateStack.empty()) {
-					stateStack.top()->Resume();
+					if(GameData::popAgain) {
+						stateStack.pop();
+						Resources::Clear();
+					}
+					if(!stateStack.empty()) {
+						stateStack.top()->Resume();
+					}
 				}
 			}
 			if(storedState) {

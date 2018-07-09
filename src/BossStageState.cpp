@@ -51,6 +51,7 @@ BossStageState::BossStageState() : State() {
 	int mw = 64*map->GetWidth();
 	int mh = 64*map->GetHeight();
 	GameData::mapSize = Vec2(mw, mh);
+	GameData::upperLimit = 0;
 
 	//Remaining Health
 	go = new GameObject();

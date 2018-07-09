@@ -1,13 +1,13 @@
 #include "StageState.h"
-#include "PauseState.h"
 #include "Game.h"
 #include "GameData.h"
 #include "InputManager.h"
 #include "Camera.h"
 #include "Collision.h"
 
+#include "PauseState.h"
+
 #include "Sprite.h"
-#include "Sound.h"
 #include "Text.h"
 #include "HUD.h"
 #include "TileMap.h"
@@ -29,6 +29,7 @@ StageState::StageState() : State() {
 	gameOver = false;
 
 	GameObject* go;
+	Sprite* setas;
 
 	NPCList.emplace_back(Personality("girl", 150, 200, 1, 3, 1, 3, {"hobo"}, {"suit", "tree"}));
 	NPCList.emplace_back(Personality("hobo", 150, 150, 2, 2, 1, 2, {}, {"suit", "trashcan"}));
@@ -53,32 +54,28 @@ StageState::StageState() : State() {
 	int mw = 64*map->GetWidth();
 	int mh = 64*map->GetHeight();
 	GameData::mapSize = Vec2(mw, mh);
+	GameData::upperLimit = 0;
 
 	//Event Countdown
 	GameData::eventCD = 60;
-	go = new GameObject();
-	go->AddComponent(new Text(*go, "assets/font/Sabo-Filled.ttf", 72, "00.0 ", SDL_Color {}, Text::SOLID));
-	go->AddComponent(new CameraFollower(*go, Vec2(1024-go->box.w, 200)));
-	AddObject(go, "GUI");
 
 	//HUD
 	go = new GameObject();
 	go->AddComponent(new HUD(*go));
 	go->AddComponent(new CameraFollower(*go, Vec2(0, 0)));
 	AddObject(go, "GUI");
-	
 	//Bench
-	for(int i = 0; i < 1; i++) {
+	for(int i = 0; i < 5; i++) {
 		go = new GameObject();
-		go->AddComponentAsFirst(new MainObject(*go, "bench", 1, Vec2(3, 3), true));
+		go->AddComponentAsFirst(new MainObject(*go, "bench", 1, Vec2(3, 3), true, true));
 		go->box.SetPos(Vec2(rand()%mw, rand()%mh));
 		AddObject(go, "MAIN");
 	}
 
 	//Trashcan
-	for(int i = 0; i < 1; i++) {
+	for(int i = 0; i < 5; i++) {
 		go = new GameObject();
-		go->AddComponentAsFirst(new MainObject(*go, "trashcan", 1, Vec2(3, 3), true));
+		go->AddComponentAsFirst(new MainObject(*go, "trashcan", 1, Vec2(3, 3), true, true));
 		go->box.SetPos(Vec2(rand()%mw, rand()%mh));
 		AddObject(go, "MAIN");
 	}
@@ -114,7 +111,7 @@ StageState::StageState() : State() {
 	//Players
 	for(int i = 0; i >= 0; i--) {
 		go = new GameObject();
-		go->AddComponentAsFirst(new Player(*go, "lucas", 1));
+		go->AddComponentAsFirst(new Player(*go, "lucas", i));
 		go->box.SetCenter(mw/2, mh/2);
 		AddObject(go, "MAIN");
 	}
@@ -144,13 +141,7 @@ void StageState::Start() {
 }
 
 void StageState::Pause() {
-	for (int i = objects["MAIN"].size() - 1; i >= 0; i--) {
-		if (objects["MAIN"][i]->GetComponent("NPC") && !objects["MAIN"][i]->GetComponent("Boss")) {
-			if (Camera::GetFocus() == objects["MAIN"][i].get())
-				Camera::Unfollow();
-			//objects["MAIN"].erase(objects["MAIN"].begin() + i);
-		}
-	}
+
 }
 
 void StageState::Resume() {
@@ -210,18 +201,14 @@ void StageState::DeletionCheck() {
 void StageState::Update(float dt) {
 	quitRequested = InputManager::QuitRequested();
 	if(InputManager::KeyPress(ESCAPE_KEY)) {
-		popRequested = true;
-		GameData::playerVictory = true;
+		Game::GetInstance().Push(new PauseState());
 	}
 
 	if(InputManager::KeyPress(SDLK_F1))
 		GameData::debug = !GameData::debug;
 
-	if (InputManager::KeyPress(SDLK_F2)) {
+	if(InputManager::KeyPress(SDLK_F2))
 		GameData::paused = !GameData::paused;
-		Game::GetInstance().Push(new PauseState());
-	}
-
 
 	if(!gameOver) {
 		if(!GameData::paused)
@@ -239,27 +226,9 @@ void StageState::Update(float dt) {
 			}
 		}
 
-		Text* countdown = (Text*)objects["GUI"][0]->GetComponent("Text");
-		if(countdown) {
-			char a[3], b[3];
-			sprintf(a, "%d", ((int)GameData::eventCD-1)-(int)GameData::eventT.Get());
-			sprintf(b, "%d", 9-(int)(GameData::eventT.Get()*10)%10);
-			std::string p = ".";
-			std::string z = "0";
-			std::string text;
-			if(((int)GameData::eventCD-1)-(int)GameData::eventT.Get() > 9) {
-				text = a+p+b;
-				countdown->SetColor(SDL_Color {});
-			}
-			else {
-			 	text = z+a+p+b;
-			 	countdown->SetColor(SDL_Color { 255, 0, 0, 0 });
-			}
-			countdown->SetText(text);
-		}
-
 		if(GameData::nMonsters == 0) {
 			gameOver = true;
+			InputManager::ResetLastKey();
 			GameData::playerVictory = true;
 			GameData::bossStageUnlocked = true;
 
@@ -276,6 +245,7 @@ void StageState::Update(float dt) {
 		}
 		else if(GameData::player.expired()) {
 			gameOver = true;
+			InputManager::ResetLastKey();
 			GameData::playerVictory = false;
 			
 			//GameOver message
@@ -291,7 +261,8 @@ void StageState::Update(float dt) {
 		}
 	}
 	else {
-		if(InputManager::KeyPress(CONFIRM))
+		InputManager::GetLastKey();
+		if(GameData::key != NULL)
 			popRequested = true;
 	}
 
@@ -314,31 +285,3 @@ void StageState::Render() {
 	RenderArray("MISC");
 	RenderArray("GUI");
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

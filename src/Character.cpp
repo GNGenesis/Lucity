@@ -38,8 +38,8 @@ void Character::SetDirection(std::string direction) {
 }
 
 void Character::Damage(int damage) {
-	hp -= damage;
-	if(hp < 1)
+	SetHealth(GetHealth()-damage);
+	if(GetHealth() < 1)
 		associated.RequestDelete();
 }
 

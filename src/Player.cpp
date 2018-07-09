@@ -15,7 +15,6 @@ Player::Player(GameObject& associated, std::string name, int n) : Character(asso
 	SetSpeed(200);
 	pNumber = n;
 	damageCD = 1;
-	mousePos = InputManager::GetMouseTruePos();
 }
 
 Player::~Player() {
@@ -69,24 +68,33 @@ void Player::Update(float dt) {
 			Vec2 mov = Vec2(Vec2::Cos(GetAngleDirection()), Vec2::Sin(GetAngleDirection()))*GetSpeed()*dt;
 			associated.box.SetCenter(associated.box.GetCenter()+mov);
 		}
-		else if (IsWalkingBackwards()) {
-			if (GetAction() != WALK) {
+		else if(IsWalkingBackwards()) {
+			if(GetAction() != WALK) {
 				GameObject* go = new GameObject();
-				if (GetDirection() == "NE" || GetDirection() == "SE")
-					go->AddComponent(new Sprite(*go, "assets/img/effects/dustE.png", 6, 0.05, false, 0.3));
-				else if (GetDirection() == "NW" || GetDirection() == "SW")
+				if(GetDirection() == "NE" || GetDirection() == "SE")
 					go->AddComponent(new Sprite(*go, "assets/img/effects/dustW.png", 6, 0.05, false, 0.3));
-				go->box.SetCenter(associated.box.GetCenter() + (Vec2(Vec2::Cos(GetAngleDirection() + 180), Vec2::Sin(GetAngleDirection() + 180)) * 30));
+				else if(GetDirection() == "NW" || GetDirection() == "SW")
+					go->AddComponent(new Sprite(*go, "assets/img/effects/dustE.png", 6, 0.05, false, 0.3));
+				go->box.SetCenter(associated.box.GetCenter()+(Vec2(Vec2::Cos(GetAngleDirection()), Vec2::Sin(GetAngleDirection()))*30));
 				Game::GetInstance().GetCurrentState().AddObject(go, "EFFECT");
 			}
 			SetAction(WALK);
-			Vec2 mov = Vec2(Vec2::Cos(GetAngleDirection() - 180), Vec2::Sin(GetAngleDirection() - 180))*GetSpeed()*dt/2;
-			associated.box.SetCenter(associated.box.GetCenter() + mov);
+			Vec2 mov = Vec2(Vec2::Cos(GetAngleDirection()+180), Vec2::Sin(GetAngleDirection()+180))*GetSpeed()*dt/2;
+			associated.box.SetCenter(associated.box.GetCenter()+mov);
 		}
 		else {
 			SetAction(IDLE);
 		}
 	}
+
+	if (associated.box.x < 0)
+		associated.box.x = 0;
+	if (associated.box.x + associated.box.w > GameData::mapSize.x)
+		associated.box.x = GameData::mapSize.x - associated.box.w;
+	if (associated.box.y < GameData::upperLimit)
+		associated.box.y = GameData::upperLimit;
+	if (associated.box.y + associated.box.h > GameData::mapSize.y)
+		associated.box.y = GameData::mapSize.y - associated.box.h;
 }
 
 void Player::NotifyCollision(GameObject& other) {
@@ -106,62 +114,26 @@ bool Player::Is(std::string type) {
 }
 
 bool Player::IsWalking() {
-	/*if(InputManager::GetJoystick(pNumber))
-		return (InputManager::JoyAxisEvent(pNumber));
-	else if(pNumber == 0)
-		return InputManager::IsMouseDown(LEFT_MOUSE_BUTTON);
-	else if(pNumber == 1)
-		return InputManager::IsKeyDown(SDLK_w);
-	else if(pNumber == 2)
-		return InputManager::IsKeyDown(SDLK_i);
-	else if(pNumber == 3)
-		return InputManager::IsKeyDown(SDLK_UP);
-	else	
-		return false;*/
-	if (InputManager::IsMouseDown(LEFT_MOUSE_BUTTON))
+	if(InputManager::IsMouseDown(LEFT_MOUSE_BUTTON))
 		return true;
-	else if (InputManager::IsKeyDown(GameData::UP_MOV))
+	else if(InputManager::IsKeyDown(GameData::UP_MOV))
 		return true;
-	else return false;
+	else 
+		return false;
 }
 
 bool Player::IsWalkingBackwards() {
-	if (InputManager::IsKeyDown(GameData::DOWN_MOV))
+	if(InputManager::IsKeyDown(GameData::DOWN_MOV))
 		return true;
 	else
 		return false;
 }
 
 void Player::SetAngleDirection(float dt) {
-	/*if(InputManager::GetJoystick(pNumber)) {
-		Character::SetAngleDirection(InputManager::JoyAxisAngle(pNumber));
-	}
-	else if(pNumber == 0) {
+	if(InputManager::IsKeyDown(GameData::LEFT_MOV))
+		Character::SetAngleDirection(GetAngleDirection()-120*dt);
+	else if(InputManager::IsKeyDown(GameData::RIGHT_MOV))
+		Character::SetAngleDirection(GetAngleDirection()+120*dt);
+	else if(InputManager::GetToggle())
 		Character::SetAngleDirection(associated.box.GetCenter().GetAngle(InputManager::GetMousePos()));
-	}
-	else if(pNumber == 1) {
-		if(InputManager::IsKeyDown(SDLK_a))
-			Character::SetAngleDirection(GetAngleDirection()-120*dt);
-		else if(InputManager::IsKeyDown(SDLK_d))
-			Character::SetAngleDirection(GetAngleDirection()+120*dt);
-	}
-	else if(pNumber == 2) {
-		if(InputManager::IsKeyDown(SDLK_j))
-			Character::SetAngleDirection(GetAngleDirection()-120*dt);
-		else if(InputManager::IsKeyDown(SDLK_l))
-			Character::SetAngleDirection(GetAngleDirection()+120*dt);
-	}
-	else if(pNumber == 3) {
-		if(InputManager::IsKeyDown(SDLK_LEFT))
-			Character::SetAngleDirection(GetAngleDirection()-120*dt);
-		else if(InputManager::IsKeyDown(SDLK_RIGHT))
-			Character::SetAngleDirection(GetAngleDirection()+120*dt);
-	}*/
-	if (InputManager::IsKeyDown(GameData::LEFT_MOV))
-		Character::SetAngleDirection(GetAngleDirection() - 120 * dt);
-	else if (InputManager::IsKeyDown(GameData::RIGHT_MOV))
-		Character::SetAngleDirection(GetAngleDirection() + 120 * dt);
-	else if (InputManager::GetToggle()) {
-		Character::SetAngleDirection(associated.box.GetCenter().GetAngle(InputManager::GetMousePos()));
-	}
 }

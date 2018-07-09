@@ -59,9 +59,9 @@ void HUD::Start() {
 	for(int i = 0; i < 5; i++) {
 		go = new GameObject();
 		sp = new Sprite(*go, "assets/img/HUD/health.png", 5, 0, false);
-		sp->SetScale(Vec2(4, 4));
+		sp->SetScale(Vec2(3, 3));
 		go->AddComponent(sp);
-		go->AddComponent(new CameraFollower(*go, Vec2(94 + i*25, 15)));
+		go->AddComponent(new CameraFollower(*go, Vec2(96 + i*24, 15)));
 		health.emplace_back(Game::GetInstance().GetCurrentState().AddObject(go, "GUI"));
 	}
 
@@ -113,7 +113,7 @@ void HUD::Start() {
 
 	//Monsters
 	go = new GameObject();
-	sp = new Sprite(*go, "assets/img/characters/monster/idleSW.png", 5, 0.2);
+	sp = new Sprite(*go, "assets/img/characters/monster/idleSW.png", 6, 0.2);
 	go->AddComponent(sp);
 	go->AddComponent(new CameraFollower(*go, Vec2(1024-go->box.w-10, 140)));
 	monsters = Game::GetInstance().GetCurrentState().AddObject(go, "GUI");
@@ -130,7 +130,7 @@ void HUD::Update(float dt) {
 		Player* p = (Player*) GameData::player.lock()->GetComponent("Player");
 		if(p) {
 			if(p->GetHealth() < healthTrack && p->GetHealth() > 0) {
-				for(int i = healthTrack-1; i < health.size(); i++) {
+				for(unsigned int i = healthTrack-1; i < health.size(); i++) {
 					Sprite* s = (Sprite*) health[i].lock()->GetComponent("Sprite");
 					s->SetFrameTime(0.2);
 				}
@@ -141,7 +141,7 @@ void HUD::Update(float dt) {
 		//Attack
 		Book* b = (Book*) GameData::book.lock()->GetComponent("Book");
 		if(b) {
-			for(int i = 0; i < attack.size(); i++) {
+			for(unsigned int i = 0; i < attack.size(); i++) {
 				Sprite* s = (Sprite*) attack[i].lock()->GetComponent("Sprite");
 
 				std::string path = "assets/img/HUD/";
@@ -159,10 +159,10 @@ void HUD::Update(float dt) {
 						mode = "fireball_off";
 				}
 				else if(i == 2) {
-					if(b->GetAttackMode() == "mysticbolt")
-						mode = "mysticbolt_on";
+					if(b->GetAttackMode() == "bind")
+						mode = "bind_on";
 					else
-						mode = "mysticbolt_off";
+						mode = "bind_off";
 				}
 				s->Open(path+mode+".png");
 			}
@@ -176,7 +176,7 @@ void HUD::Update(float dt) {
 		Text* txt;
 
 		//Number of Civilians
-		txt = (Text*)npcsTXT.lock()->GetComponent("Text");
+		txt = (Text*) npcsTXT.lock()->GetComponent("Text");
 		if(txt) {
 			char ch[3];
 			sprintf(ch, "%d", GameData::nCivilians);

@@ -14,7 +14,7 @@ TileMap::~TileMap() {
 }
 
 void TileMap::Load(std::string file) {
-	std::ifstream fileReader("assets/map/tileMap.txt", std::ios::in);
+	std::ifstream fileReader(file, std::ios::in);
 	if(fileReader.good()) {
 		int x;
 		char s;
