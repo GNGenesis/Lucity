@@ -29,6 +29,7 @@ private:
 	int tutorialScene;
 	int dialogScene;
 	bool suitMoves;
+	bool suitDialog;
 	bool hudChecked;
 	bool startDialog;
 
