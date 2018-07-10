@@ -62,7 +62,7 @@ void Boss::Update(float dt) {
 			if(GetAction() == "bTransform") {
 				if(bActionT.Get() > 0.72) {
 					bActionT.Restart();
-					bOffsetT = (30-GameData::nCivilians)/30;
+					bOffsetT = (GameData::nMaxCivilians -GameData::nMaxCivilians)/30;
 					SetAction("bIdle");
 					SetDirection("SE");
 				}

@@ -33,6 +33,7 @@ TutorialStageState::TutorialStageState() : State() {
 	tutorialScene = 0;
 	gameOver = false;
 	GameData::eventCD = 5;
+	startDialog = false;
 	hudChecked = false;
 	suitMoves = false;
 	dialogScene = 0;
@@ -186,18 +187,12 @@ TutorialStageState::TutorialStageState() : State() {
 	AddObject(goBlib, "MAIN");
 	GameData::nMonsters++;
 	GameData::nMaxMonsters++;
-	
 
 	//Players
 	go = new GameObject();
 	go->AddComponentAsFirst(new Player(*go, "lucas", 1));
 	go->box.SetCenter((mw / 2), (mh / 2) + 200);
 	AddObject(go, "MAIN");
-
-
-	goDialog = new GameObject();
-	goDialog->AddComponent(new DialogBox(*goDialog, "assets/img/HUD/dialogG.png", "assets/font/VT323.ttf", "Então é isso, você encontra um livro falante bonito e simpático como eu e simplesmente   decide deixá-lo na biblioteca mais próxima.", Vec2(512, 500)));
-	AddObject(goDialog, "DIALOG");
 
 	Camera::Follow(go);
 
@@ -227,8 +222,8 @@ void TutorialStageState::Start() {
 void TutorialStageState::Pause() {
 	for (int i = objects["MAIN"].size() - 1; i >= 0; i--) {
 		if (objects["MAIN"][i]->GetComponent("NPC") && !objects["MAIN"][i]->GetComponent("Boss")) {
-			if (Camera::GetFocus() == objects["MAIN"][i].get())
-				Camera::Unfollow();
+			if (Camera::GetFocus() == objects["MAIN"][i].get()) {}
+			//Camera::Unfollow();
 			//objects["MAIN"].erase(objects["MAIN"].begin() + i);
 		}
 	}
@@ -275,11 +270,11 @@ void TutorialStageState::DeletionCheck() {
 				if (Camera::GetFocus() == i.second[j].get())
 					Camera::Unfollow();
 
-				if (i.second[j]->GetComponent("Monster")) {
+				if (i.second[j]->GetComponent("Soul")) {
 					GameData::nMonsters--;
 					GameData::eventT.Restart();
 				}
-				else if (i.second[j]->GetComponent("NPC")) {
+				else if (i.second[j]->GetComponent("NPCTutorial") && !i.second[j]->GetComponent("MonsterTutorial")) {
 					GameData::nCivilians--;
 				}
 				i.second.erase(i.second.begin() + j);
@@ -341,6 +336,12 @@ void TutorialStageState::Update(float dt) {
 }
 
 void TutorialStageState::LibrarianTutorialUpdate(float dt) {
+	if(!startDialog){
+		goDialog = new GameObject();
+		goDialog->AddComponent(new DialogBox(*goDialog, "assets/img/HUD/dialogG.png", "assets/font/VT323.ttf", "Então é isso, você encontra um livro falante bonito e simpático como eu e simplesmente   decide deixá-lo na biblioteca mais próxima.", Vec2(512, 500)));
+		AddObject(goDialog, "DIALOG");
+		startDialog = true;
+	}
 
 	if (InputManager::KeyPress(CONFIRM)) {
 		dialogScene += 1;
@@ -348,64 +349,64 @@ void TutorialStageState::LibrarianTutorialUpdate(float dt) {
 		std::string key2 = SDL_GetKeyName(GameData::MAGIC_FIREBALL);
 		std::string key3 = SDL_GetKeyName(GameData::MAGIC_CAPTURE);
 		switch (dialogScene) {
-		case(1):
+		case 1:
 			goDialog->Deactivate();
 			goDialog = new GameObject();
 			goDialog->AddComponent(new DialogBox(*goDialog, "assets/img/HUD/dialogG.png", "assets/font/VT323.ttf", "Pera aí! Tem algo errado nessa biblioteca, eu sinto mais um dos meus por aqui. Assim como eu me passo por um livro tem outros que se passam como um de vocês.", Vec2(512, 500)));
 			AddObject(goDialog, "DIALOG");
 			break;
-		case(2):
+		case 2:
 			goDialog->Deactivate();
 			goDialog = new GameObject();
 			goDialog->AddComponent(new DialogBox(*goDialog, "assets/img/HUD/dialogG.png", "assets/font/VT323.ttf", "Então ... agora que eu te disse isso eu acho  que eles não vão deixar isso passar barato,  acho melhor você tomar a iniciativa antes que eles percebam que você sabe o segredo deles hehehehehe", Vec2(512, 500)));
 			AddObject(goDialog, "DIALOG");
 			break;
-		case(3):
+		case 3:
 			goDialog->Deactivate();
 			goDialog = new GameObject();
 			goDialog->AddComponent(new DialogBox(*goDialog, "assets/img/HUD/dialogG.png", "assets/font/VT323.ttf", "Acho melhor eu te explicar como funcionam as coisas então, vamos lá, eu vou ajudar você a combater esses monstros com a minha mágica.", Vec2(512, 500)));
 			AddObject(goDialog, "DIALOG");
 			break;
-		case(4):
+		case 4:
 			goDialog->Deactivate();
 			goDialog = new GameObject();
 			goDialog->AddComponent(new DialogBox(*goDialog, "assets/img/HUD/dialogG.png", "assets/font/VT323.ttf","A tecla: "+ key1 + " -> Atira uma chuva de bolhas mágicas para enfraquecer os monstros!" , Vec2(512, 500)));
 			AddObject(goDialog, "DIALOG");
 			break;
-		case(5):
+		case 5:
 			goDialog->Deactivate();
 			goDialog = new GameObject();
 			goDialog->AddComponent(new DialogBox(*goDialog, "assets/img/HUD/dialogG.png", "assets/font/VT323.ttf", "A tecla: " + key2 + " -> Atira uma poderosa magia que alcança uma distância maior e explode no final, sendo capaz de acertar vários dos monstros.", Vec2(512, 500)));
 			AddObject(goDialog, "DIALOG");
 			break;
-		case(6):
+		case 6:
 			goDialog->Deactivate();
 			goDialog = new GameObject();
 			goDialog->AddComponent(new DialogBox(*goDialog, "assets/img/HUD/dialogG.png", "assets/font/VT323.ttf", "A tecla: " + key3 + " -> Atira uma fita mágica capaz de prender os monstros quando eles estiverem atordoados, capturá-los é a única maneira que alguem como você vai conseguir vencê-los.", Vec2(512, 500)));
 			AddObject(goDialog, "DIALOG");
 			break;
-		case(7):
+		case 7:
 			goDialog->Deactivate();
 			goDialog = new GameObject();
 			goDialog->AddComponent(new DialogBox(*goDialog, "assets/img/HUD/dialogG.png", "assets/font/VT323.ttf", "Com esse arsenal de habilidades dignas do mais digníssimo livro mágico eu tenho certeza que   até você deve conseguer se livrar desses monstros.", Vec2(512, 500)));
 			AddObject(goDialog, "DIALOG");
 			break;
-		case(8):
+		case 8:
 			goDialog->Deactivate();
 			goDialog = new GameObject();
 			goDialog->AddComponent(new DialogBox(*goDialog, "assets/img/HUD/dialogG.png", "assets/font/VT323.ttf", "Eu vou te ajudar um pouco mais dessa vez, vou tentar revelar um dos monstros que estão por aqui, ele deve ficar atordoado com isso, aproveite a oportunidade para capturá-lo com a minha magia.", Vec2(512, 500)));
 			AddObject(goDialog, "DIALOG");
 			break;
-		case(9):
+		case 9:
 			goDialog->Deactivate();
 			blibMonster = (MonsterTutorial *)goBlib->GetComponent("MonsterTutorial");
 			blibMonster->Transform();
 			blibMonster->SetMStunT(2147483646);
+			break;
 		}
 	}
 	if (dialogScene >= 9) {
 		if (goBlib->IsDead()) {
-			GameData::nMonsters--;
 			dialogScene = 0;
 			goDialog = new GameObject();
 			goDialog->AddComponent(new DialogBox(*goDialog, "assets/img/HUD/dialogG.png", "assets/font/VT323.ttf", "Viu só, com a minha grande ajuda é bem fácil. Mas não acaba por aqui, como eu disse antes  eles vão tentar se disfarçar ao máximo para não serem percebidos e cabe a você descobrir esses disfarces.", Vec2(512, 500)));
@@ -430,34 +431,34 @@ void TutorialStageState::LibrarianTutorialUpdate(float dt) {
 
 void TutorialStageState::SecondMonsterTutorialUpdate(float dt) {
 	if (InputManager::KeyPress(CONFIRM)) {
+		dialogScene++;
 		switch (dialogScene) {
-		case(1):
+		case 1:
 			goDialog->Deactivate();
 			goDialog = new GameObject();
 			goDialog->AddComponent(new DialogBox(*goDialog, "assets/img/HUD/dialogG.png", "assets/font/VT323.ttf", "Como descobrir o disfarce se são exatamente iguais a nós? Isso deve ser o que o vosso simples cérebro está pensando, pois bem, não é por sermos todos monstros que fará com que eles tenham um exímio intelecto como o meu.", Vec2(512, 500)));
 			AddObject(goDialog, "DIALOG");
-			dialogScene++;
 			break;
-		case(2):
+		case 2:
 			goDialog->Deactivate();
 			goDialog = new GameObject();
 			goDialog->AddComponent(new DialogBox(*goDialog, "assets/img/HUD/dialogG.png", "assets/font/VT323.ttf", "Na verdade eles são tão ineptos no que tentam fazer que nem um simples disfarce conseguem fazer direito, se prestar bem atenção verá que eles possuem uma personalidade bem distante dá que se espera.", Vec2(512, 500)));
 			AddObject(goDialog, "DIALOG");
-			dialogScene++;
+			//dialogScene++;
 			break;
-		case(3):
+		case 3:
 			goDialog->Deactivate();
 			goDialog = new GameObject();
 			goDialog->AddComponent(new DialogBox(*goDialog, "assets/img/HUD/dialogG.png", "assets/font/VT323.ttf", "Se seu simples intelecto não conseguiu entender então eu vou te mostrar.Preste bem atenção naquele homem de terno, vamos ver como ele age.", Vec2(512, 500)));
 			AddObject(goDialog, "DIALOG");
-			dialogScene++;
+			//dialogScene++;
 			break;
-		case(4):
+		case 4:
 			goDialog->Deactivate();
 			suitMoves = true;
 			blibMonster = (MonsterTutorial*)goSecondMonster->GetComponent("MonsterTutorial");
 			break;
-		case(5):
+		case 5:
 			goDialog->Deactivate();
 			for (unsigned i = 0; i < objects["GUI"].size(); i++) {
 				objects["GUI"][i]->Activate();
@@ -465,9 +466,9 @@ void TutorialStageState::SecondMonsterTutorialUpdate(float dt) {
 			goDialog = new GameObject();
 			goDialog->AddComponent(new DialogBox(*goDialog, "assets/img/HUD/dialogG.png", "assets/font/VT323.ttf", "Eis que agora você deve conseguir enxergar os milagres que minhas informações trazem a você.Mas como eu não espero que seu intelecto seja capaz de entender eu vou explicar para você.", Vec2(512, 500)));
 			AddObject(goDialog, "DIALOG");
-			dialogScene++;
+			//dialogScene++;
 			break;
-		case(6):
+		case 6:
 			goDialog->Deactivate();
 			goSetas = new GameObject();
 			setas = new Sprite(*goSetas, "assets/img/HUD/setaEsquerda.png");
@@ -478,16 +479,16 @@ void TutorialStageState::SecondMonsterTutorialUpdate(float dt) {
 			goDialog = new GameObject();
 			goDialog->AddComponent(new DialogBox(*goDialog, "assets/img/HUD/dialogG.png", "assets/font/VT323.ttf", "Aqui vão estar informações que estarei acompanhando sobre você, os corações  representam sua saúde, se todos esvaziarem,   bem, meus pêsames.", Vec2(512, 500)));
 			AddObject(goDialog, "DIALOG");
-			dialogScene++;
+			//dialogScene++;
 			break;
-		case(7):
+		case 7:
 			goDialog->Deactivate();
 			goDialog = new GameObject();
 			goDialog->AddComponent(new DialogBox(*goDialog, "assets/img/HUD/dialogG.png", "assets/font/VT323.ttf", "Os simbolos mágicos abaixo do coração é a atual magia que eu estarei pronto para preparar,  dessa maneira até você pode acompanhar minhas  magias superiores.", Vec2(512, 500)));
 			AddObject(goDialog, "DIALOG");
-			dialogScene++;
+			//dialogScene++;
 			break;
-		case(8):
+		case 8:
 			goSetas->Deactivate();
 			goDialog->Deactivate();
 			goSetas = new GameObject();
@@ -499,9 +500,9 @@ void TutorialStageState::SecondMonsterTutorialUpdate(float dt) {
 			goDialog = new GameObject();
 			goDialog->AddComponent(new DialogBox(*goDialog, "assets/img/HUD/dialogG.png", "assets/font/VT323.ttf", "Eu consigo sentir o quão desconfiado esses monstros se sentem, por meio do meu belo olho mágico eu consigo te mostrar o quão desconfiado o monstro está.Se perceber que você está procurando por ele,o monstro se transformará.", Vec2(512, 500)));
 			AddObject(goDialog, "DIALOG");
-			dialogScene++;
+			//dialogScene++;
 			break;
-		case(9):
+		case 9:
 			goSetas->Deactivate();
 			goDialog->Deactivate();
 			goSetas = new GameObject();
@@ -513,19 +514,19 @@ void TutorialStageState::SecondMonsterTutorialUpdate(float dt) {
 			goDialog = new GameObject();
 			goDialog->AddComponent(new DialogBox(*goDialog, "assets/img/HUD/dialogG.png", "assets/font/VT323.ttf", "Eu consigo também te mostrar quantas pessoas e quantos monstros existem por perto, dessa maneira você consegue saber quantos monstros faltam para encontrar.", Vec2(512, 500)));
 			AddObject(goDialog, "DIALOG");
-			dialogScene++;
+			//dialogScene++;
 			break;
-		case(10):
+		case 10:
 			goSetas->Deactivate();
 			goDialog->Deactivate();
 			goDialog = new GameObject();
 			goDialog->AddComponent(new DialogBox(*goDialog, "assets/img/HUD/dialogG.png", "assets/font/VT323.ttf", "Agora que você tem minha ajuda as coisas   ficaram muito fáceis, vou deixar você capturar sozinho esse monstro disfarçado nesse homem de terno.", Vec2(512, 500)));
 			AddObject(goDialog, "DIALOG");
-			dialogScene++;
+			//dialogScene++;
 			break;
-		case(11):
+		case 11:
 			goDialog->Deactivate();
-			dialogScene++;
+			//dialogScene++;
 			break;
 		}
 
@@ -545,11 +546,9 @@ void TutorialStageState::SecondMonsterTutorialUpdate(float dt) {
 
 	if (goSecondMonster->IsDead()) {
 		dialogScene = 0;
-		GameData::nMonsters--;
 		goDialog = new GameObject();
 		goDialog->AddComponent(new DialogBox(*goDialog, "assets/img/HUD/dialogG.png", "assets/font/VT323.ttf", "Realmente minha magia é tão forte que até mesmo você conseguiu derrotar esse monstro.Vamos para o que interessa agora.", Vec2(512, 500)));
 		AddObject(goDialog, "DIALOG");
-		dialogScene++;
 		tutorialScene++;
 	}
 
@@ -568,19 +567,19 @@ void TutorialStageState::FreeTutorialUpdate(float dt) {
 	if (InputManager::KeyPress(CONFIRM)) {
 		dialogScene += 1;
 		switch (dialogScene) {
-		case(1):
+		case 1:
 			goDialog->Deactivate();
 			goDialog = new GameObject();
 			goDialog->AddComponent(new DialogBox(*goDialog, "assets/img/HUD/dialogG.png", "assets/font/VT323.ttf", "Esse tempo todo eu ainda estive te ajudando com uma magia muito poderosa que congelava o tempo, mas agora você estará por si para testar tudo o que aprendeu.", Vec2(512, 500)));
 			AddObject(goDialog, "DIALOG");
 			break;
-		case(2):
+		case 2:
 			goDialog->Deactivate();
 			goDialog = new GameObject();
 			goDialog->AddComponent(new DialogBox(*goDialog, "assets/img/HUD/dialogG.png", "assets/font/VT323.ttf", "Existe mais um monstro escondido, encontre ele  e capture-o para sairmos desta maldita prisão  de livros.", Vec2(512, 500)));
 			AddObject(goDialog, "DIALOG");
 			break;
-		case(3):
+		case 3:
 			goDialog->Deactivate();
 			for (unsigned i = 0; i < objects["MAIN"].size(); i++) {
 				NPCTutorial* npc = static_cast<NPCTutorial*>(objects["MAIN"][i]->GetComponent("NPCTutorial"));
@@ -590,9 +589,6 @@ void TutorialStageState::FreeTutorialUpdate(float dt) {
 			}
 			break;
 		}
-	}
-	if (goLastMonster->IsDead()) {
-		GameData::nMonsters--;
 	}
 	UpdateArray(dt, "BG");
 	UpdateArray(dt, "EFFECT");

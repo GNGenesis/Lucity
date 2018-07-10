@@ -110,7 +110,7 @@ float Game::GetDeltaTime() {
 
 Game& Game::GetInstance() {
 	if(!instance)
-		new Game("LUCITY UM JOGO MUITO LOUCO", 1024, 600);
+		new Game("LUCITY", 1024, 600);
 	return *instance;
 }
 

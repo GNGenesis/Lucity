@@ -140,7 +140,7 @@ BossStageState::BossStageState() : State() {
 	GameData::nMaxMonsters = GameData::nMonsters;
 
 	//NPCs
-	for(int i = 0; i < 30; i++) {
+	for(int i = 0; i < 10; i++) {
 		go = new GameObject();
 		go->AddComponentAsFirst(new NPC(*go, NPCList[rand()%NPCList.size()]));
 		go->box.SetCenter(rand()%mw, rand()%mh);
@@ -148,6 +148,7 @@ BossStageState::BossStageState() : State() {
 
 		GameData::nCivilians++;
 	}
+	GameData::nMaxCivilians = GameData::nCivilians;
 
 	//Players
 	go = new GameObject();
@@ -182,15 +183,15 @@ void BossStageState::Start() {
 }
 
 void BossStageState::Pause() {
-	Camera::Unfollow();
+	//Camera::Unfollow();
 	backgroundMusic.Stop();
 }
 
 void BossStageState::Resume() {
 	GameData::popAgain = false;
 
-	if(!GameData::player.expired())
-		Camera::Follow(GameData::player.lock().get());
+	// if (!GameData::player.expired())
+		//Camera::Follow(GameData::player.lock().get());
 
 	backgroundMusic.Play();
 }
@@ -285,7 +286,7 @@ void BossStageState::DeletionCheck() {
 					Camera::Unfollow();
 				if(i.second[j]->GetComponent("Soul"))
 					GameData::nMonsters--;
-				else if(i.second[j]->GetComponent("NPC"))
+				else if(i.second[j]->GetComponent("NPC") && !i.second[j]->GetComponent("Monster"))
 					GameData::nCivilians--;
 				i.second.erase(i.second.begin() + j);
 			}

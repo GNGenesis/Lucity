@@ -68,30 +68,53 @@ StageState::StageState() : State() {
 	AddObject(go, "GUI");
 	
 	//Bench
-	for(int i = 0; i < 0; i++) {
-		go = new GameObject();
-		go->AddComponentAsFirst(new MainObject(*go, "bench", 1, Vec2(3, 3), true, true));
-		go->box.SetPos(Vec2(rand()%mw, rand()%mh));
-		AddObject(go, "MAIN");
-	}
+	go = new GameObject();
+	go->AddComponentAsFirst(new MainObject(*go, "bench", 1, Vec2(3, 3), true, true));
+	go->box.SetPos(Vec2(832, 224));
+	AddObject(go, "MAIN");
+
+
+	go = new GameObject();
+	go->AddComponentAsFirst(new MainObject(*go, "bench", 1, Vec2(3, 3), true, true));
+	go->box.SetPos(Vec2(320,416));
+	AddObject(go, "MAIN");
+
+
+	go = new GameObject();
+	go->AddComponentAsFirst(new MainObject(*go, "bench", 1, Vec2(3, 3), true, true));
+	go->box.SetPos(Vec2(960,864));
+	AddObject(go, "MAIN");
 
 	//Trashcan
-	for(int i = 0; i < 0; i++) {
-		go = new GameObject();
-		go->AddComponentAsFirst(new MainObject(*go, "trashcan", 1, Vec2(3, 3), true, true));
-		go->box.SetPos(Vec2(rand()%mw, rand()%mh));
-		AddObject(go, "MAIN");
-	}
+	go = new GameObject();
+	go->AddComponentAsFirst(new MainObject(*go, "trashcan", 1, Vec2(3, 3), true, true));
+	go->box.SetPos(Vec2(672,224));
+	AddObject(go, "MAIN");
+
+	go = new GameObject();
+	go->AddComponentAsFirst(new MainObject(*go, "trashcan", 1, Vec2(3, 3), true, true));
+	go->box.SetPos(Vec2(352,864));
+	AddObject(go, "MAIN");
+
+	go = new GameObject();
+	go->AddComponentAsFirst(new MainObject(*go, "trashcan", 1, Vec2(3, 3), true, true));
+	go->box.SetPos(Vec2(800,928));
+	AddObject(go, "MAIN");
 
 	//Tree
 	go = new GameObject();
 	go->AddComponentAsFirst(new MainObject(*go, "tree", 1, Vec2(3, 3), true));
-	go->box.SetPos(Vec2(240, 600));
+	go->box.SetPos(Vec2(224, 224));
 	AddObject(go, "MAIN");
 
 	go = new GameObject();
 	go->AddComponentAsFirst(new MainObject(*go, "tree", 1, Vec2(3, 3), true));
-	go->box.SetPos(Vec2(720, 360));
+	go->box.SetPos(Vec2(1056, 224));
+	AddObject(go, "MAIN");
+
+	go = new GameObject();
+	go->AddComponentAsFirst(new MainObject(*go, "tree", 1, Vec2(3, 3), true));
+	go->box.SetPos(Vec2(224, 800));
 	AddObject(go, "MAIN");
 
 	//Monsters
@@ -114,6 +137,7 @@ StageState::StageState() : State() {
 
 		GameData::nCivilians++;
 	}
+	GameData::nMaxCivilians = GameData::nCivilians;
 
 	//Players
 	go = new GameObject();
@@ -146,15 +170,15 @@ void StageState::Start() {
 }
 
 void StageState::Pause() {
-	Camera::Unfollow();
+	//Camera::Unfollow();
 	backgroundMusic.Stop();
 }
 
 void StageState::Resume() {
 	GameData::popAgain = false;
 
-	if(!GameData::player.expired())
-		Camera::Follow(GameData::player.lock().get());
+	//if(!GameData::player.expired())
+		//Camera::Follow(GameData::player.lock().get());
 
 	backgroundMusic.Play();
 }
@@ -200,7 +224,7 @@ void StageState::DeletionCheck() {
 					GameData::nMonsters--;
 					GameData::eventT.Restart();
 				}
-				else if(i.second[j]->GetComponent("NPC")) {
+				else if(i.second[j]->GetComponent("NPC") && !i.second[j]->GetComponent("Monster")) {
 					GameData::nCivilians--;
 				}
 				i.second.erase(i.second.begin()+j);

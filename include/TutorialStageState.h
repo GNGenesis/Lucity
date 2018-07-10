@@ -30,6 +30,7 @@ private:
 	int dialogScene;
 	bool suitMoves;
 	bool hudChecked;
+	bool startDialog;
 
 public:
 	TutorialStageState();

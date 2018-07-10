@@ -583,7 +583,7 @@ void PauseState::ExecuteButton() {
 				if(!buttons["selected"][i].expired())
 					buttons["selected"][i].lock()->Deactivate();
 
-			animationCount = 4;
+			animationCount = 3;
 			layer = "settings";
 			index = 0;
 		}
@@ -645,7 +645,7 @@ void PauseState::ExecuteButton() {
 				if(!buttons["selected"][i].expired())
 					buttons["selected"][i].lock()->Deactivate();
 
-			animationCount = 4;
+			animationCount = 3;
 			layer = "main";
 			index = 0;
 		}
